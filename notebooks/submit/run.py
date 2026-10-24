@@ -37,7 +37,7 @@ from nthl.labels import LABELS
 from nthl.lora24 import find_base, run_checkpoint
 from nthl.svc import fit_scores
 
-SINKHORN_ALPHA = 1.0   # 1.0 as Nishant published, for the reproduction probe. #23 recommends 0.5 next.
+SINKHORN_ALPHA = 0.5   # half strength, as #23 recommends. Probe 1 (v2) used 1.0.
 POOL_WEIGHT = 0.5
 WEIGHTS = {"svc": 1.0, "qwen3_14b": 0.4, "qwen25_14b": 0.2, "deberta": 0.25}
 TWIN_WEIGHT = 0.1
