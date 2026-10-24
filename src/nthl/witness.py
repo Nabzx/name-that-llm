@@ -47,8 +47,11 @@ def tokens_per_word(tokenizer, texts):
     return [len(i) / max(len(t.split()), 1) for i, t in zip(ids, texts)]
 
 
-def load_witness(model_dir):
-    """A causal LM in fp16 over the GPUs. Multimodal Gemma checkpoints load through the image-text class."""
+def load_witness(model_dir, dtype=torch.float16):
+    """A causal LM over the GPUs. Multimodal Gemma checkpoints load through the image-text class.
+
+    Gemma overflows in fp16, so pass torch.float32 for it.
+    """
     from transformers import AutoModelForCausalLM, AutoModelForImageTextToText, AutoTokenizer
 
     tok = AutoTokenizer.from_pretrained(model_dir)
@@ -56,7 +59,7 @@ def load_witness(model_dir):
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
     memory = {i: "13GiB" for i in range(torch.cuda.device_count())}
-    kwargs = dict(dtype=torch.float16, device_map="auto", max_memory=memory)
+    kwargs = dict(dtype=dtype, device_map="auto", max_memory=memory)
     try:
         model = AutoModelForCausalLM.from_pretrained(model_dir, **kwargs)
     except ValueError:
@@ -65,9 +68,9 @@ def load_witness(model_dir):
 
 
 @torch.no_grad()
-def score_witness(model_dir, texts, batch_size=8, max_len=512):
+def score_witness(model_dir, texts, batch_size=8, max_len=512, dtype=torch.float16):
     """Likelihood features [n, len(FEATURES)] and tokens per word for every text."""
-    tok, model = load_witness(model_dir)
+    tok, model = load_witness(model_dir, dtype)
     ids = tok(list(texts), add_special_tokens=True, truncation=True, max_length=max_len)["input_ids"]
     feats = np.zeros((len(ids), len(FEATURES)), np.float32)
     first = next(model.parameters()).device
@@ -76,10 +79,7 @@ def score_witness(model_dir, texts, batch_size=8, max_len=512):
     def run(idx):
         enc = tok.pad({"input_ids": [ids[i] for i in idx]}, return_tensors="pt").to(first)
         logits = model(**enc).logits
-        if not torch.isfinite(logits).all():
-            model.to(torch.bfloat16)
-            logits = model(**enc).logits
-            model.to(torch.float16)
+        assert torch.isfinite(logits).all(), "witness overflowed: load it in float32"
         feats[idx] = token_stats(logits, enc["input_ids"], enc["attention_mask"])
 
     for s in range(0, len(order), batch_size):

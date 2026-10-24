@@ -1,6 +1,6 @@
 """Witness prototype (#34): is there signal in how likely each lab's open model finds a passage?
 
-Two witnesses, Qwen3-4B-Base (Qwen) and Gemma 4 E4B base (Google), score host
+Two witnesses, Qwen3-4B-Base (Qwen, fp16) and Gemma 4 E2B base (Google, fp32 because Gemma overflows in fp16), score host
 train and test. A logistic-regression head on their features is fitted per
 frozen fold, here on Kaggle, giving honest out-of-fold predictions. Then the
 question that matters: does it add to our SVC's out-of-fold predictions?
@@ -50,10 +50,10 @@ def model_dir(fragment):
     return hits[0]
 
 
-WITNESSES = {"qwen3_4b": "4b-base", "gemma4_e4b": "gemma-4-e4b"}
+WITNESSES = {"qwen3_4b": ("4b-base", torch.float16), "gemma4_e2b": ("gemma-4-e2b", torch.float32)}
 cols, blocks, timing = [], [], {}
-for name, fragment in WITNESSES.items():
-    feats, tpw = score_witness(model_dir(fragment), texts)
+for name, (fragment, dtype) in WITNESSES.items():
+    feats, tpw = score_witness(model_dir(fragment), texts, dtype=dtype)
     blocks += [feats, tpw[:, None]]
     cols += [f"{name}_{f}" for f in FEATURES] + [f"{name}_tokens_per_word"]
     timing[name] = round(time.time() - T0)

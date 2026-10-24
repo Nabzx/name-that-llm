@@ -11,6 +11,6 @@
   "dataset_sources": ["nabilshah/nthl-src"],
   "competition_sources": ["name-that-llm"],
   "kernel_sources": ["nabilshah/nthl-svc-pool-all-w05"],
-  "model_sources": ["qwen-lm/qwen-3/Transformers/4b-base/1", "google/gemma-4/transformers/gemma-4-e4b/1"],
+  "model_sources": ["qwen-lm/qwen-3/Transformers/4b-base/1", "google/gemma-4/transformers/gemma-4-e2b/1"],
   "machine_shape": "NvidiaTeslaT4"
 }
