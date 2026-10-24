@@ -48,3 +48,41 @@ def centred_probs(z, groups, twin, w, b):
         rows = groups == g
         zc[rows] -= zc[rows].mean(0)
     return softmax(zc[twin] @ w.T + b)
+
+
+def cluster_similarity(x, groups):
+    """For every row, the mean pairwise cosine between different members of its cluster (0 for singletons).
+
+    `x` holds L2-normalised TF-IDF rows, as TfidfVectorizer gives by default.
+    """
+    sim = np.zeros(len(groups))
+    for g in np.unique(groups):
+        rows = np.flatnonzero(groups == g)
+        n = len(rows)
+        if n < 2:
+            continue
+        block = (x[rows] @ x[rows].T).toarray()
+        sim[rows] = (block.sum() - np.trace(block)) / (n * (n - 1))
+    return sim
+
+
+def peer_correct(z, svc, groups, sim, w_svc, strength=0.5, lo=3, hi=18, prior=8):
+    """Peer correction (avazaku, cited): remove a shrunk share of each topic cluster's SVC bias.
+
+    For a cluster of n texts (lo to hi), every row loses strength * r * w_svc times the mean SVC margin
+    of the other rows, where r = (n - 1) / (n - 1 + prior) * clip((sim - 0.1) / 0.4, 0, 1). A row never
+    removes its own lean, and small or loosely related clusters are corrected less. `z` is the blended
+    log score, `svc` the raw SVC scores. Other rows are left alone.
+    """
+    out = z.astype(float).copy()
+    margin = svc - svc.mean(1, keepdims=True)
+    for g in np.unique(groups):
+        rows = np.flatnonzero(groups == g)
+        n = len(rows)
+        if n < lo or n > hi:
+            continue
+        r = (n - 1) / (n - 1 + prior) * np.clip((sim[rows[0]] - 0.1) / 0.4, 0, 1)
+        total = margin[rows].sum(0)
+        others = (total[None, :] - margin[rows]) / (n - 1)
+        out[rows] -= strength * r * w_svc * others
+    return out
