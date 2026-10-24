@@ -3,10 +3,10 @@ name = "nthl"
 version = "0.0.1"
 description = "Solo entry to Kaggle's Name That LLM"
 requires-python = ">=3.11"
-dependencies = ["numpy", "pandas"]
+dependencies = ["numpy", "pandas", "pyarrow"]
 
 [project.optional-dependencies]
-dev = ["pytest"]
+dev = ["pytest", "scikit-learn"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
