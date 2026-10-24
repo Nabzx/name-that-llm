@@ -162,15 +162,14 @@ if ZBIGNIEW_SHARE > 0:
     torch.cuda.empty_cache()
     timings["zbigniew"] = round(time.time() - T0)
 
-# 5c. UltraBERT, the five fold models averaged. Copied to local disk first, as the mount can be slow.
+# 5c. UltraBERT, the five fold models averaged.
 ub = None
 if ULTRABERT_SHARE > 0:
     from nthl.ultrabert import run_ultrabert
 
     root = glob.glob("/kaggle/input/**/ultrabert-380m-ntl", recursive=True)
     assert len(root) == 1, root
-    shutil.copytree(root[0], "/tmp/ultrabert", dirs_exist_ok=True)
-    ub = run_ultrabert("/tmp/ultrabert", test["text"].tolist())
+    ub = run_ultrabert(root[0], test["text"].tolist())   # copies each fold to local disk itself
     np.save(f"{OUT}/members/ultrabert.npy", ub)
     gc.collect()
     torch.cuda.empty_cache()
