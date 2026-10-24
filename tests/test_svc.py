@@ -45,3 +45,13 @@ def test_fit_scores_gives_raw_scores_in_our_label_order():
     scores = fit_scores(train, test["text"])
     assert scores.shape == (18, 18)
     assert (np.asarray(LABELS)[scores.argmax(1)] == test["model"].to_numpy()).mean() > 0.9
+
+
+def test_run_can_leave_some_labels_out_of_the_pool(tmp_path):
+    train = toy()
+    test = toy(n_per=1, seed=1).drop(columns=["model", "fold"]).assign(id=lambda d: "t" + d["id"])
+    pool = toy(n_per=4, seed=2).drop(columns=["id", "fold"]).assign(source="x/y", route="api")
+    drop = ["gemini-3.7-flash", "gemini-3.8-flash"]
+    summary = run(train, test, pool=pool, drop_pool_labels=drop, out=tmp_path, name="toy")
+    assert summary["pool_rows"] == (~pool["model"].isin(drop)).sum()
+    assert summary["drop_pool_labels"] == drop
