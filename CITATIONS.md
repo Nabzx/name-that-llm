@@ -4,6 +4,8 @@ Every public notebook, discussion, dataset and pretrained model used or read for
 
 ## Notebooks and discussions
 
+- HALX2158 and replies, *Forked a 0.600+ notebook and hit the 9-hour limit? Check the Qwen3.5-9B load time*, Name That LLM discussion 751268. https://www.kaggle.com/competitions/name-that-llm/discussion/751268. Read for load times from Datasets against Kaggle Models (#22).
+
 - Nishant Dahal, *Two-stage LoRA, part two* (LB 0.620). https://www.kaggle.com/code/nishantdahal/two-stage-lora-part-two. Read for the LoRA24 readout (#21) and the blend weights.
 - Nishant Dahal, *Two-stage LoRA on the public pool* (LB 0.592). https://www.kaggle.com/code/nishantdahal/two-stage-lora-on-the-public-pool. Read for the training recipe.
 
