@@ -31,14 +31,16 @@ def sinkhorn(p, alpha=0.5, iters=300):
     return r / r.sum(1, keepdims=True)
 
 
-def topic_groups(texts, cut=0.85, lo=2, hi=18):
-    """Cluster by content words. Returns cluster ids and which rows sit in a cluster of lo to hi."""
+def topic_groups(texts, cut=0.85, lo=2, hi=18, return_matrix=False):
+    """Cluster by content words. Returns cluster ids and which rows sit in a cluster of lo to hi
+    (and the TF-IDF matrix, if asked)."""
     x = TfidfVectorizer(stop_words="english", sublinear_tf=True).fit_transform(list(texts))
     d = np.clip(1 - (x @ x.T).toarray(), 0, None)
     np.fill_diagonal(d, 0)
     groups = fcluster(linkage(squareform(d, checks=False), method="average"), cut, criterion="distance")
     size = np.bincount(groups)[groups]
-    return groups, (size >= lo) & (size <= hi)
+    twin = (size >= lo) & (size <= hi)
+    return (groups, twin, x) if return_matrix else (groups, twin)
 
 
 def centred_probs(z, groups, twin, w, b):

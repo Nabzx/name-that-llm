@@ -31,12 +31,13 @@ import numpy as np
 import pandas as pd
 import torch
 
-from nthl.blend import sinkhorn, softmax, topic_groups
+from nthl.blend import cluster_similarity, peer_correct, sinkhorn, softmax, topic_groups
 from nthl.encoder import run_encoder
 from nthl.labels import LABELS
 from nthl.lora24 import find_base, read_prvsiyan, read_zbigniew, run_checkpoint, run_spec
 from nthl.svc import fit_scores
 
+POST = "sinkhorn"   # "sinkhorn" (half strength) or "peer" (peer correction, no class quotas, #46)
 SINKHORN_ALPHA = 0.5   # half strength, as #23 recommends. Probe 1 (v2) used 1.0.
 POOL_WEIGHT = 0.25   # best SVC on CV, 0.4838 (#63). Probes 1 and 2 used 0.5.
 WEIGHTS = {"svc": 1.0, "qwen3_14b": 0.4, "qwen25_14b": 0.2, "deberta": 0.25}
@@ -56,7 +57,7 @@ test["text"] = test["text"].fillna("").astype(str)
 big = len(test) >= 50
 print("test rows", len(test), "gpus", torch.cuda.device_count(), flush=True)
 
-groups, twin = topic_groups(test["text"]) if big else (None, None)
+groups, twin, tfidf = topic_groups(test["text"], return_matrix=True) if big else (None, None, None)
 if big:
     print(f"topic clusters: {int(twin.sum())} passages in clusters of 2 to 18", flush=True)
 
@@ -80,7 +81,8 @@ def one(pattern):
 
 # 1. Our SVC on host train plus our public pool.
 pool = pd.read_parquet(one("pool.parquet"))
-vote("svc", softmax(fit_scores(train, test["text"], pool=pool, pool_weight=POOL_WEIGHT)), WEIGHTS["svc"])
+svc_raw = fit_scores(train, test["text"], pool=pool, pool_weight=POOL_WEIGHT)
+vote("svc", softmax(svc_raw), WEIGHTS["svc"])
 del pool
 
 # 2 and 3. Nishant's two LoRA checkpoints through our loader.
@@ -123,6 +125,8 @@ if WITNESS_WEIGHT > 0:
     wp = head.predict_proba(x[len(train):])[:, [list(head.classes_).index(m) for m in LABELS]]
     vote("witness", wp, WITNESS_WEIGHT)
 
+if big and POST == "peer":
+    logit = peer_correct(logit, svc_raw, groups, cluster_similarity(tfidf, groups), w_svc=WEIGHTS["svc"])
 p = softmax(logit)
 
 # 5. prvsiyan's two Qwen3-8B seeds, averaged, as a fixed share of the probabilities.
@@ -163,13 +167,13 @@ if zb is not None:
     mixed += ZBIGNIEW_SHARE * zb
 p = mixed
 
-if big:
+if big and POST == "sinkhorn":
     p = sinkhorn(p, alpha=SINKHORN_ALPHA)
 sub = pd.DataFrame({"id": test["id"].astype(str), "model": np.asarray(LABELS)[p.argmax(1)]})
 assert len(sub) == len(test) and sub["id"].is_unique and sub["model"].isin(LABELS).all()
 sub.to_parquet(f"{OUT}/submission.parquet", index=False)
 np.save(f"{OUT}/members/blend.npy", p)
-summary = {"rows": len(test), "sinkhorn_alpha": SINKHORN_ALPHA if big else None, "weights": WEIGHTS,
+summary = {"rows": len(test), "post": POST, "sinkhorn_alpha": SINKHORN_ALPHA if big else None, "weights": WEIGHTS,
            "twin_weight": TWIN_WEIGHT, "prvsiyan_share": PRVSIYAN_SHARE, "zbigniew_share": ZBIGNIEW_SHARE, "witness_weight": WITNESS_WEIGHT, "pool_weight": POOL_WEIGHT, "timings": timings, "seconds": round(time.time() - T0),
            "predicted": sub["model"].value_counts().to_dict()}
 json.dump(summary, open(f"{OUT}/summary.json", "w"), indent=1)
