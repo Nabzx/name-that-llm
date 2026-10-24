@@ -4,6 +4,9 @@ Every public notebook, discussion, dataset and pretrained model used or read for
 
 ## Notebooks and discussions
 
+- Nishant Dahal, *Two-stage LoRA, part two* (LB 0.620). https://www.kaggle.com/code/nishantdahal/two-stage-lora-part-two. Read for the LoRA24 readout (#21) and the blend weights.
+- Nishant Dahal, *Two-stage LoRA on the public pool* (LB 0.592). https://www.kaggle.com/code/nishantdahal/two-stage-lora-on-the-public-pool. Read for the training recipe.
+
 - Adisak Sukul and replies (GoPain), *New here? Grouped CV that tracks the LB, CPU baseline code (LB 0.353), pitfalls, 2xT4 tips*, Name That LLM discussion 750390. https://www.kaggle.com/competitions/name-that-llm/discussion/750390. Read for train-only baseline scores and the CV to LB gap.
 
 ## Datasets
