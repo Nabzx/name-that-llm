@@ -95,8 +95,9 @@ def load_trunk(base_dir, keep, dtype=torch.float16):
 
 
 @torch.no_grad()
-def run_checkpoint(ckpt_dir, base_dir, texts, batch_size=8):
-    """Probabilities [n, 18] in our LABELS order, and a dict of what happened."""
+def run_checkpoint(ckpt_dir, base_dir, texts, batch_size=8, groups=None, twin=None):
+    """Probabilities [n, 18] in our LABELS order, centred-twin probabilities for the `twin` rows
+    (or None), and a dict of what happened."""
     from safetensors.torch import load_file
     from transformers import AutoTokenizer
 
@@ -148,6 +149,12 @@ def run_checkpoint(ckpt_dir, base_dir, texts, batch_size=8):
                 embed([i])
             redone_single += 1
 
+    centred = None
+    if twin is not None and twin.any() and "centered.weight" in heads:
+        from nthl.blend import centred_probs
+
+        cw, cb = heads["centered.weight"].float().numpy(), heads["centered.bias"].float().numpy()
+        centred = to_our_order(centred_probs(z, groups, twin, cw, cb), meta["labels"])
     w, b = heads["plain.weight"].float().numpy(), heads["plain.bias"].float().numpy()
     logits = z @ w.T + b
     logits -= logits.max(1, keepdims=True)
@@ -166,4 +173,4 @@ def run_checkpoint(ckpt_dir, base_dir, texts, batch_size=8):
     }
     del model
     torch.cuda.empty_cache()
-    return to_our_order(probs, meta["labels"]), info
+    return to_our_order(probs, meta["labels"]), centred, info
