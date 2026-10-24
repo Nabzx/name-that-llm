@@ -17,7 +17,7 @@ cat > "$OUT/dataset-metadata.json" <<JSON
 JSON
 
 MSG="${1:-$(git rev-parse --short HEAD)}"
-if $K datasets status nabilshah/nthl-src >/dev/null 2>&1; then
+if $K datasets list --mine --search nthl-src 2>/dev/null | grep -q "^nabilshah/nthl-src "; then
   $K datasets version -p "$OUT" -r tar -m "$MSG"
 else
   $K datasets create -p "$OUT" -r tar
