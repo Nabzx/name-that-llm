@@ -1,0 +1,13 @@
+# ADR-NNNN: Title
+
+- Status: Proposed | Accepted | Superseded by ADR-NNNN
+- Date: YYYY-MM-DD
+- Issue: #n
+
+## Context
+
+## Decision
+
+## Consequences
+
+## Alternatives considered
