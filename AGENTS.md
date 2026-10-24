@@ -13,7 +13,7 @@ These hold for every change. Breaking one can disqualify the entry.
 - **Free and public only.** External data and pretrained models must be free and publicly available. Each one is listed in `CITATIONS.md`. No paid APIs.
 - **Every AI session is logged.** Each Claude Code session, subagent run, workflow or other AI chat gets a row in `docs/ai-sessions.md` and is exported before submission. Missing logs mean disqualification.
 - **Folds are frozen.** Cross-validation is `GroupKFold` on `prompt_id`, fixed in phase 0. Every experiment uses the same folds file. Changing it needs an ADR.
-- **Every experiment is logged.** It saves out-of-fold and test predictions and adds a row to `docs/experiments/LOG.md`: the change, local CV against the baseline, and the next step.
+- **Every experiment is logged.** It saves out-of-fold and test predictions in the format of `src/nthl/preds.py`, scores them with `src/nthl/metric.py` and adds a row to `docs/experiments/LOG.md`: the change, local CV against the baseline, and the next step.
 - **Seeds are fixed** in every notebook and script.
 - **The repository stays private** until after the deadline. No code or ideas are shared with other participants.
 
