@@ -98,3 +98,16 @@ def run(train, test, pool=None, pool_weight=1.0, routes=None, drop_pool_labels=N
     }
     (out / "summary.json").write_text(json.dumps(summary, indent=1))
     return summary
+
+
+def fit_scores(train, texts, pool=None, pool_weight=0.5, C=0.5, min_df=2, seed=42):
+    """One fit on all of train (plus the pool), raw LinearSVC scores for `texts` in LABELS order.
+
+    For the submission notebook, which blends a plain softmax of these scores as Nishant's notebook does.
+    """
+    extra_text = [] if pool is None else pool["text"].tolist()
+    extra_label = [] if pool is None else pool["model"].tolist()
+    model = make_pipeline(four_views(min_df=min_df), LinearSVC(C=C, class_weight="balanced", random_state=seed))
+    weights = np.r_[np.ones(len(train)), np.full(len(extra_text), pool_weight)]
+    model.fit(train["text"].tolist() + extra_text, train["model"].tolist() + extra_label, linearsvc__sample_weight=weights)
+    return _scores(model, list(texts))
