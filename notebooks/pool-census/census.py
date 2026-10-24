@@ -135,7 +135,7 @@ pd.crosstab(clean_u["model"], clean_u["dataset"]).reindex(list(LABELS)).fillna(0
 # two pools whose licence is not open.
 pd.crosstab(pool.loc[pool["clean"], "model"], pool.loc[pool["clean"], "dataset"]).reindex(list(LABELS)).fillna(0).astype(int).to_csv(f"{OUT}/model_by_dataset_own.csv")
 EXCLUDE = {"olegzholobov/name-that-llm-response-corpus", "ankiteshtiwari/ntl-curated-pool-routed"}
-kept = clean[~clean["dataset"].isin(EXCLUDE)]
+kept = pool[pool["clean"] & ~pool["dataset"].isin(EXCLUDE)]
 conflict = kept.groupby("norm")["model"].nunique()
 kept = kept[kept["norm"].map(conflict) == 1].drop_duplicates("norm")
 kept.groupby("model").size().reindex(list(LABELS)).fillna(0).astype(int).rename("open_licence_union").to_csv(f"{OUT}/open_union_by_model.csv")
