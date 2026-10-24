@@ -10,6 +10,7 @@ These hold for every change. Breaking one can disqualify the entry.
 
 - **Train on Kaggle only.** Every model fit runs in a Kaggle notebook under the account `nabilshah`. The local machine is for writing code, orchestrating runs and descriptive EDA.
 - **No forking public notebooks.** Start from the official starter or from scratch. Public work may be read; cite it in `CITATIONS.md`.
+- **No hand-labelling of test data.** Test passages are only ever read by our code at scoring time. Nobody, person or agent, labels them by hand or by asking an LLM. Balancing, centring and pseudo-labels are code in the notebook, not labelling.
 - **Free and public only.** External data and pretrained models must be free and publicly available. Each one is listed in `CITATIONS.md`. No paid APIs.
 - **Every AI session is logged.** Each Claude Code session, subagent run, workflow or other AI chat gets a row in `docs/ai-sessions.md` and is exported before submission. Missing logs mean disqualification.
 - **Folds are frozen.** Cross-validation is `GroupKFold` on `prompt_id`, fixed in phase 0. Every experiment uses the same folds file. Changing it needs an ADR.
