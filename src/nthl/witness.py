@@ -45,3 +45,52 @@ def token_stats(logits, ids, mask):
 def tokens_per_word(tokenizer, texts):
     ids = tokenizer(list(texts), add_special_tokens=False)["input_ids"]
     return [len(i) / max(len(t.split()), 1) for i, t in zip(ids, texts)]
+
+
+def load_witness(model_dir):
+    """A causal LM in fp16 over the GPUs. Multimodal Gemma checkpoints load through the image-text class."""
+    from transformers import AutoModelForCausalLM, AutoModelForImageTextToText, AutoTokenizer
+
+    tok = AutoTokenizer.from_pretrained(model_dir)
+    tok.padding_side = "right"
+    if tok.pad_token is None:
+        tok.pad_token = tok.eos_token
+    memory = {i: "13GiB" for i in range(torch.cuda.device_count())}
+    kwargs = dict(dtype=torch.float16, device_map="auto", max_memory=memory)
+    try:
+        model = AutoModelForCausalLM.from_pretrained(model_dir, **kwargs)
+    except ValueError:
+        model = AutoModelForImageTextToText.from_pretrained(model_dir, **kwargs)
+    return tok, model.eval()
+
+
+@torch.no_grad()
+def score_witness(model_dir, texts, batch_size=8, max_len=512):
+    """Likelihood features [n, len(FEATURES)] and tokens per word for every text."""
+    tok, model = load_witness(model_dir)
+    ids = tok(list(texts), add_special_tokens=True, truncation=True, max_length=max_len)["input_ids"]
+    feats = np.zeros((len(ids), len(FEATURES)), np.float32)
+    first = next(model.parameters()).device
+    order = np.argsort([len(x) for x in ids], kind="stable")
+
+    def run(idx):
+        enc = tok.pad({"input_ids": [ids[i] for i in idx]}, return_tensors="pt").to(first)
+        logits = model(**enc).logits
+        if not torch.isfinite(logits).all():
+            model.to(torch.bfloat16)
+            logits = model(**enc).logits
+            model.to(torch.float16)
+        feats[idx] = token_stats(logits, enc["input_ids"], enc["attention_mask"])
+
+    for s in range(0, len(order), batch_size):
+        idx = order[s:s + batch_size]
+        try:
+            run(idx)
+        except torch.cuda.OutOfMemoryError:
+            torch.cuda.empty_cache()
+            for i in idx:
+                run([i])
+    tpw = tokens_per_word(tok, texts)
+    del model
+    torch.cuda.empty_cache()
+    return feats, np.asarray(tpw, np.float32)
