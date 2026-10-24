@@ -7,7 +7,6 @@ records the library versions and GPUs we get.
 
 import glob
 import importlib
-import os
 import platform
 import shutil
 import subprocess
