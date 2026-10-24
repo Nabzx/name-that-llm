@@ -31,7 +31,7 @@ import numpy as np
 import pandas as pd
 import torch
 
-from nthl.blend import cluster_similarity, peer_correct, sinkhorn, softmax, topic_groups
+from nthl.blend import cluster_similarity, low_margin_rows, mix_rows, peer_correct, sinkhorn, softmax, topic_groups
 from nthl.encoder import run_encoder
 from nthl.labels import LABELS
 from nthl.lora24 import find_base, read_prvsiyan, read_zbigniew, run_checkpoint, run_spec
@@ -43,7 +43,11 @@ POOL_WEIGHT = 0.25   # best SVC on CV, 0.4838 (#63). Probes 1 and 2 used 0.5.
 WEIGHTS = {"svc": 1.0, "qwen3_14b": 0.4, "qwen25_14b": 0.2, "deberta": 0.25}
 TWIN_WEIGHT = 0.1
 WITNESS_WEIGHT = 0.0   # lab witness head (#34 to #36), off until probed. +0.003 to +0.005 on the SVC OOF.
-ZBIGNIEW_SHARE = 0.1   # probe 4: Zbigniew Kirchner's in-style Qwen3-8B at a fixed 10% (#28)
+ZBIGNIEW_SHARE = 0.0   # probe 4 put Zbigniew Kirchner's in-style Qwen3-8B at 10%: LB 0.627 against 0.631, so off
+ULTRABERT_SHARE = 0.1   # probe 5: pjmathematician's UltraBERT-380M, 5 folds averaged, a fixed 10% (#36)
+ATLAS_SHARE = 0.1   # probe 5: Joseph Adamski's ATLAS at 10%, only on rows whose top two are under ATLAS_MARGIN apart
+ATLAS_MARGIN = 0.3
+ATLAS_STOP_HOURS = 7.5   # ATLAS stops here whatever is left, so the run stays inside 9 hours
 PRVSIYAN_SHARE = 0.1   # probe 3: prvsiyan's two Qwen3-8B seeds, mixed in at a fixed 10% before balancing (#20)
 
 torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction = False
@@ -158,14 +162,50 @@ if ZBIGNIEW_SHARE > 0:
     torch.cuda.empty_cache()
     timings["zbigniew"] = round(time.time() - T0)
 
+# 5c. UltraBERT, the five fold models averaged. Copied to local disk first, as the mount can be slow.
+ub = None
+if ULTRABERT_SHARE > 0:
+    from nthl.ultrabert import run_ultrabert
+
+    root = glob.glob("/kaggle/input/**/ultrabert-380m-ntl", recursive=True)
+    assert len(root) == 1, root
+    shutil.copytree(root[0], "/tmp/ultrabert", dirs_exist_ok=True)
+    ub = run_ultrabert("/tmp/ultrabert", test["text"].tolist())
+    np.save(f"{OUT}/members/ultrabert.npy", ub)
+    gc.collect()
+    torch.cuda.empty_cache()
+    timings["ultrabert"] = round(time.time() - T0)
+
 # Published additions as fixed shares of the probabilities, before balancing (#20).
-main_share = 1 - (PRVSIYAN_SHARE if PRVSIYAN_SHARE > 0 else 0) - (ZBIGNIEW_SHARE if zb is not None else 0)
-mixed = main_share * p
-if PRVSIYAN_SHARE > 0:
+shares = {"prvsiyan": PRVSIYAN_SHARE if PRVSIYAN_SHARE > 0 else 0, "zbigniew": ZBIGNIEW_SHARE if zb is not None else 0,
+          "ultrabert": ULTRABERT_SHARE if ub is not None else 0}
+mixed = (1 - sum(shares.values())) * p
+if shares["prvsiyan"]:
     mixed += PRVSIYAN_SHARE * prv
-if zb is not None:
+if shares["zbigniew"]:
     mixed += ZBIGNIEW_SHARE * zb
+if shares["ultrabert"]:
+    mixed += ULTRABERT_SHARE * ub
 p = mixed
+
+# 5d. ATLAS on the rows the blend is unsure of, at a fixed 10% there, as in the public 0.636 recipe.
+atlas_info = None
+if ATLAS_SHARE > 0:
+    from nthl.atlas import run_atlas
+
+    bundle = glob.glob("/kaggle/input/**/atlas_bundle.json", recursive=True)
+    assert len(bundle) == 1, bundle
+    shutil.copytree(os.path.dirname(bundle[0]), "/tmp/atlas", dirs_exist_ok=True)
+    base8 = find_base("/kaggle/input", {"model_type": "qwen3", "hidden_size": 4096, "num_hidden_layers": 36})
+    rows = low_margin_rows(p, ATLAS_MARGIN) if big else np.arange(len(test))
+    q, done = run_atlas("/tmp/atlas", base8, test["text"].iloc[rows].tolist(), deadline=T0 + ATLAS_STOP_HOURS * 3600)
+    full = np.zeros_like(p)
+    full[rows] = q
+    p = mix_rows(p, full, rows[done], ATLAS_SHARE)
+    np.save(f"{OUT}/members/atlas.npy", full)
+    atlas_info = {"rows": int(len(rows)), "scored": int(done.sum())}
+    print("atlas", json.dumps(atlas_info), flush=True)
+    timings["atlas"] = round(time.time() - T0)
 
 if big and POST == "sinkhorn":
     p = sinkhorn(p, alpha=SINKHORN_ALPHA)
@@ -174,7 +214,7 @@ assert len(sub) == len(test) and sub["id"].is_unique and sub["model"].isin(LABEL
 sub.to_parquet(f"{OUT}/submission.parquet", index=False)
 np.save(f"{OUT}/members/blend.npy", p)
 summary = {"rows": len(test), "post": POST, "sinkhorn_alpha": SINKHORN_ALPHA if big else None, "weights": WEIGHTS,
-           "twin_weight": TWIN_WEIGHT, "prvsiyan_share": PRVSIYAN_SHARE, "zbigniew_share": ZBIGNIEW_SHARE, "witness_weight": WITNESS_WEIGHT, "pool_weight": POOL_WEIGHT, "timings": timings, "seconds": round(time.time() - T0),
+           "twin_weight": TWIN_WEIGHT, "prvsiyan_share": PRVSIYAN_SHARE, "zbigniew_share": ZBIGNIEW_SHARE, "ultrabert_share": ULTRABERT_SHARE, "atlas_share": ATLAS_SHARE, "atlas": atlas_info, "witness_weight": WITNESS_WEIGHT, "pool_weight": POOL_WEIGHT, "timings": timings, "seconds": round(time.time() - T0),
            "predicted": sub["model"].value_counts().to_dict()}
 json.dump(summary, open(f"{OUT}/summary.json", "w"), indent=1)
 print(json.dumps(summary, indent=1))
