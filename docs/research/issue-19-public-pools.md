@@ -44,6 +44,10 @@ Clean rows are counted per pool, so the merges overlap with their sources. A thi
 - **The host style is easy to match.** Most open pools are already one paragraph, 90 to 140 words and markdown-free. prvsiyan's extended set is the exception: a median of 162 words and 14% of rows too close to a train passage.
 - **The pool helps on the LB, but less than CV says.** In discussion 750390 a train-only SVM went from 0.361 to 0.423 on the LB with a pool, while grouped CV claimed a bigger jump. Expect CV to overstate pool-trained members by 0.02 to 0.04.
 
+## Correction (#26)
+
+The census overcounted. It turned every column into a string before picking the text, so it also read the raw API responses in files like prvsiyan's `provenance.jsonl` as extra passages. Those are near copies of the clean passages. The pool build in #26 reads only real string columns and lands at **84,470 passages**, 2,666 to 7,210 per model. Use that number, not 90,721.
+
 ## Recommendation
 
 Build one pool from the open-licence datasets only:
