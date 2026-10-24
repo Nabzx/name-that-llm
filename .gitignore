@@ -4,9 +4,10 @@ __pycache__/
 *.pyc
 .ipynb_checkpoints/
 
-# Competition data and outputs, never committed
+# Competition data, outputs and upload bundles, never committed
 data/
 outputs/
+build/
 *.parquet
 *.npy
 *.pt
