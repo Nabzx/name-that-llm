@@ -57,6 +57,7 @@ def test_build_pool_drops_two_label_texts_and_prefers_api_rows(tmp_path):
     assert len(pool) == 2
     assert pool.set_index("model").loc["kimi-k3", "route"] == "api"
     assert clash not in set(pool["text"])
+    assert pool.attrs["loaded_rows"] == {"a/api-set": 2, "b/merge-set": 3}
 
 
 def test_extract_ignores_a_column_of_dicts():
