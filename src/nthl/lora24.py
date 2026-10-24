@@ -14,6 +14,7 @@ import gc
 import glob
 import json
 import os
+import re
 import time
 
 import numpy as np
@@ -39,17 +40,21 @@ def check_meta(meta):
 
 @torch.no_grad()
 def merge_lora(model, state, scale):
-    """W becomes W + B A scale for every adapted linear layer. Returns how many were merged."""
+    """W becomes W + B A scale for every adapted linear layer. Returns how many were merged.
+
+    Accepts PEFT keys (`...q_proj.lora_A.weight`) and plain ones (`...q_proj.lora_A`); other keys are ignored.
+    """
     modules = dict(model.named_modules())
     merged = 0
     for key, a in state.items():
-        if ".lora_A." not in key:
+        found = re.match(r"^(.*)\.lora_A(\.weight)?$", key)
+        if not found:
             continue
-        name = key.split(".lora_A.")[0]
+        name = found.group(1)
         name = name[name.index("layers."):]
         assert name in modules, f"adapter targets a layer the trunk does not have: {name}"
         lin = modules[name]
-        b = state[key.replace(".lora_A.", ".lora_B.")]
+        b = state[key.replace(".lora_A", ".lora_B")]
         delta = (b.float().to(lin.weight.device) @ a.float().to(lin.weight.device)) * scale
         lin.weight.add_(delta.to(lin.weight.dtype))
         merged += 1
@@ -95,48 +100,88 @@ def load_trunk(base_dir, keep, dtype=torch.float16):
     return model
 
 
-@torch.no_grad()
-def run_checkpoint(ckpt_dir, base_dir, texts, batch_size=8, groups=None, twin=None):
-    """Probabilities [n, 18] in our LABELS order, centred-twin probabilities for the `twin` rows
-    (or None), and a dict of what happened."""
+def read_nishant(ckpt_dir):
+    """Spec for Nishant Dahal's layout: meta.json, adapter/adapter_model.safetensors, heads.safetensors."""
     from safetensors.torch import load_file
-    from transformers import AutoTokenizer
 
-    start = time.time()
     meta = json.load(open(os.path.join(ckpt_dir, "meta.json")))
     eos_id = check_meta(meta)
     cfg = meta["cfg"]
+    heads = load_file(os.path.join(ckpt_dir, "heads.safetensors"))
+    return {
+        "labels": meta["labels"], "keep": cfg["keep"], "layers": cfg["layers"], "max_len": cfg["max_len"],
+        "prefix_id": None, "suffix_id": eos_id, "scale": cfg["alpha"] / cfg["r"],
+        "adapter": load_file(os.path.join(ckpt_dir, "adapter", "adapter_model.safetensors")),
+        "norms": [(heads[f"norms.{i}.weight"], heads[f"norms.{i}.bias"]) for i in range(len(cfg["layers"]))],
+        "plain": (heads["plain.weight"].float().numpy(), heads["plain.bias"].float().numpy()),
+        "centred": (heads["centered.weight"].float().numpy(), heads["centered.bias"].float().numpy()) if "centered.weight" in heads else None,
+    }
 
+
+def read_prvsiyan(adapter_dir):
+    """Spec for prvsiyan's layout: meta.json and one adapter.safetensors holding LoRA, norms and heads.
+
+    A dummy start token goes in front and is never pooled. The cut includes it.
+    """
+    from safetensors.torch import load_file
+
+    meta = json.load(open(os.path.join(adapter_dir, "meta.json")))
+    assert sorted(meta["labels"]) == sorted(LABELS), "checkpoint labels differ from ours"
+    hp = meta["hp"]
+    state = load_file(os.path.join(adapter_dir, "adapter.safetensors"))
+    layers = meta["pool_layers"]
+    return {
+        "labels": meta["labels"], "keep": meta["n_layers"], "layers": layers, "max_len": hp["max_len"] - 1,
+        "prefix_id": int(hp["bos_id"]), "suffix_id": None, "scale": hp["alpha"] / hp["r"], "adapter": state,
+        "norms": [(state[f"head_norm.norms.{i}.weight"], state[f"head_norm.norms.{i}.bias"]) for i in range(len(layers))],
+        "plain": (state["fc.weight"].float().numpy(), state["fc.bias"].float().numpy()),
+        "centred": (state["fc_c.weight"].float().numpy(), state["fc_c.bias"].float().numpy()) if "fc_c.weight" in state else None,
+    }
+
+
+def run_checkpoint(ckpt_dir, base_dir, texts, batch_size=8, groups=None, twin=None):
+    """Nishant's layout. See run_spec."""
+    return run_spec(read_nishant(ckpt_dir), base_dir, texts, batch_size, groups, twin)
+
+
+@torch.no_grad()
+def run_spec(spec, base_dir, texts, batch_size=8, groups=None, twin=None):
+    """Probabilities [n, 18] in our LABELS order, centred-twin probabilities for the `twin` rows
+    (or None), and a dict of what happened."""
+    from transformers import AutoTokenizer
+
+    start = time.time()
     tok = AutoTokenizer.from_pretrained(base_dir)
     tok.padding_side = "right"
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
-    ids = tok(list(texts), add_special_tokens=False, truncation=True, max_length=cfg["max_len"])["input_ids"]
-    ids = [x + [eos_id] for x in ids]
+    ids = tok(list(texts), add_special_tokens=False, truncation=True, max_length=spec["max_len"])["input_ids"]
+    ids = [([spec["prefix_id"]] if spec["prefix_id"] is not None else []) + x
+           + ([spec["suffix_id"]] if spec["suffix_id"] is not None else []) for x in ids]
 
-    model = load_trunk(base_dir, cfg["keep"])
+    model = load_trunk(base_dir, spec["keep"])
     loaded = time.time() - start
-    adapter = load_file(os.path.join(ckpt_dir, "adapter", "adapter_model.safetensors"))
-    merged = merge_lora(model, adapter, scale=cfg["alpha"] / cfg["r"])
-    heads = load_file(os.path.join(ckpt_dir, "heads.safetensors"))
+    merged = merge_lora(model, spec["adapter"], scale=spec["scale"])
     hidden = model.config.hidden_size
     first = model.embed_tokens.weight.device
-    norms = nn.ModuleList([nn.LayerNorm(hidden) for _ in cfg["layers"]]).float().to(first)
-    norms.load_state_dict({k[len("norms."):]: v for k, v in heads.items() if k.startswith("norms.")})
+    norms = nn.ModuleList([nn.LayerNorm(hidden) for _ in spec["layers"]]).float().to(first)
+    for nm, (w, b) in zip(norms, spec["norms"]):
+        nm.weight.copy_(w.float())
+        nm.bias.copy_(b.float())
 
-    z = np.zeros((len(ids), hidden * len(cfg["layers"])), np.float32)
+    z = np.zeros((len(ids), hidden * len(spec["layers"])), np.float32)
     redone_bf16 = redone_single = 0
 
     def embed(idx):
         nonlocal redone_bf16
         enc = tok.pad({"input_ids": [ids[i] for i in idx]}, return_tensors="pt").to(first)
         hs = model(**enc, output_hidden_states=True).hidden_states
-        if not all(torch.isfinite(hs[l]).all() for l in cfg["layers"]):
+        if not all(torch.isfinite(hs[l]).all() for l in spec["layers"]):
             model.to(torch.bfloat16)
             hs = model(**enc, output_hidden_states=True).hidden_states
             model.to(torch.float16)
             redone_bf16 += 1
-        pooled = pool_layers(hs, enc["attention_mask"], cfg["layers"])
+        pooled = pool_layers(hs, enc["attention_mask"], spec["layers"])
         z[idx] = torch.cat([nm(p.to(first)) for nm, p in zip(norms, pooled)], -1).cpu().numpy()
 
     order = np.argsort([len(x) for x in ids], kind="stable")
@@ -151,28 +196,22 @@ def run_checkpoint(ckpt_dir, base_dir, texts, batch_size=8, groups=None, twin=No
             redone_single += 1
 
     centred = None
-    if twin is not None and twin.any() and "centered.weight" in heads:
+    if twin is not None and twin.any() and spec["centred"] is not None:
         from nthl.blend import centred_probs
 
-        cw, cb = heads["centered.weight"].float().numpy(), heads["centered.bias"].float().numpy()
-        centred = to_our_order(centred_probs(z, groups, twin, cw, cb), meta["labels"])
-    w, b = heads["plain.weight"].float().numpy(), heads["plain.bias"].float().numpy()
+        centred = to_our_order(centred_probs(z, groups, twin, *spec["centred"]), spec["labels"])
+    w, b = spec["plain"]
     logits = z @ w.T + b
     logits -= logits.max(1, keepdims=True)
     probs = np.exp(logits)
     probs /= probs.sum(1, keepdims=True)
     info = {
-        "eos_used": eos_id,
-        "eos_tokenizer": tok.eos_token_id,
-        "keep": cfg["keep"],
-        "layers": cfg["layers"],
-        "merged_linear_layers": merged,
-        "redone_bf16_batches": redone_bf16,
-        "redone_single_batches": redone_single,
-        "load_seconds": round(loaded),
-        "total_seconds": round(time.time() - start),
+        "prefix_id": spec["prefix_id"], "suffix_id": spec["suffix_id"], "eos_tokenizer": tok.eos_token_id,
+        "keep": spec["keep"], "layers": spec["layers"], "merged_linear_layers": merged,
+        "redone_bf16_batches": redone_bf16, "redone_single_batches": redone_single,
+        "load_seconds": round(loaded), "total_seconds": round(time.time() - start),
     }
     del model
     gc.collect()
     torch.cuda.empty_cache()
-    return to_our_order(probs, meta["labels"]), centred, info
+    return to_our_order(probs, spec["labels"]), centred, info
