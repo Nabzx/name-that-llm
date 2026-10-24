@@ -16,6 +16,7 @@ These hold for every change. Breaking one can disqualify the entry.
 - **Every experiment is logged.** It saves out-of-fold and test predictions in the format of `src/nthl/preds.py`, scores them with `src/nthl/metric.py` and adds a row to `docs/experiments/LOG.md`: the change, local CV against the baseline, and the next step.
 - **Seeds are fixed** in every notebook and script.
 - **The repository stays private** until after the deadline. No code or ideas are shared with other participants.
+- **What we make stays private on Kaggle too.** Our code dataset (`nabilshah/nthl-src`), notebooks and trained weights are private and shared only with the organisers at hand-in. What we take from others must be public and free.
 
 ## Phases
 
