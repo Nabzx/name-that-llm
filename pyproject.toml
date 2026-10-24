@@ -1,0 +1,13 @@
+[project]
+name = "nthl"
+version = "0.0.1"
+description = "Solo entry to Kaggle's Name That LLM"
+requires-python = ">=3.11"
+dependencies = ["numpy", "pandas"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
