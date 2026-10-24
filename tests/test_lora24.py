@@ -96,3 +96,31 @@ def test_prvsiyan_reader_maps_heads_norms_and_framing(tmp_path):
     assert spec["prefix_id"] == 151645 and spec["suffix_id"] is None and spec["max_len"] == 383
     assert spec["scale"] == 2.0 and len(spec["norms"]) == 2
     assert spec["plain"][0].shape == (18, 6) and spec["centred"] is not None
+
+
+def test_zbigniew_reader_maps_readouts_norms_and_end_token(tmp_path):
+    import json
+
+    from safetensors.torch import save_file
+
+    from nthl.lora24 import read_zbigniew
+
+    labels = sorted(LABELS)
+    (tmp_path / "adapter").mkdir()
+    (tmp_path / "tokenizer").mkdir()
+    (tmp_path / "adapter" / "adapter_config.json").write_text(json.dumps({"r": 16, "lora_alpha": 32, "use_rslora": False}))
+    save_file({"base_model.model.layers.0.self_attn.q_proj.lora_A.weight": torch.zeros(16, 3)},
+              str(tmp_path / "adapter" / "adapter_model.safetensors"))
+    (tmp_path / "tokenizer" / "tokenizer_config.json").write_text(json.dumps({"eos_token": "<|im_end|>"}))
+    (tmp_path / "tokenizer" / "tokenizer.json").write_text(json.dumps(
+        {"added_tokens": [{"id": 151643, "content": "<|endoftext|>"}, {"id": 151645, "content": "<|im_end|>"}]}))
+    save_file({f"norms.{i}.{p}": torch.ones(3) for i in range(2) for p in ("weight", "bias")},
+              str(tmp_path / "heads.safetensors"))
+    np.savez(tmp_path / "readouts.npz", classes=np.array(labels), pool_layers=np.array([12, 24]),
+             plain_coef=np.zeros((18, 6), np.float32), plain_intercept=np.zeros(18, np.float32),
+             center_coef=np.ones((18, 6), np.float32), center_intercept=np.zeros(18, np.float32))
+    spec = read_zbigniew(str(tmp_path))
+    assert spec["labels"] == labels and spec["keep"] == 24 and spec["layers"] == [12, 24]
+    assert spec["prefix_id"] is None and spec["suffix_id"] == 151645 and spec["max_len"] == 447
+    assert spec["scale"] == 2.0 and len(spec["norms"]) == 2 and len(spec["adapter"]) == 1
+    assert spec["plain"][0].shape == (18, 6) and spec["centred"][0].sum() == 18 * 6

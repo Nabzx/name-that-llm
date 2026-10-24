@@ -6,6 +6,7 @@ Every public notebook, discussion, dataset and pretrained model used or read for
 
 - Lucas Boesen, *LoRA x Adaptive Centering*. https://www.kaggle.com/code/lucasboesen/lora-x-adaptive-centering. Read for half-strength balancing and centring (#23).
 - prvsiyan, *The Prompt Is Not the Author*. https://www.kaggle.com/code/prvsiyan/the-prompt-is-not-the-author. Read for the Gaussian group head and test-time grouping (#23).
+- Zbigniew Kirchner, *0.574 In-Style Qwen3-8B LoRA (fully public)*. https://www.kaggle.com/code/zbigniewkirchner/0-574-in-style-qwen3-8b-lora-fully-public. Read for how his in-style checkpoint is loaded (#28).
 
 - HALX2158 and replies, *Forked a 0.600+ notebook and hit the 9-hour limit? Check the Qwen3.5-9B load time*, Name That LLM discussion 751268. https://www.kaggle.com/competitions/name-that-llm/discussion/751268. Read for load times from Datasets against Kaggle Models (#22).
 

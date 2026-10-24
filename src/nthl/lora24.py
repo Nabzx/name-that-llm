@@ -139,6 +139,35 @@ def read_prvsiyan(adapter_dir):
     }
 
 
+def read_zbigniew(ckpt_dir):
+    """Spec for Zbigniew Kirchner's layout, the `final/` folder: adapter/ (PEFT), heads.safetensors
+    (LayerNorms only), readouts.npz (labels, pooled depths, plain and centred heads) and tokenizer/.
+
+    There is no meta.json. The end token is the shipped tokenizer's own (`<|im_end|>`), the trunk keeps
+    as many layers as the deepest pooled one, and the cut of 447 tokens is fixed in his notebook.
+    """
+    from safetensors.torch import load_file
+
+    ro = np.load(os.path.join(ckpt_dir, "readouts.npz"))
+    labels = [str(label) for label in ro["classes"]]
+    assert sorted(labels) == sorted(LABELS), "checkpoint labels differ from ours"
+    layers = [int(layer) for layer in ro["pool_layers"]]
+    lora = json.load(open(os.path.join(ckpt_dir, "adapter", "adapter_config.json")))
+    assert not lora.get("use_rslora"), "rank-stabilised LoRA scales by alpha / sqrt(r)"
+    eos = json.load(open(os.path.join(ckpt_dir, "tokenizer", "tokenizer_config.json")))["eos_token"]
+    added = json.load(open(os.path.join(ckpt_dir, "tokenizer", "tokenizer.json")))["added_tokens"]
+    heads = load_file(os.path.join(ckpt_dir, "heads.safetensors"))
+    return {
+        "labels": labels, "keep": max(layers), "layers": layers, "max_len": 447,
+        "prefix_id": None, "suffix_id": next(t["id"] for t in added if t["content"] == eos),
+        "scale": lora["lora_alpha"] / lora["r"],
+        "adapter": load_file(os.path.join(ckpt_dir, "adapter", "adapter_model.safetensors")),
+        "norms": [(heads[f"norms.{i}.weight"], heads[f"norms.{i}.bias"]) for i in range(len(layers))],
+        "plain": (ro["plain_coef"], ro["plain_intercept"]),
+        "centred": (ro["center_coef"], ro["center_intercept"]) if "center_coef" in ro.files else None,
+    }
+
+
 def run_checkpoint(ckpt_dir, base_dir, texts, batch_size=8, groups=None, twin=None):
     """Nishant's layout. See run_spec."""
     return run_spec(read_nishant(ckpt_dir), base_dir, texts, batch_size, groups, twin)
