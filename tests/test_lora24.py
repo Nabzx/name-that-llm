@@ -61,3 +61,38 @@ def test_pool_skips_the_first_token_and_the_padding():
     pooled = pool_layers(hidden_states, mask, layers=[1])
     assert len(pooled) == 1
     assert torch.allclose(pooled[0], torch.tensor([[2.0, 3.0]]))
+
+
+def test_merge_accepts_prvsiyan_style_keys():
+    torch.manual_seed(0)
+    model = Trunk()
+    before = model.layers[0].self_attn.q_proj.weight.detach().clone()
+    a, b = torch.randn(2, 4), torch.randn(3, 2)
+    state = {"backbone.layers.0.self_attn.q_proj.lora_A": a, "backbone.layers.0.self_attn.q_proj.lora_B": b,
+             "fc.weight": torch.zeros(18, 4)}
+    assert merge_lora(model, state, scale=2.0) == 1
+    assert torch.allclose(model.layers[0].self_attn.q_proj.weight, before + 2.0 * b @ a, atol=1e-6)
+
+
+def test_prvsiyan_reader_maps_heads_norms_and_framing(tmp_path):
+    import json
+
+    from safetensors.torch import save_file
+
+    from nthl.lora24 import read_prvsiyan
+
+    labels = sorted(LABELS)
+    meta = {"labels": labels, "pool_layers": [2, 4], "n_layers": 4,
+            "hp": {"r": 16, "alpha": 32, "max_len": 384, "bos_id": 151645}}
+    (tmp_path / "meta.json").write_text(json.dumps(meta))
+    state = {"head_norm.norms.0.weight": torch.ones(3), "head_norm.norms.0.bias": torch.zeros(3),
+             "head_norm.norms.1.weight": torch.ones(3), "head_norm.norms.1.bias": torch.zeros(3),
+             "fc.weight": torch.zeros(18, 6), "fc.bias": torch.zeros(18),
+             "fc_c.weight": torch.zeros(18, 6), "fc_c.bias": torch.zeros(18),
+             "backbone.layers.0.self_attn.q_proj.lora_A": torch.zeros(16, 3)}
+    save_file(state, str(tmp_path / "adapter.safetensors"))
+    spec = read_prvsiyan(str(tmp_path))
+    assert spec["labels"] == labels and spec["keep"] == 4 and spec["layers"] == [2, 4]
+    assert spec["prefix_id"] == 151645 and spec["suffix_id"] is None and spec["max_len"] == 383
+    assert spec["scale"] == 2.0 and len(spec["norms"]) == 2
+    assert spec["plain"][0].shape == (18, 6) and spec["centred"] is not None
