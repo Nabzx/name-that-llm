@@ -1,0 +1,38 @@
+{
+  "id": "nabilshah/nthl-pool-build",
+  "title": "nthl pool build",
+  "code_file": "build.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "dataset_sources": [
+    "nabilshah/nthl-src",
+    "seyitkaangunes/ntl-extra-api-passages",
+    "lxdlxdlxd/ntl-synth-generations-v1",
+    "prvsiyan/prvsiyans-extended-name-that-llm-dataset",
+    "willrice/name-that-llm-openrouter-harvest",
+    "maniceet/name-that-llm-openrouter-openai-generations",
+    "alperen5252525/ntl-vertex-gemini-proxy-gpt-generations",
+    "prvsiyan/ntl-own-prompt-generations-v1",
+    "haileycheng/name-that-llm-same-prompt-passages",
+    "kaplinskiy/ntl-gpt-proxy-passages",
+    "lucasboesen/ntl-free-proxy-generations",
+    "abdullah1afify/ntl-generations",
+    "dophuchung/ntl-proxy-generations",
+    "ziyuzhou1207/ntl-zz-proxy-generations",
+    "keshavatearth/ntl-gpt-new-prompts-v1",
+    "darragh1walsh/ntl-kaggle-ai-gen-run-1",
+    "zbigniewkirchner/ntl-extra-gpt-passages",
+    "michaelsemenoff/ntl-own-extra-v1",
+    "nishantdahal/ntl-handwriting-blend",
+    "prvsiyan/ntl-public-in-style-pool-v1"
+  ],
+  "competition_sources": [
+    "name-that-llm"
+  ],
+  "kernel_sources": [],
+  "model_sources": []
+}
