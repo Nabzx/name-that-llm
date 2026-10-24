@@ -1,0 +1,19 @@
+# Environments
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Competition data and outputs, never committed
+data/
+outputs/
+*.parquet
+*.npy
+*.pt
+*.safetensors
+
+# Reference materials (briefs, exports, research notes kept out of git)
+/materials/
+
+# OS
+.DS_Store
