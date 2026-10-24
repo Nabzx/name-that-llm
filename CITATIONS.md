@@ -4,6 +4,14 @@ Every public notebook, discussion, dataset and pretrained model used or read for
 
 ## Notebooks and discussions
 
+- avazaku, *Name That LLM, Peer Correction: 0.631*. https://www.kaggle.com/code/avazaku/name-that-llm-fingerprint-ensemble. Read for leave-one-out peer correction in place of Sinkhorn.
+- Roman Tamrazov, *Name That LLM, Who am I?*. https://www.kaggle.com/code/romantamrazov/name-that-llm-who-am-i. Read for UltraBERT use and consensus-gated reranking.
+- Vladislav Lavrentev, *0.637 LoRA Llama Qwen3.8-27B*. https://www.kaggle.com/code/lightningv08/0-637-lora-llama-qwen3-8-27b. Read to see what the 0.637 to 0.639 stacks contain.
+- gougou1, *ntllm v9 final*. https://www.kaggle.com/code/gougou1/ntllm-v9-final. Read for in-style LoRA plus Gaussian group heads.
+- s0chn1y, *Sinkhorn balancing on an uneven test*. https://www.kaggle.com/code/jusill/sinkhorn-balancing-on-an-uneven-test. Read for the risk of full balancing.
+- zhuyu2, *ntl 607 l24x w10*, and arlearonreidma's 0.636 to 0.639 forks. https://www.kaggle.com/code/zhuyu2/ntl-607-l24x-w10. Read to confirm the public stacks share one lineage.
+- Discussions 752365 (Sinkhorn on an uneven test), 752357 (what 134 public versions show), 751871 (what transferred to the LB) and 752197 (the GLM and Fable corner). https://www.kaggle.com/competitions/name-that-llm/discussion/752357. Read for the plan to 0.64.
+
 - Lucas Boesen, *LoRA x Adaptive Centering*. https://www.kaggle.com/code/lucasboesen/lora-x-adaptive-centering. Read for half-strength balancing and centring (#23).
 - prvsiyan, *The Prompt Is Not the Author*. https://www.kaggle.com/code/prvsiyan/the-prompt-is-not-the-author. Read for the Gaussian group head and test-time grouping (#23).
 - Zbigniew Kirchner, *0.574 In-Style Qwen3-8B LoRA (fully public)*. https://www.kaggle.com/code/zbigniewkirchner/0-574-in-style-qwen3-8b-lora-fully-public. Read for how his in-style checkpoint is loaded (#28).
