@@ -37,15 +37,18 @@ def _frame(ids, logp):
     return df
 
 
-def run(train, test, pool=None, pool_weight=1.0, routes=None, C=0.5, min_df=2, out=".", name="svc", seed=42):
+def run(train, test, pool=None, pool_weight=1.0, routes=None, drop_pool_labels=None, C=0.5, min_df=2, out=".", name="svc", seed=42):
     """Fit, write oof.parquet, test.parquet and summary.json to `out`, return the summary.
 
     `train` needs id, text, model and fold. `pool` needs text, model and route.
+    `drop_pool_labels` leaves those models' pool rows out, so they learn from host train only.
     """
     start = time.time()
     out = Path(out)
     if pool is not None and routes is not None:
         pool = pool[pool["route"].isin(routes)]
+    if pool is not None and drop_pool_labels:
+        pool = pool[~pool["model"].isin(drop_pool_labels)]
     extra_text = [] if pool is None else pool["text"].tolist()
     extra_label = [] if pool is None else pool["model"].tolist()
 
@@ -85,6 +88,7 @@ def run(train, test, pool=None, pool_weight=1.0, routes=None, C=0.5, min_df=2, o
         "pool_rows": len(extra_text),
         "pool_weight": pool_weight,
         "routes": routes,
+        "drop_pool_labels": drop_pool_labels,
         "C": C,
         "min_df": min_df,
         "temperature": temp,
