@@ -15,6 +15,7 @@ import os
 os.environ["HF_HUB_OFFLINE"] = "1"
 os.environ["TRANSFORMERS_OFFLINE"] = "1"
 
+import gc
 import glob
 import json
 import shutil
@@ -92,6 +93,9 @@ for name, (folder, spec) in LORAS.items():
     vote(name, p, WEIGHTS[name])
     if centred is not None:
         vote(f"{name}_twin", centred, TWIN_WEIGHT, rows=twin)
+    gc.collect()
+    torch.cuda.empty_cache()
+    print(name, "GPU memory left allocated:", [round(torch.cuda.memory_allocated(i) / 2**30, 2) for i in range(torch.cuda.device_count())], flush=True)
 
 # 4. Nishant's DeBERTa-v3-large.
 vote("deberta", run_encoder(os.path.dirname(one("deberta_v3_large/meta.json")), test["text"].tolist()), WEIGHTS["deberta"])

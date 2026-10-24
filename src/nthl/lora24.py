@@ -10,6 +10,7 @@ The torch and transformers parts only run on Kaggle. The small parts are
 tested locally on tiny tensors.
 """
 
+import gc
 import glob
 import json
 import os
@@ -172,5 +173,6 @@ def run_checkpoint(ckpt_dir, base_dir, texts, batch_size=8, groups=None, twin=No
         "total_seconds": round(time.time() - start),
     }
     del model
+    gc.collect()
     torch.cuda.empty_cache()
     return to_our_order(probs, meta["labels"]), centred, info

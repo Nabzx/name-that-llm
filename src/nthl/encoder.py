@@ -4,6 +4,7 @@ The whole encoder, a masked mean of the last layer (first token kept), one
 linear head, fp32. Columns come back in our LABELS order.
 """
 
+import gc
 import json
 import os
 import shutil
@@ -42,5 +43,6 @@ def run_encoder(ckpt_dir, texts, batch_size=32):
     p = np.exp(logits)
     p /= p.sum(1, keepdims=True)
     del enc
+    gc.collect()
     torch.cuda.empty_cache()
     return to_our_order(p, meta["labels"])
