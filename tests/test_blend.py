@@ -85,3 +85,20 @@ def test_cluster_similarity_is_the_mean_off_diagonal_cosine():
     x = csr_matrix(np.array([[1.0, 0.0], [1.0, 0.0], [0.0, 1.0]]))
     sim = cluster_similarity(x, np.array([1, 1, 1]))
     assert np.allclose(sim, (1 + 0 + 0) / 3)
+
+
+def test_low_margin_rows_picks_rows_with_a_close_second():
+    from nthl.blend import low_margin_rows
+
+    p = np.array([[0.9, 0.1, 0.0], [0.5, 0.4, 0.1], [0.34, 0.33, 0.33]])
+    assert low_margin_rows(p, cut=0.3).tolist() == [1, 2]
+
+
+def test_mix_rows_changes_only_the_chosen_rows():
+    from nthl.blend import mix_rows
+
+    p = np.array([[1.0, 0.0], [1.0, 0.0]])
+    q = np.array([[0.0, 1.0], [0.0, 1.0]])
+    out = mix_rows(p, q, rows=np.array([1]), share=0.1)
+    assert np.allclose(out[0], [1.0, 0.0]) and np.allclose(out[1], [0.9, 0.1])
+    assert np.allclose(p[1], [1.0, 0.0])   # the input is left alone

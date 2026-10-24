@@ -88,3 +88,16 @@ def peer_correct(z, svc, groups, sim, w_svc, strength=0.5, lo=3, hi=18, prior=8)
         others = (total[None, :] - margin[rows]) / (n - 1)
         out[rows] -= strength * r * w_svc * others
     return out
+
+
+def low_margin_rows(p, cut=0.3):
+    """Rows whose top two probabilities are less than `cut` apart: the ones a costly member is worth running on."""
+    top = np.sort(p, axis=1)
+    return np.flatnonzero(top[:, -1] - top[:, -2] < cut)
+
+
+def mix_rows(p, q, rows, share):
+    """Mix `q` into `p` at `share`, on `rows` only. Returns a new array."""
+    out = p.copy()
+    out[rows] = (1 - share) * p[rows] + share * q[rows]
+    return out
