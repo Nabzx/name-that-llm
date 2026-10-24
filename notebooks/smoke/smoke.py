@@ -9,6 +9,7 @@ import glob
 import importlib
 import os
 import platform
+import shutil
 import subprocess
 import sys
 
@@ -16,9 +17,11 @@ for depth in ("*", "*/*", "*/*/*"):
     for path in sorted(glob.glob(f"/kaggle/input/{depth}")):
         print("input:", path)
 
-src = [os.path.dirname(os.path.dirname(p)) for p in glob.glob("/kaggle/input/**/nthl/__init__.py", recursive=True)]
-assert len(src) == 1, f"expected one copy of nthl, found {src}"
-sys.path.insert(0, src[0])
+# Kaggle unpacks the code dataset flat, so copy it into a folder named nthl.
+code = glob.glob("/kaggle/input/**/nthl-src", recursive=True)
+assert len(code) == 1, f"expected one copy of nthl-src, found {code}"
+shutil.copytree(code[0], "/tmp/pkg/nthl", dirs_exist_ok=True)
+sys.path.insert(0, "/tmp/pkg")
 
 import pandas as pd
 
