@@ -1,6 +1,6 @@
 """Witness prototype (#34): is there signal in how likely each lab's open model finds a passage?
 
-Two witnesses, Qwen3-4B-Base (Qwen, fp16) and Gemma 4 E2B base (Google, fp32 because Gemma overflows in fp16), score host
+One likelihood witness, Qwen3-4B-Base (Qwen, fp16), plus Gemma 4's tokenizer for Google (Gemma's weights do not fit on the T4s next to its per-layer embedding table), score host
 train and test. A logistic-regression head on their features is fitted per
 frozen fold, here on Kaggle, giving honest out-of-fold predictions. Then the
 question that matters: does it add to our SVC's out-of-fold predictions?
@@ -50,7 +50,7 @@ def model_dir(fragment):
     return hits[0]
 
 
-WITNESSES = {"qwen3_4b": ("4b-base", torch.float16), "gemma4_e2b": ("gemma-4-e2b", torch.float32)}
+WITNESSES = {"qwen3_4b": ("4b-base", torch.float16)}
 cols, blocks, timing = [], [], {}
 for name, (fragment, dtype) in WITNESSES.items():
     feats, tpw = score_witness(model_dir(fragment), texts, dtype=dtype)
@@ -59,6 +59,14 @@ for name, (fragment, dtype) in WITNESSES.items():
     timing[name] = round(time.time() - T0)
     print(name, "done at", timing[name], "s", flush=True)
 
+# Gemma 4's weights do not fit beside its 8.75 GiB per-layer embedding table, so Google joins
+# through its tokenizer only: tokens per word, no model loaded.
+from transformers import AutoTokenizer
+
+from nthl.witness import tokens_per_word
+
+blocks.append(np.asarray(tokens_per_word(AutoTokenizer.from_pretrained(model_dir("gemma-4-e2b")), texts), np.float32)[:, None])
+cols.append("gemma4_tokens_per_word")
 x = pd.DataFrame(np.hstack(blocks), columns=cols)
 x.insert(0, "id", train["id"].tolist() + test["id"].tolist())
 x.to_parquet(f"{OUT}/witness_features.parquet", index=False)
