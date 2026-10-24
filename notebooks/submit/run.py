@@ -38,7 +38,7 @@ from nthl.lora24 import find_base, read_prvsiyan, run_checkpoint, run_spec
 from nthl.svc import fit_scores
 
 SINKHORN_ALPHA = 0.5   # half strength, as #23 recommends. Probe 1 (v2) used 1.0.
-POOL_WEIGHT = 0.5
+POOL_WEIGHT = 0.25   # best SVC on CV, 0.4838 (#63). Probes 1 and 2 used 0.5.
 WEIGHTS = {"svc": 1.0, "qwen3_14b": 0.4, "qwen25_14b": 0.2, "deberta": 0.25}
 TWIN_WEIGHT = 0.1
 PRVSIYAN_SHARE = 0.1   # probe 3: prvsiyan's two Qwen3-8B seeds, mixed in at a fixed 10% before balancing (#20)
