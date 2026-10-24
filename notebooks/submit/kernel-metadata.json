@@ -8,7 +8,7 @@
   "enable_gpu": true,
   "enable_tpu": false,
   "enable_internet": false,
-  "dataset_sources": ["nabilshah/nthl-src", "nishantdahal/ntl-handwriting-blend", "prvsiyan/ntl-two-stage-lora-adapters-v1"],
+  "dataset_sources": ["nabilshah/nthl-src", "nishantdahal/ntl-handwriting-blend", "prvsiyan/ntl-two-stage-lora-adapters-v1", "zbigniewkirchner/ntl-qwen3-8b-lora-instyle"],
   "competition_sources": ["name-that-llm"],
   "kernel_sources": ["nabilshah/nthl-pool-build"],
   "model_sources": ["qwen-lm/qwen-3/Transformers/14b-base/1", "qwen-lm/qwen2.5/Transformers/14b/1", "qwen-lm/qwen-3/Transformers/8b-base/1", "qwen-lm/qwen-3/Transformers/4b-base/1", "google/gemma-4/transformers/gemma-4-e2b/1"],
