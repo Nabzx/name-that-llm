@@ -47,7 +47,7 @@ base = find_base("/kaggle/input", {"model_type": "qwen3", "hidden_size": 5120, "
 print("checkpoint", meta[0], "base", base, f"{time.time() - start:.0f} s", flush=True)
 
 texts = train["text"].tolist() + test["text"].tolist()
-probs, info = run_checkpoint(ckpt, base, texts)
+probs, _, info = run_checkpoint(ckpt, base, texts)
 print(json.dumps(info), flush=True)
 
 
