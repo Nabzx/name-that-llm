@@ -34,13 +34,14 @@ import torch
 from nthl.blend import sinkhorn, softmax, topic_groups
 from nthl.encoder import run_encoder
 from nthl.labels import LABELS
-from nthl.lora24 import find_base, run_checkpoint
+from nthl.lora24 import find_base, read_prvsiyan, run_checkpoint, run_spec
 from nthl.svc import fit_scores
 
-SINKHORN_ALPHA = 1.0   # 1.0 as Nishant published, for the reproduction probe. #23 recommends 0.5 next.
+SINKHORN_ALPHA = 0.5   # half strength, as #23 recommends. Probe 1 (v2) used 1.0.
 POOL_WEIGHT = 0.5
 WEIGHTS = {"svc": 1.0, "qwen3_14b": 0.4, "qwen25_14b": 0.2, "deberta": 0.25}
 TWIN_WEIGHT = 0.1
+PRVSIYAN_SHARE = 0.1   # probe 3: prvsiyan's two Qwen3-8B seeds, mixed in at a fixed 10% before balancing (#20)
 
 torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction = False
 T0 = time.time()
@@ -101,6 +102,24 @@ for name, (folder, spec) in LORAS.items():
 vote("deberta", run_encoder(os.path.dirname(one("deberta_v3_large/meta.json")), test["text"].tolist()), WEIGHTS["deberta"])
 
 p = softmax(logit)
+
+# 5. prvsiyan's two Qwen3-8B seeds, averaged, as a fixed share of the probabilities.
+if PRVSIYAN_SHARE > 0:
+    base8 = find_base("/kaggle/input", {"model_type": "qwen3", "hidden_size": 4096, "num_hidden_layers": 36})
+    seeds = []
+    for seed in ["full_s0", "full_s1"]:
+        local = f"/tmp/{seed}"
+        shutil.copytree(os.path.dirname(one(f"q8b_L24_ctr/{seed}/meta.json")), local, dirs_exist_ok=True)
+        q, _, info = run_spec(read_prvsiyan(local), base8, test["text"].tolist())
+        print(seed, json.dumps(info), flush=True)
+        seeds.append(q)
+        gc.collect()
+        torch.cuda.empty_cache()
+    prv = np.mean(seeds, axis=0)
+    np.save(f"{OUT}/members/prvsiyan.npy", prv)
+    p = (1 - PRVSIYAN_SHARE) * p + PRVSIYAN_SHARE * prv
+    timings["prvsiyan"] = round(time.time() - T0)
+
 if big:
     p = sinkhorn(p, alpha=SINKHORN_ALPHA)
 sub = pd.DataFrame({"id": test["id"].astype(str), "model": np.asarray(LABELS)[p.argmax(1)]})
@@ -108,7 +127,7 @@ assert len(sub) == len(test) and sub["id"].is_unique and sub["model"].isin(LABEL
 sub.to_parquet(f"{OUT}/submission.parquet", index=False)
 np.save(f"{OUT}/members/blend.npy", p)
 summary = {"rows": len(test), "sinkhorn_alpha": SINKHORN_ALPHA if big else None, "weights": WEIGHTS,
-           "twin_weight": TWIN_WEIGHT, "pool_weight": POOL_WEIGHT, "timings": timings, "seconds": round(time.time() - T0),
+           "twin_weight": TWIN_WEIGHT, "prvsiyan_share": PRVSIYAN_SHARE, "pool_weight": POOL_WEIGHT, "timings": timings, "seconds": round(time.time() - T0),
            "predicted": sub["model"].value_counts().to_dict()}
 json.dump(summary, open(f"{OUT}/summary.json", "w"), indent=1)
 print(json.dumps(summary, indent=1))
