@@ -56,7 +56,9 @@ def read_table(path):
 
 
 def is_text(s):
-    return pd.api.types.is_object_dtype(s) or pd.api.types.is_string_dtype(s)
+    """True if every non-null value is a real string, not a dict or list."""
+    values = s.dropna()
+    return len(values) > 0 and values.map(lambda v: isinstance(v, str)).all()
 
 
 def extract(df):
@@ -64,7 +66,7 @@ def extract(df):
     wide = [c for c in df.columns if c in LABELSET]
     if len(wide) >= 5:
         return df[wide].melt(var_name="model", value_name="text").dropna()[["text", "model"]].reset_index(drop=True)
-    shares = {c: df[c].dropna().astype(str).isin(LABELSET).mean() for c in df.columns if is_text(df[c])}
+    shares = {c: df[c].dropna().isin(LABELSET).mean() for c in df.columns if is_text(df[c])}
     shares = {c: s for c, s in shares.items() if s > 0.5}
     if not shares:
         return None
@@ -72,7 +74,7 @@ def extract(df):
     texts = [c for c in df.columns if c != label and is_text(df[c])]
     if not texts:
         return None
-    text = max(texts, key=lambda c: df[c].dropna().astype(str).str.len().mean())
+    text = max(texts, key=lambda c: df[c].dropna().str.len().mean())
     out = df[[text, label]].rename(columns={text: "text", label: "model"}).dropna()
     return out[out["model"].isin(LABELSET)].reset_index(drop=True)
 
