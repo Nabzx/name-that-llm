@@ -35,3 +35,13 @@ def test_run_keeps_only_the_asked_routes(tmp_path):
     summary = run(train, test, pool=pool, routes=["api"], pool_weight=0.5, out=tmp_path, name="toy")
     assert summary["pool_rows"] == (pool["route"] == "api").sum()
     assert summary["pool_weight"] == 0.5
+
+
+def test_fit_scores_gives_raw_scores_in_our_label_order():
+    from nthl.svc import fit_scores
+
+    train = toy()
+    test = toy(n_per=1, seed=1)
+    scores = fit_scores(train, test["text"])
+    assert scores.shape == (18, 18)
+    assert (np.asarray(LABELS)[scores.argmax(1)] == test["model"].to_numpy()).mean() > 0.9
