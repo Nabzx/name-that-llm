@@ -6,7 +6,7 @@ requires-python = ">=3.11"
 dependencies = ["numpy", "pandas", "pyarrow"]
 
 [project.optional-dependencies]
-dev = ["pytest", "scikit-learn", "torch"]
+dev = ["pytest", "scikit-learn", "torch", "safetensors"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

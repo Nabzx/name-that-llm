@@ -14,5 +14,5 @@ jobs:
         with:
           python-version: "3.13"
       - run: pip install torch --index-url https://download.pytorch.org/whl/cpu
-      - run: pip install numpy pandas pyarrow scikit-learn pytest
+      - run: pip install numpy pandas pyarrow scikit-learn pytest safetensors
       - run: pytest -q
