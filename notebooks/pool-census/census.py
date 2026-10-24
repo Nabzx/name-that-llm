@@ -131,12 +131,23 @@ by_model = pd.DataFrame({
 by_model.to_csv(f"{OUT}/by_model.csv")
 pd.crosstab(clean_u["model"], clean_u["dataset"]).reindex(list(LABELS)).fillna(0).astype(int).to_csv(f"{OUT}/model_by_dataset.csv")
 
+# Each pool on its own (no cross-pool attribution), and the union without the
+# two pools whose licence is not open.
+pd.crosstab(pool.loc[pool["clean"], "model"], pool.loc[pool["clean"], "dataset"]).reindex(list(LABELS)).fillna(0).astype(int).to_csv(f"{OUT}/model_by_dataset_own.csv")
+EXCLUDE = {"olegzholobov/name-that-llm-response-corpus", "ankiteshtiwari/ntl-curated-pool-routed"}
+kept = clean[~clean["dataset"].isin(EXCLUDE)]
+conflict = kept.groupby("norm")["model"].nunique()
+kept = kept[kept["norm"].map(conflict) == 1].drop_duplicates("norm")
+kept.groupby("model").size().reindex(list(LABELS)).fillna(0).astype(int).rename("open_licence_union").to_csv(f"{OUT}/open_union_by_model.csv")
+
 summary = {
     "rows_read": int(len(pool)),
     "clean_rows": int(pool["clean"].sum()),
     "clean_unique_texts": int(len(clean_u)),
     "share_clean_texts_in_two_datasets": round(float(dup_across), 3),
     "texts_with_two_labels": int(clean.groupby("norm")["model"].nunique().gt(1).sum()),
+    "open_licence_union": int(len(kept)),
+    "open_licence_conflicts_dropped": int(conflict.gt(1).sum()),
 }
 json.dump(summary, open(f"{OUT}/summary.json", "w"), indent=1)
 print(json.dumps(summary, indent=1))
