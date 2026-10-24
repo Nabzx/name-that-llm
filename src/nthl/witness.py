@@ -8,6 +8,8 @@ from what the witness expected, in standard deviations). Padding and the
 first token, which has nothing to predict it, are left out.
 """
 
+import gc
+
 import numpy as np
 import torch
 
@@ -92,5 +94,6 @@ def score_witness(model_dir, texts, batch_size=8, max_len=512, dtype=torch.float
                 run([i])
     tpw = tokens_per_word(tok, texts)
     del model
+    gc.collect()
     torch.cuda.empty_cache()
     return feats, np.asarray(tpw, np.float32)
