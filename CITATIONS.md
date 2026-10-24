@@ -4,6 +4,14 @@ Every public notebook, discussion, dataset and pretrained model used or read for
 
 ## Notebooks and discussions
 
+- Lucas Boesen, *LoRA x Adaptive Centering*. https://www.kaggle.com/code/lucasboesen/lora-x-adaptive-centering. Read for half-strength balancing and centring (#23).
+- prvsiyan, *The Prompt Is Not the Author*. https://www.kaggle.com/code/prvsiyan/the-prompt-is-not-the-author. Read for the Gaussian group head and test-time grouping (#23).
+
+- HALX2158 and replies, *Forked a 0.600+ notebook and hit the 9-hour limit? Check the Qwen3.5-9B load time*, Name That LLM discussion 751268. https://www.kaggle.com/competitions/name-that-llm/discussion/751268. Read for load times from Datasets against Kaggle Models (#22).
+
+- Nishant Dahal, *Two-stage LoRA, part two* (LB 0.620). https://www.kaggle.com/code/nishantdahal/two-stage-lora-part-two. Read for the LoRA24 readout (#21) and the blend weights.
+- Nishant Dahal, *Two-stage LoRA on the public pool* (LB 0.592). https://www.kaggle.com/code/nishantdahal/two-stage-lora-on-the-public-pool. Read for the training recipe.
+
 - Adisak Sukul and replies (GoPain), *New here? Grouped CV that tracks the LB, CPU baseline code (LB 0.353), pitfalls, 2xT4 tips*, Name That LLM discussion 750390. https://www.kaggle.com/competitions/name-that-llm/discussion/750390. Read for train-only baseline scores and the CV to LB gap.
 
 ## Datasets
@@ -33,3 +41,16 @@ Every public notebook, discussion, dataset and pretrained model used or read for
 - NTL free-proxy generations (GPT + Gemini) (ziyuzhou1207/ntl-zz-proxy-generations), CC BY 4.0. https://www.kaggle.com/datasets/ziyuzhou1207/ntl-zz-proxy-generations. Read in the pool census (#19).
 
 ## Pretrained models
+
+- Nishant Dahal, *NTL two-stage LoRA part two* (nishantdahal/ntl-handwriting-blend): Qwen3-14B and Qwen2.5-14B LoRAs, DeBERTa-v3-large. CC BY-SA 4.0. https://www.kaggle.com/datasets/nishantdahal/ntl-handwriting-blend. Read for #18.
+- Nishant Dahal, *NTL two-stage LoRA checkpoints and public pool* (nishantdahal/ntl-two-stage-lora). CC BY-SA 4.0. https://www.kaggle.com/datasets/nishantdahal/ntl-two-stage-lora. Read for #18.
+- prvsiyan, *NTL two-stage LoRA adapters v1* (prvsiyan/ntl-two-stage-lora-adapters-v1). CC BY-SA 4.0. https://www.kaggle.com/datasets/prvsiyan/ntl-two-stage-lora-adapters-v1. Read for #18.
+- Zbigniew Kirchner, *In-Style Qwen3-8B LoRA* (zbigniewkirchner/ntl-qwen3-8b-lora-instyle). Apache 2.0. https://www.kaggle.com/datasets/zbigniewkirchner/ntl-qwen3-8b-lora-instyle. Read for #18.
+- Zbigniew Kirchner, *Qwen3-8B LoRA + Claude Head* (zbigniewkirchner/ntl-qwen3-8b-lora-claude-head). Apache 2.0. https://www.kaggle.com/datasets/zbigniewkirchner/ntl-qwen3-8b-lora-claude-head. Read for #18.
+- Joseph Adamski, *NTL ATLAS Qwen3 8B v1* (josephadamski91/ntl-atlas-qwen3-8b-v1). Weights CC BY-SA 4.0, code Apache 2.0. ATLAS method by Ko et al., arXiv 2610.19583. https://www.kaggle.com/datasets/josephadamski91/ntl-atlas-qwen3-8b-v1. Read for #18.
+- pjmathematician, *UltraBERT-380M Name That LLM 5-fold* (pjmathematician/ultrabert-380m-ntl). Apache 2.0. https://www.kaggle.com/datasets/pjmathematician/ultrabert-380m-ntl. Read for #18.
+- Dhruv Tibarewal, *nlm-l24-adapters* (dhruvtibarewal/nlm-l24-adapters). MIT. https://www.kaggle.com/datasets/dhruvtibarewal/nlm-l24-adapters. Read for #18.
+- Vladislav Lavrentev, *Name That LLM Artifacts* (lightningv08/ntl-olmo2-native24-final-inference-assets), including the Qwen3.8-27B NF4 LoRA. Mixed licences per component. https://www.kaggle.com/datasets/lightningv08/ntl-olmo2-native24-final-inference-assets. Read for #18.
+- Lucas Boesen, notebook outputs `name-that-llm-train-lora24-s7`, `-train-tokattn`, `-train-tokattn2`, `-glm4-9b-trunc25`, `-extract-encoders2`, `-electra-large-weights`, `-desklib-weights`. https://www.kaggle.com/lucasboesen. Read for #18.
+- Кирилл Тымчишин, *NTL Spectral Style Heads, Paired 4404* (kirilltym/ntl-spectral-style-heads-paired-4404). Licence unknown, so not used. Read for #18.
+- fle3n, *NTL Legacy Qwen24 Recovery* (fleongg/ntl-legacy-qwen24-recovery). Licence "other", so not used. Read for #18.
