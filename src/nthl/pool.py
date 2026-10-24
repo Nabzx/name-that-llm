@@ -121,4 +121,6 @@ def build_pool(root, train, routes=ROUTES, near_min_df=2):
     pool = pool[pool["norm"].map(labels_per_text) == 1]
     pool["rank"] = pool["route"].map(ROUTE_RANK)
     pool = pool.sort_values(["rank", "source", "norm"], kind="stable").drop_duplicates("norm")
-    return pool[["text", "model", "source", "route"]].sort_values(["model", "source", "text"]).reset_index(drop=True)
+    pool = pool[["text", "model", "source", "route"]].sort_values(["model", "source", "text"]).reset_index(drop=True)
+    pool.attrs["loaded_rows"] = {ref: int(n) for ref, n in raw["source"].value_counts().sort_index().items()}
+    return pool

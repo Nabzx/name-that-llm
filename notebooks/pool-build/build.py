@@ -21,12 +21,14 @@ from nthl.pool import ROUTES, build_pool
 train = pd.read_csv("/kaggle/input/competitions/name-that-llm/train.csv")
 pool = build_pool("/kaggle/input/datasets", train)
 
-missing = [ref for ref in ROUTES if ref not in set(pool["source"])]
-assert not missing, f"pools that gave no rows: {missing}"
+# Every pool must load rows. A merged pool may still lose all of them to
+# de-duplication when its passages are also in a more direct source.
+missing = [ref for ref in ROUTES if pool.attrs["loaded_rows"].get(ref, 0) == 0]
+assert not missing, f"pools that loaded no rows: {missing}"
+print(pd.DataFrame({"loaded": pool.attrs["loaded_rows"], "kept": pool["source"].value_counts()}).fillna(0).astype(int).to_string())
 assert set(pool["model"]) == set(LABELS)
 assert pool["text"].is_unique
 assert pool["text"].map(lambda t: isinstance(t, str)).all()
-print(pool["source"].value_counts().to_string())
 
 pool.to_parquet("/kaggle/working/pool.parquet", index=False)
 counts = pd.crosstab(pool["model"], pool["route"]).reindex(list(LABELS))
