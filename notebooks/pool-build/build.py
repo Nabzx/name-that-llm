@@ -25,6 +25,8 @@ missing = [ref for ref in ROUTES if ref not in set(pool["source"])]
 assert not missing, f"pools that gave no rows: {missing}"
 assert set(pool["model"]) == set(LABELS)
 assert pool["text"].is_unique
+assert pool["text"].map(lambda t: isinstance(t, str)).all()
+print(pool["source"].value_counts().to_string())
 
 pool.to_parquet("/kaggle/working/pool.parquet", index=False)
 counts = pd.crosstab(pool["model"], pool["route"]).reindex(list(LABELS))
