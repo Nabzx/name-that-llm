@@ -57,3 +57,13 @@ def test_build_pool_drops_two_label_texts_and_prefers_api_rows(tmp_path):
     assert len(pool) == 2
     assert pool.set_index("model").loc["kimi-k3", "route"] == "api"
     assert clash not in set(pool["text"])
+
+
+def test_extract_ignores_a_column_of_dicts():
+    df = pd.DataFrame({
+        "settings": [{"temperature": 1.0, "notes": "x" * 500}, {"temperature": 0.7, "notes": "y" * 500}],
+        "text": ["a passage", "another passage"],
+        "model": ["kimi-k3", "glm-5.3"],
+    })
+    got = extract(df)
+    assert got["text"].tolist() == ["a passage", "another passage"]
