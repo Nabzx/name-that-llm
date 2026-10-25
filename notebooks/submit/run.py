@@ -31,6 +31,7 @@ import numpy as np
 import pandas as pd
 import torch
 
+from nthl.gauss import fit as gauss_fit, log_posteriors, transform as gauss_transform
 from nthl.blend import cluster_similarity, low_margin_rows, mix_rows, peer_correct, sinkhorn, softmax, topic_groups
 from nthl.encoder import run_encoder
 from nthl.labels import LABELS
@@ -50,6 +51,8 @@ ATLAS_MARGIN = 0.3
 ATLAS_STOP_HOURS = 7.5   # ATLAS stops here whatever is left, so the run stays inside 9 hours
 PRVSIYAN_SHARE = 0.1   # probe 3: prvsiyan's two Qwen3-8B seeds, mixed in at a fixed 10% before balancing (#20)
 OURS_SHARE = 0.1   # probe 7: our own Qwen3-8B LoRA24 from nabilshah/nthl-train-lora (#43) at a fixed 10%
+GAUSS_WEIGHT = 0.4   # probe 8: shared-prompt Gaussian group head on our honest stage-1 features, grouped rows only (#46, LOG row 25)
+GAUSS_T = 2.0   # temperature picked by held-out log loss in nthl-gauss-check
 
 torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction = False
 T0 = time.time()
@@ -129,6 +132,27 @@ if WITNESS_WEIGHT > 0:
     head = make_pipeline(StandardScaler(), LogisticRegression(C=1.0, max_iter=3000)).fit(x[: len(train)], train["model"])
     wp = head.predict_proba(x[len(train):])[:, [list(head.classes_).index(m) for m in LABELS]]
     vote("witness", wp, WITNESS_WEIGHT)
+
+# 7. Shared-prompt Gaussian group head on our own LoRA's stage-1 features (#46). Stage 1 never saw host
+# train, so the head is fitted on honest features. Grouped test rows are decoded jointly per topic cluster.
+gauss_info = None
+if GAUSS_WEIGHT > 0:
+    local = "/tmp/stage1"
+    shutil.copytree(os.path.dirname(one("ckpt_stage1/meta.json")), local, dirs_exist_ok=True)
+    base8 = find_base("/kaggle/input", {"model_type": "qwen3", "hidden_size": 4096, "num_hidden_layers": 36})
+    _, _, info, feats = run_spec(read_ours(local), base8, train["text"].fillna("").astype(str).tolist() + test["text"].tolist(), return_features=True)
+    prm = gauss_fit(feats[: len(train)], np.array([LABELS.index(m) for m in train["model"]]), train["prompt_id"].to_numpy())
+    rows = twin if big else np.zeros(len(test), bool)
+    lp = log_posteriors(gauss_transform(feats[len(train):], prm), prm, groups if big else np.arange(len(test)), rows, T=GAUSS_T)
+    np.save(f"{OUT}/members/gauss_stage1.npy", lp)
+    if big:
+        vote("gauss_stage1", np.exp(lp[twin]), GAUSS_WEIGHT, rows=twin)
+    gauss_info = {"d": prm["d"], "grouped_rows": int(rows.sum()), "features_seconds": info["total_seconds"]}
+    print("gauss", json.dumps(gauss_info), flush=True)
+    del feats
+    gc.collect()
+    torch.cuda.empty_cache()
+    timings["gauss"] = round(time.time() - T0)
 
 if big and POST == "peer":
     logit = peer_correct(logit, svc_raw, groups, cluster_similarity(tfidf, groups), w_svc=WEIGHTS["svc"])
@@ -229,7 +253,7 @@ assert len(sub) == len(test) and sub["id"].is_unique and sub["model"].isin(LABEL
 sub.to_parquet(f"{OUT}/submission.parquet", index=False)
 np.save(f"{OUT}/members/blend.npy", p)
 summary = {"rows": len(test), "post": POST, "sinkhorn_alpha": SINKHORN_ALPHA if big else None, "weights": WEIGHTS,
-           "twin_weight": TWIN_WEIGHT, "prvsiyan_share": PRVSIYAN_SHARE, "zbigniew_share": ZBIGNIEW_SHARE, "ultrabert_share": ULTRABERT_SHARE, "ours_share": OURS_SHARE, "atlas_share": ATLAS_SHARE, "atlas": atlas_info, "witness_weight": WITNESS_WEIGHT, "pool_weight": POOL_WEIGHT, "timings": timings, "seconds": round(time.time() - T0),
+           "twin_weight": TWIN_WEIGHT, "prvsiyan_share": PRVSIYAN_SHARE, "zbigniew_share": ZBIGNIEW_SHARE, "ultrabert_share": ULTRABERT_SHARE, "ours_share": OURS_SHARE, "gauss_weight": GAUSS_WEIGHT, "gauss": gauss_info, "atlas_share": ATLAS_SHARE, "atlas": atlas_info, "witness_weight": WITNESS_WEIGHT, "pool_weight": POOL_WEIGHT, "timings": timings, "seconds": round(time.time() - T0),
            "predicted": sub["model"].value_counts().to_dict()}
 json.dump(summary, open(f"{OUT}/summary.json", "w"), indent=1)
 print(json.dumps(summary, indent=1))
