@@ -29,13 +29,20 @@ Row 7 checks the loader only. The checkpoint saw every train passage, so its tra
 
 ## Leaderboard probes
 
-Each probe changes one thing against the one before it (#20).
+Each probe is meant to change one thing (#20). Δ is against the probe named in "Against". Probes 3 and 5 changed two things at once, so their Δ is shared between the two.
 
-| Probe | Change | Public LB | Δ |
-|---|---|---|---|
-| 1 | Nishant's published spine (Qwen3-14B 0.4, Qwen2.5-14B 0.2, DeBERTa 0.25, centred twins 0.1) with our pool SVC in place of his, full-strength Sinkhorn | TODO | TODO (target: within 0.003 of his 0.620) |
-| 2 | Half-strength Sinkhorn (alpha 0.5) | TODO | TODO |
-| 3 | Add prvsiyan's two Qwen3-8B seeds at a fixed 10% | TODO | TODO |
+| Log row | Probe | Change | Against | Public LB | Δ |
+|---|---|---|---|---|---|
+| 12 | 1 | Nishant's published spine (Qwen3-14B 0.4, Qwen2.5-14B 0.2, DeBERTa 0.25, centred twins 0.1) through our loader, with our pool SVC (weight 0.5) in place of his, full-strength Sinkhorn | his notebook, 0.620 | 0.626 | +0.006 |
+| 13 | 2 | Sinkhorn at half strength (alpha 0.5) | Probe 1 | 0.629 | +0.003 |
+| 14 | 3 | Add prvsiyan's two Qwen3-8B seeds at a fixed 10%, and the SVC pool weight down to 0.25 | Probe 2 | **0.631** | +0.002 |
+| 15 | 4 | Add Zbigniew Kirchner's in-style Qwen3-8B at 10% | Probe 3 | 0.627 | -0.004 |
+| 17 | 5 | Add UltraBERT at 10%, and ATLAS at 10% on rows whose top two are under 0.3 apart | Probe 3 | 0.631 | 0 |
+| TODO | 6 | Peer correction in place of Sinkhorn | Probe 3 | TODO | TODO |
+| TODO | 7 | Our own Qwen3-8B LoRA as a member | TODO | TODO | TODO |
+| TODO | final | TODO: the two picks for the private LB | | TODO | |
+
+Row 16 is the UltraBERT loader check: in-sample 0.966 on host train, not a score.
 
 ## What the table says
 
@@ -44,3 +51,5 @@ Each probe changes one thing against the one before it (#20).
 - The pool-weight curve has flattened, so we stopped at 0.25.
 - Leaving suspect labels out hurt more than keeping them (row 8).
 - The likelihood witnesses carry real but small signal, about +0.003 on the SVC.
+- On the LB, the steps that changed how we combine and balance gave the most: half Sinkhorn +0.003. Adding strong published members gave little or hurt: prvsiyan's seeds shared +0.002, Zbigniew's in-style model -0.004, UltraBERT and ATLAS nothing.
+- From probe 3 on, every gain is 0.004 or less. On a public LB of 4,000 passages split 18 ways, that is close to noise, so we only kept changes the CV or a research note also backed.
