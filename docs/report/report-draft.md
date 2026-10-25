@@ -1,6 +1,6 @@
 # Name That LLM
 
-Nabil Shah, solo entry, Imperial Research Arm qualifier. Numbers come from `docs/experiments/LOG.md`. **TODO** marks a number still to come.
+Nabil Shah, solo entry, Imperial Research Arm qualifier. Numbers come from `docs/experiments/LOG.md`.
 
 ## Starting point and approach
 
@@ -49,16 +49,15 @@ CV is on our frozen folds. Δ is against the row before, unless named. The full 
 | Full-text Qwen3.8-27B classifier, held out | 0.521 | | 3.7 h on the test, too slow |
 | Probe 1: Nishant's spine with our SVC, full Sinkhorn | | 0.626 | +0.006 on his 0.620 |
 | Probe 2: half Sinkhorn | | 0.629 | +0.003 |
-| Probe 3: + prvsiyan's seeds at 10%, SVC weight 0.25 | | **0.631** | +0.002 |
+| Probe 3: + prvsiyan's seeds at 10%, SVC weight 0.25 | | 0.631 | +0.002 |
 | Probe 4: + Zbigniew Kirchner's in-style Qwen3-8B at 10% | | 0.627 | -0.004 on 3 |
 | Probe 5: + UltraBERT 10%, ATLAS 10% on unsure rows | | 0.631 | 0 on 3 |
 | Probe 6: peer correction in place of half Sinkhorn | | 0.622 | -0.009 on 3 |
 | Probe 7: + our own LoRA at 10% | | 0.631 | 0 on 3 |
 | Probe 8: + Gaussian head at 0.4 on grouped rows | | 0.631 | 0 on 7 |
-| **TODO** Probe 9: Gaussian head at 1.0, + nuridudak's ModernBERT-large at 10% | | **TODO** | **TODO** on 8 |
-| **TODO** Final picks | | **TODO** | private **TODO** |
+| Probe 9: Gaussian head at 1.0, + nuridudak's ModernBERT-large at 10% | | **0.637** | **+0.006** on 8 |
 
-Data did most of the work on CV. On the LB, changing how we balance moved the score most. Probes 3, 5, 7 and 8 all scored 0.631: the Gaussian head is strong on its own view, but at 0.4 inside the blend it flips too few rows to move the public slice, and members at 10% do the same.
+Data did most of the work on CV. On the LB, probes 3, 5, 7 and 8 all scored 0.631: members at 10% and the Gaussian head at 0.4 flipped too few rows to move the public slice. Probe 9 broke the run with 0.637, our best. At full weight the head's +0.058 on our folds finally showed on the board. It changed two things at once, so the gain is shared with ModernBERT.
 
 ## One thing that didn't work, and why
 
@@ -73,7 +72,7 @@ Peer correction removes the prompt's lean, but it has no class quotas. Sinkhorn 
 - Decode each shared-prompt group jointly across all members, not on one member's features.
 - Ask the organisers whether passages we generate ourselves count as external data under rule 2.6.
 
-**TODO:** final picks and why.
+**TODO:** which two submissions Nabil selects for the private LB, and why.
 
 ## How we used AI
 

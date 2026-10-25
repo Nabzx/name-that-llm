@@ -36,20 +36,20 @@ Row 19 is our only honest score for a LoRA: stage 1 trained on the pool alone, s
 
 ## Leaderboard probes
 
-Each probe is meant to change one thing (#20). Δ is against the probe named in "Against". Probes 3 and 5 changed two things at once, so their Δ is shared between the two.
+Each probe is meant to change one thing (#20). Δ is against the probe named in "Against". Probes 3, 5 and 9 changed two things at once, so their Δ is shared between the two.
 
 | Log row | Probe | Change | Against | Public LB | Δ |
 |---|---|---|---|---|---|
 | 12 | 1 | Nishant's published spine (Qwen3-14B 0.4, Qwen2.5-14B 0.2, DeBERTa 0.25, centred twins 0.1) through our loader, with our pool SVC (weight 0.5) in place of his, full-strength Sinkhorn | his notebook, 0.620 | 0.626 | +0.006 |
 | 13 | 2 | Sinkhorn at half strength (alpha 0.5) | Probe 1 | 0.629 | +0.003 |
-| 14 | 3 | Add prvsiyan's two Qwen3-8B seeds at a fixed 10%, and the SVC pool weight down to 0.25 | Probe 2 | **0.631** | +0.002 |
+| 14 | 3 | Add prvsiyan's two Qwen3-8B seeds at a fixed 10%, and the SVC pool weight down to 0.25 | Probe 2 | 0.631 | +0.002 |
 | 15 | 4 | Add Zbigniew Kirchner's in-style Qwen3-8B at 10% | Probe 3 | 0.627 | -0.004 |
 | 17 | 5 | Add UltraBERT at 10%, and ATLAS at 10% on rows whose top two are under 0.3 apart | Probe 3 | 0.631 | 0 |
 | 18 | 6 | Peer correction in place of half Sinkhorn | Probe 3 | 0.622 | -0.009 |
 | 20 | 7 | Add our own Qwen3-8B LoRA24 at 10% (main 80%, prvsiyan 10%) | Probe 3 | 0.631 | 0 |
 | 26 | 8 | Add the Gaussian group head at 0.4 on grouped rows | Probe 7 | 0.631 | 0 |
-| TODO | 9 | Gaussian head at 1.0, and nuridudak's ModernBERT-large (122k pool, published OOF 0.569) at 10% | Probe 8 | TODO | TODO |
-| TODO | final | TODO: the two picks for the private LB | | TODO | |
+| 28 | 9 | Gaussian head at 1.0, and nuridudak's ModernBERT-large (122k pool, published OOF 0.569) at 10% | Probe 8 | **0.637** | **+0.006** |
+| | final | **TODO:** the two submissions Nabil selects for the private LB | | | |
 
 Row 16 is the UltraBERT loader check: in-sample 0.966 on host train, not a score.
 
@@ -69,6 +69,7 @@ Row 16 is the UltraBERT loader check: in-sample 0.966 on host train, not a score
 - The pool-weight curve has flattened, so we stopped at 0.25.
 - Leaving suspect labels out hurt more than keeping them (row 8).
 - The likelihood witnesses carry real but small signal, about +0.003 on the SVC.
-- On the LB, the steps that changed how we combine and balance gave the most: half Sinkhorn +0.003. Adding strong published members gave little or hurt: prvsiyan's seeds shared +0.002, Zbigniew's in-style model -0.004, UltraBERT, ATLAS, our own LoRA and the Gaussian head at 0.4 nothing. Probes 3, 5, 7 and 8 all scored 0.631. Dropping the class quotas (peer correction) cost 0.009.
+- On the LB, the steps that changed how we combine and balance gave the most: half Sinkhorn +0.003. Adding strong published members gave little or hurt: prvsiyan's seeds shared +0.002, Zbigniew's in-style model -0.004, UltraBERT, ATLAS, our own LoRA and the Gaussian head at 0.4 nothing. Probes 3, 5, 7 and 8 all scored 0.631.
+- Probe 9 broke that run with 0.637 (+0.006). The Gaussian head's +0.058 on our folds only showed on the board at full weight, and the gain is shared with ModernBERT. Dropping the class quotas (peer correction) cost 0.009.
 - The one large gain on our own folds since the pool is the Gaussian group head, +0.058 on test-like groups.
 - From probe 3 on, every gain is 0.004 or less. The public LB scores only part of the 4,000 test passages, split 18 ways, so that is close to noise. We only kept changes the CV or a research note also backed.
