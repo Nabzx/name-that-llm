@@ -1,6 +1,6 @@
 """Check (#28, #46): lightningv08's full-text Qwen3.8-27B classifier through our loader. No submission.
 
-JOBS picks the work, so the same file runs as two kernels at once:
+JOBS picks the work, in this order (one GPU kernel at a time, OOF first):
 - "oof": the outer0 adapter on the 539 train rows it held out (prompt-disjoint,
   the bundle's own outer0 split), an honest score; then the final adapter on
   the same rows, in sample, as a loader check.
@@ -19,7 +19,7 @@ import shutil
 import sys
 import time
 
-JOBS = ["oof"]
+JOBS = ["oof", "test"]
 
 code = glob.glob("/kaggle/input/**/nthl-src", recursive=True)
 assert len(code) == 1, f"expected one copy of nthl-src, found {code}"
@@ -76,6 +76,7 @@ if "oof" in JOBS:
     p = model.predict(texts)
     np.save(f"{OUT}/final_heldout_probs.npy", p)
     score("final_insample", p, truth)
+    json.dump(summary, open(f"{OUT}/summary.json", "w"), indent=1)
 
 if "test" in JOBS:
     test = pd.read_csv(f"{COMP}/test.csv")
