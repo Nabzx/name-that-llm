@@ -51,7 +51,8 @@ ATLAS_MARGIN = 0.3
 ATLAS_STOP_HOURS = 7.5   # ATLAS stops here whatever is left, so the run stays inside 9 hours
 PRVSIYAN_SHARE = 0.1   # probe 3: prvsiyan's two Qwen3-8B seeds, mixed in at a fixed 10% before balancing (#20)
 OURS_SHARE = 0.1   # probe 7: our own Qwen3-8B LoRA24 from nabilshah/nthl-train-lora (#43) at a fixed 10%
-GAUSS_WEIGHT = 0.4   # probe 8: shared-prompt Gaussian group head on our honest stage-1 features, grouped rows only (#46, LOG row 25)
+GAUSS_WEIGHT = 1.0   # probe 9 (probe 8 used 0.4, LB 0.631; the check found 1.0 best): shared-prompt Gaussian group head on our honest stage-1 features, grouped rows only (#46, LOG row 25)
+MODERNBERT_SHARE = 0.1   # probe 9: nuridudak's two-stage ModernBERT-large (122k pool, Apache 2.0, OOF 0.569) at a fixed 10%
 GAUSS_T = 2.0   # temperature picked by held-out log loss in nthl-gauss-check
 
 torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction = False
@@ -200,6 +201,17 @@ if ULTRABERT_SHARE > 0:
     torch.cuda.empty_cache()
     timings["ultrabert"] = round(time.time() - T0)
 
+# 5d. nuridudak's two-stage ModernBERT-large, trained on the 122k open pool (#28, PR #99).
+mb = None
+if MODERNBERT_SHARE > 0:
+    from nthl.encoders122k import run_seqcls
+
+    mb = run_seqcls(os.path.dirname(one("modernbert/config.json")), test["text"].tolist())
+    np.save(f"{OUT}/members/modernbert.npy", mb)
+    gc.collect()
+    torch.cuda.empty_cache()
+    timings["modernbert"] = round(time.time() - T0)
+
 # 5e. Our own Qwen3-8B LoRA24, the final checkpoint of nabilshah/nthl-train-lora.
 ours = None
 if OURS_SHARE > 0:
@@ -215,7 +227,8 @@ if OURS_SHARE > 0:
 
 # Published additions as fixed shares of the probabilities, before balancing (#20).
 shares = {"prvsiyan": PRVSIYAN_SHARE if PRVSIYAN_SHARE > 0 else 0, "zbigniew": ZBIGNIEW_SHARE if zb is not None else 0,
-          "ultrabert": ULTRABERT_SHARE if ub is not None else 0, "ours": OURS_SHARE if ours is not None else 0}
+          "ultrabert": ULTRABERT_SHARE if ub is not None else 0, "ours": OURS_SHARE if ours is not None else 0,
+          "modernbert": MODERNBERT_SHARE if mb is not None else 0}
 mixed = (1 - sum(shares.values())) * p
 if shares["prvsiyan"]:
     mixed += PRVSIYAN_SHARE * prv
@@ -225,6 +238,8 @@ if shares["ultrabert"]:
     mixed += ULTRABERT_SHARE * ub
 if shares["ours"]:
     mixed += OURS_SHARE * ours
+if shares["modernbert"]:
+    mixed += MODERNBERT_SHARE * mb
 p = mixed
 
 # 5d. ATLAS on the rows the blend is unsure of, at a fixed 10% there, as in the public 0.636 recipe.
@@ -253,7 +268,7 @@ assert len(sub) == len(test) and sub["id"].is_unique and sub["model"].isin(LABEL
 sub.to_parquet(f"{OUT}/submission.parquet", index=False)
 np.save(f"{OUT}/members/blend.npy", p)
 summary = {"rows": len(test), "post": POST, "sinkhorn_alpha": SINKHORN_ALPHA if big else None, "weights": WEIGHTS,
-           "twin_weight": TWIN_WEIGHT, "prvsiyan_share": PRVSIYAN_SHARE, "zbigniew_share": ZBIGNIEW_SHARE, "ultrabert_share": ULTRABERT_SHARE, "ours_share": OURS_SHARE, "gauss_weight": GAUSS_WEIGHT, "gauss": gauss_info, "atlas_share": ATLAS_SHARE, "atlas": atlas_info, "witness_weight": WITNESS_WEIGHT, "pool_weight": POOL_WEIGHT, "timings": timings, "seconds": round(time.time() - T0),
+           "twin_weight": TWIN_WEIGHT, "prvsiyan_share": PRVSIYAN_SHARE, "zbigniew_share": ZBIGNIEW_SHARE, "ultrabert_share": ULTRABERT_SHARE, "ours_share": OURS_SHARE, "gauss_weight": GAUSS_WEIGHT, "modernbert_share": MODERNBERT_SHARE, "gauss": gauss_info, "atlas_share": ATLAS_SHARE, "atlas": atlas_info, "witness_weight": WITNESS_WEIGHT, "pool_weight": POOL_WEIGHT, "timings": timings, "seconds": round(time.time() - T0),
            "predicted": sub["model"].value_counts().to_dict()}
 json.dump(summary, open(f"{OUT}/summary.json", "w"), indent=1)
 print(json.dumps(summary, indent=1))
