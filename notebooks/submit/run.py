@@ -37,15 +37,15 @@ from nthl.labels import LABELS
 from nthl.lora24 import find_base, read_prvsiyan, read_zbigniew, run_checkpoint, run_spec
 from nthl.svc import fit_scores
 
-POST = "sinkhorn"   # "sinkhorn" (half strength) or "peer" (peer correction, no class quotas, #46)
+POST = "peer"   # "sinkhorn" (half strength) or "peer" (peer correction, no class quotas, #46)
 SINKHORN_ALPHA = 0.5   # half strength, as #23 recommends. Probe 1 (v2) used 1.0.
 POOL_WEIGHT = 0.25   # best SVC on CV, 0.4838 (#63). Probes 1 and 2 used 0.5.
 WEIGHTS = {"svc": 1.0, "qwen3_14b": 0.4, "qwen25_14b": 0.2, "deberta": 0.25}
 TWIN_WEIGHT = 0.1
 WITNESS_WEIGHT = 0.0   # lab witness head (#34 to #36), off until probed. +0.003 to +0.005 on the SVC OOF.
 ZBIGNIEW_SHARE = 0.0   # probe 4 put Zbigniew Kirchner's in-style Qwen3-8B at 10%: LB 0.627 against 0.631, so off
-ULTRABERT_SHARE = 0.1   # probe 5: pjmathematician's UltraBERT-380M, 5 folds averaged, a fixed 10% (#36)
-ATLAS_SHARE = 0.1   # probe 5: Joseph Adamski's ATLAS at 10%, only on rows whose top two are under ATLAS_MARGIN apart
+ULTRABERT_SHARE = 0.0   # probe 5: pjmathematician's UltraBERT-380M, 5 folds averaged, a fixed 10% (#36)
+ATLAS_SHARE = 0.0   # probe 5: Joseph Adamski's ATLAS at 10%, only on rows whose top two are under ATLAS_MARGIN apart
 ATLAS_MARGIN = 0.3
 ATLAS_STOP_HOURS = 7.5   # ATLAS stops here whatever is left, so the run stays inside 9 hours
 PRVSIYAN_SHARE = 0.1   # probe 3: prvsiyan's two Qwen3-8B seeds, mixed in at a fixed 10% before balancing (#20)
