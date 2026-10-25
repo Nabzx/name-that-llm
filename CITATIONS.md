@@ -41,6 +41,7 @@ Every public notebook, discussion, dataset and pretrained model used or read for
 - NTL own extra v1 (michaelsemenoff/ntl-own-extra-v1), CC BY 4.0. https://www.kaggle.com/datasets/michaelsemenoff/ntl-own-extra-v1. Read in the pool census (#19).
 - NTL two-stage LoRA part two (nishantdahal/ntl-handwriting-blend), CC-BY-SA-4.0. https://www.kaggle.com/datasets/nishantdahal/ntl-handwriting-blend. Read in the pool census (#19).
 - NTL two-stage LoRA checkpoints and public pool (nishantdahal/ntl-two-stage-lora), CC-BY-SA-4.0. https://www.kaggle.com/datasets/nishantdahal/ntl-two-stage-lora. Metadata read for #19.
+- NTL 130k clean passages (nuridudak/ntl-130k-clean-passages), CC BY-SA 4.0. https://www.kaggle.com/datasets/nuridudak/ntl-130k-clean-passages. Its 122k encoder pool feeds the pair specialists in #97, with the olegzholobov and ankiteshtiwari rows left out.
 - Name That LLM: Response Corpus (olegzholobov/name-that-llm-response-corpus), other. https://www.kaggle.com/datasets/olegzholobov/name-that-llm-response-corpus. Read in the pool census (#19).
 - Name That LLM: own-prompt generations v1 (prvsiyan/ntl-own-prompt-generations-v1), CC-BY-SA-4.0. https://www.kaggle.com/datasets/prvsiyan/ntl-own-prompt-generations-v1. Read in the pool census (#19).
 - NTL public in-style pool v1 (prvsiyan/ntl-public-in-style-pool-v1), CC-BY-SA-4.0. https://www.kaggle.com/datasets/prvsiyan/ntl-public-in-style-pool-v1. Read in the pool census (#19).
