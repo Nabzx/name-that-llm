@@ -74,7 +74,27 @@
     <div class="col"><p class="big">BA</p><p>balanced accuracy</p></div>
   </div>
   <p class="small">Hardest: glm-5.3 vs glm-5.3-flash, gemini-3.7 vs 3.8-flash.</p>
-  <div class="foot"><span>Name That LLM</span><span>02 / 11</span></div>
+  <div class="foot"><span>Name That LLM</span><span>02 / 12</span></div>
+</section></div>
+
+<!-- 3 · Literature review -->
+<div class="frame"><section>
+  <div style="display:flex; flex-direction:column; gap:16px">
+    <p class="eyebrow">Literature review</p>
+    <h2>Research before code.</h2>
+  </div>
+  <div class="cols" style="grid-template-columns:repeat(4,1fr)">
+    <div class="col"><p class="big">22</p><p>public notebooks read</p></div>
+    <div class="col"><p class="big">18</p><p>discussion threads</p></div>
+    <div class="col"><p class="big">15</p><p>research notes, each ending in a decision</p></div>
+    <div class="col"><p class="big">~100</p><p>sources cited</p></div>
+  </div>
+  <div class="cols" style="grid-template-columns:repeat(3,1fr)">
+    <div class="col"><h3>Data beats size</h3><p>A bigger pool: 0.569 → 0.611.</p></div>
+    <div class="col"><h3>The spine is public</h3><p>0.620 blend, weights published.</p></div>
+    <div class="col"><h3>No public OOF</h3><p>So validate on my own folds.</p></div>
+  </div>
+  <div class="foot"><span>Name That LLM</span><span>03 / 12</span></div>
 </section></div>
 
 <!-- 3 · Starting point -->
@@ -88,7 +108,7 @@
     <div class="col"><p class="num">02</p><h3>Plain baseline</h3><p>n-gram SVC, host data only: <b>0.348</b></p></div>
     <div class="col"><p class="num">03</p><h3>Read, don't fork</h3><p>Our own loader for the best public weights (0.620).</p></div>
   </div>
-  <div class="foot"><span>Name That LLM</span><span>03 / 11</span></div>
+  <div class="foot"><span>Name That LLM</span><span>04 / 12</span></div>
 </section></div>
 
 <!-- 4 · Approach (pipeline) -->
@@ -136,7 +156,7 @@
     </g>
   </svg>
   <p class="small">Filled = ours. Outlined = published, through our own loader.</p>
-  <div class="foot"><span>Name That LLM</span><span>04 / 11</span></div>
+  <div class="foot"><span>Name That LLM</span><span>05 / 12</span></div>
 </section></div>
 
 <!-- 5 · Hypotheses -->
@@ -151,7 +171,7 @@
     <div class="row" style="grid-template-columns:1fr 1fr"><h3>The prompt hides the author</h3><p>Gaussian group head: <b>+0.058</b></p></div>
     <div class="row" style="grid-template-columns:1fr 1fr"><h3>The test mix is uneven</h3><p>Half-strength balancing: <b>+0.003</b></p></div>
   </div>
-  <div class="foot"><span>Name That LLM</span><span>05 / 11</span></div>
+  <div class="foot"><span>Name That LLM</span><span>06 / 12</span></div>
 </section></div>
 
 <!-- 6 · Ablation: leaderboard -->
@@ -173,7 +193,7 @@
     <tr class="hl"><td class="mono">9</td><td>Gaussian head at 1.0 + ModernBERT</td><td class="r"><b>0.637</b></td><td class="r"><b>+0.006</b></td></tr>
     <tr><td class="mono">10</td><td>+ Gaussian heads on both 14B LoRAs</td><td class="r">0.630</td><td class="r">−0.007</td></tr>
   </table>
-  <div class="foot"><span>Name That LLM</span><span>06 / 11</span></div>
+  <div class="foot"><span>Name That LLM</span><span>07 / 12</span></div>
 </section></div>
 
 <!-- 7 · Ablation: cross-validation -->
@@ -200,7 +220,7 @@
     </g>
   </svg>
   <p class="small">Within noise: centred SVC, pair specialists, bigger SVC pool.</p>
-  <div class="foot"><span>Name That LLM</span><span>07 / 11</span></div>
+  <div class="foot"><span>Name That LLM</span><span>08 / 12</span></div>
 </section></div>
 
 <!-- 8 · What didn't work -->
@@ -214,7 +234,7 @@
     <div class="col"><p class="num" style="color:var(--soft)">Why we tried it</p><p>+0.010 for its author, on a weaker blend.</p></div>
     <div class="col"><p class="num" style="color:var(--soft)">Why it failed</p><p>No quotas: a strong blend drifts to its favourites.</p></div>
   </div>
-  <div class="foot"><span>Name That LLM</span><span>08 / 11</span></div>
+  <div class="foot"><span>Name That LLM</span><span>09 / 12</span></div>
 </section></div>
 
 <!-- 9 · What the ties taught us -->
@@ -230,7 +250,7 @@
   <div style="display:flex; gap:48px; align-items:baseline">
     <p class="big">0.637</p><p class="small">best public score · from 0.620</p>
   </div>
-  <div class="foot"><span>Name That LLM</span><span>09 / 11</span></div>
+  <div class="foot"><span>Name That LLM</span><span>10 / 12</span></div>
 </section></div>
 
 <!-- 10 · How I used AI -->
@@ -245,8 +265,8 @@
     <div class="col"><p class="num">03</p><h3>Reproducible</h3><p>Frozen folds, tests first, seeds fixed, every model run on Kaggle.</p></div>
     <div class="col"><p class="num">04</p><h3>Parallel</h3><p>Six side sessions, each in its own branch, while I made the calls.</p></div>
   </div>
-  <p class="small">Claude Code (Opus 5.5) · every session exported in ai-sessions/</p>
-  <div class="foot"><span>Name That LLM</span><span>10 / 11</span></div>
+  <p class="small">My rule: one change per probe, kept only if CV or a research note backs it. Every session in ai-sessions/</p>
+  <div class="foot"><span>Name That LLM</span><span>11 / 12</span></div>
 </section></div>
 
 <!-- 11 · Next -->
@@ -262,7 +282,7 @@
     <div class="col"><p class="num" style="color:var(--soft)">04</p><h3>Hard pairs</h3><p>Targeted data for the siblings.</p></div>
   </div>
   <p class="small">github.com/Nabzx/name-that-llm · Thanks for watching.</p>
-  <div class="foot"><span>Name That LLM</span><span>11 / 11</span></div>
+  <div class="foot"><span>Name That LLM</span><span>12 / 12</span></div>
 </section></div>
 
 </div>
