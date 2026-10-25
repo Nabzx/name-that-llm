@@ -19,7 +19,8 @@
     "name-that-llm"
   ],
   "kernel_sources": [
-    "nabilshah/nthl-pool-build"
+    "nabilshah/nthl-pool-build",
+    "nabilshah/nthl-train-lora"
   ],
   "model_sources": [
     "qwen-lm/qwen-3/Transformers/14b-base/1",

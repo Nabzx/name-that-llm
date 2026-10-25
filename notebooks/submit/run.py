@@ -34,7 +34,7 @@ import torch
 from nthl.blend import cluster_similarity, low_margin_rows, mix_rows, peer_correct, sinkhorn, softmax, topic_groups
 from nthl.encoder import run_encoder
 from nthl.labels import LABELS
-from nthl.lora24 import find_base, read_prvsiyan, read_zbigniew, run_checkpoint, run_spec
+from nthl.lora24 import find_base, read_ours, read_prvsiyan, read_zbigniew, run_checkpoint, run_spec
 from nthl.svc import fit_scores
 
 POST = "peer"   # "sinkhorn" (half strength) or "peer" (peer correction, no class quotas, #46)
@@ -49,6 +49,7 @@ ATLAS_SHARE = 0.0   # probe 5: Joseph Adamski's ATLAS at 10%, only on rows whose
 ATLAS_MARGIN = 0.3
 ATLAS_STOP_HOURS = 7.5   # ATLAS stops here whatever is left, so the run stays inside 9 hours
 PRVSIYAN_SHARE = 0.1   # probe 3: prvsiyan's two Qwen3-8B seeds, mixed in at a fixed 10% before balancing (#20)
+OURS_SHARE = 0.0   # our own Qwen3-8B LoRA24 from nabilshah/nthl-train-lora (#43), off until probed
 
 torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction = False
 T0 = time.time()
@@ -175,9 +176,22 @@ if ULTRABERT_SHARE > 0:
     torch.cuda.empty_cache()
     timings["ultrabert"] = round(time.time() - T0)
 
+# 5e. Our own Qwen3-8B LoRA24, the final checkpoint of nabilshah/nthl-train-lora.
+ours = None
+if OURS_SHARE > 0:
+    local = "/tmp/ours_final"
+    shutil.copytree(os.path.dirname(one("ours_final/meta.json")), local, dirs_exist_ok=True)
+    base8 = find_base("/kaggle/input", {"model_type": "qwen3", "hidden_size": 4096, "num_hidden_layers": 36})
+    ours, _, info = run_spec(read_ours(local), base8, test["text"].tolist())
+    print("ours", json.dumps(info), flush=True)
+    np.save(f"{OUT}/members/ours.npy", ours)
+    gc.collect()
+    torch.cuda.empty_cache()
+    timings["ours"] = round(time.time() - T0)
+
 # Published additions as fixed shares of the probabilities, before balancing (#20).
 shares = {"prvsiyan": PRVSIYAN_SHARE if PRVSIYAN_SHARE > 0 else 0, "zbigniew": ZBIGNIEW_SHARE if zb is not None else 0,
-          "ultrabert": ULTRABERT_SHARE if ub is not None else 0}
+          "ultrabert": ULTRABERT_SHARE if ub is not None else 0, "ours": OURS_SHARE if ours is not None else 0}
 mixed = (1 - sum(shares.values())) * p
 if shares["prvsiyan"]:
     mixed += PRVSIYAN_SHARE * prv
@@ -185,6 +199,8 @@ if shares["zbigniew"]:
     mixed += ZBIGNIEW_SHARE * zb
 if shares["ultrabert"]:
     mixed += ULTRABERT_SHARE * ub
+if shares["ours"]:
+    mixed += OURS_SHARE * ours
 p = mixed
 
 # 5d. ATLAS on the rows the blend is unsure of, at a fixed 10% there, as in the public 0.636 recipe.
@@ -213,7 +229,7 @@ assert len(sub) == len(test) and sub["id"].is_unique and sub["model"].isin(LABEL
 sub.to_parquet(f"{OUT}/submission.parquet", index=False)
 np.save(f"{OUT}/members/blend.npy", p)
 summary = {"rows": len(test), "post": POST, "sinkhorn_alpha": SINKHORN_ALPHA if big else None, "weights": WEIGHTS,
-           "twin_weight": TWIN_WEIGHT, "prvsiyan_share": PRVSIYAN_SHARE, "zbigniew_share": ZBIGNIEW_SHARE, "ultrabert_share": ULTRABERT_SHARE, "atlas_share": ATLAS_SHARE, "atlas": atlas_info, "witness_weight": WITNESS_WEIGHT, "pool_weight": POOL_WEIGHT, "timings": timings, "seconds": round(time.time() - T0),
+           "twin_weight": TWIN_WEIGHT, "prvsiyan_share": PRVSIYAN_SHARE, "zbigniew_share": ZBIGNIEW_SHARE, "ultrabert_share": ULTRABERT_SHARE, "ours_share": OURS_SHARE, "atlas_share": ATLAS_SHARE, "atlas": atlas_info, "witness_weight": WITNESS_WEIGHT, "pool_weight": POOL_WEIGHT, "timings": timings, "seconds": round(time.time() - T0),
            "predicted": sub["model"].value_counts().to_dict()}
 json.dump(summary, open(f"{OUT}/summary.json", "w"), indent=1)
 print(json.dumps(summary, indent=1))
