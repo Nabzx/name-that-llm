@@ -54,6 +54,8 @@ OURS_SHARE = 0.1   # probe 7: our own Qwen3-8B LoRA24 from nabilshah/nthl-train-
 GAUSS_WEIGHT = 1.0   # probe 9 (probe 8 used 0.4, LB 0.631; the check found 1.0 best): shared-prompt Gaussian group head on our honest stage-1 features, grouped rows only (#46, LOG row 25)
 MODERNBERT_SHARE = 0.1   # probe 9: nuridudak's two-stage ModernBERT-large (122k pool, Apache 2.0, OOF 0.569) at a fixed 10%
 GAUSS_T = 2.0   # temperature picked by held-out log loss in nthl-gauss-check
+GAUSS14_WEIGHT = 0.5   # probe 10: the same Gaussian head on each 14B LoRA's features, half weight (#46)
+GAUSS14_T = 4.0   # softer than the stage-1 head: these checkpoints saw host train, so their train features are too clean
 
 torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction = False
 T0 = time.time()
@@ -102,7 +104,26 @@ LORAS = {
 for name, (folder, spec) in LORAS.items():
     ckpt = f"/tmp/{folder}"
     shutil.copytree(os.path.dirname(one(f"{folder}/meta.json")), ckpt, dirs_exist_ok=True)
-    p, centred, info = run_checkpoint(ckpt, find_base("/kaggle/input", spec), test["text"].tolist(), groups=groups, twin=twin)
+    if GAUSS14_WEIGHT > 0:
+        # Train rows ride along (never in a cluster) so the same pass gives features for the Gaussian head.
+        # In the 3-row commit run every test row is its own group, so the path runs without a vote.
+        n_tr = len(train)
+        tg = groups if big else np.arange(len(test))
+        tt = twin if big else np.zeros(len(test), bool)
+        texts = train["text"].fillna("").astype(str).tolist() + test["text"].tolist()
+        p_all, centred, info, feats = run_checkpoint(ckpt, find_base("/kaggle/input", spec), texts,
+                                                     groups=np.r_[np.full(n_tr, -1), tg], twin=np.r_[np.zeros(n_tr, bool), tt],
+                                                     return_features=True)
+        p = p_all[n_tr:]
+        prm = gauss_fit(feats[:n_tr], np.array([LABELS.index(m) for m in train["model"]]), train["prompt_id"].to_numpy())
+        lp = log_posteriors(gauss_transform(feats[n_tr:], prm), prm, tg, tt, T=GAUSS14_T)
+        np.save(f"{OUT}/members/gauss_{name}.npy", lp)
+        if big:
+            vote(f"gauss_{name}", np.exp(lp[twin]), GAUSS14_WEIGHT, rows=twin)
+        print(f"gauss {name}: d {prm['d']}", flush=True)
+        del feats
+    else:
+        p, centred, info = run_checkpoint(ckpt, find_base("/kaggle/input", spec), test["text"].tolist(), groups=groups, twin=twin)
     print(name, json.dumps(info), flush=True)
     vote(name, p, WEIGHTS[name])
     if centred is not None:
@@ -268,7 +289,7 @@ assert len(sub) == len(test) and sub["id"].is_unique and sub["model"].isin(LABEL
 sub.to_parquet(f"{OUT}/submission.parquet", index=False)
 np.save(f"{OUT}/members/blend.npy", p)
 summary = {"rows": len(test), "post": POST, "sinkhorn_alpha": SINKHORN_ALPHA if big else None, "weights": WEIGHTS,
-           "twin_weight": TWIN_WEIGHT, "prvsiyan_share": PRVSIYAN_SHARE, "zbigniew_share": ZBIGNIEW_SHARE, "ultrabert_share": ULTRABERT_SHARE, "ours_share": OURS_SHARE, "gauss_weight": GAUSS_WEIGHT, "modernbert_share": MODERNBERT_SHARE, "gauss": gauss_info, "atlas_share": ATLAS_SHARE, "atlas": atlas_info, "witness_weight": WITNESS_WEIGHT, "pool_weight": POOL_WEIGHT, "timings": timings, "seconds": round(time.time() - T0),
+           "twin_weight": TWIN_WEIGHT, "prvsiyan_share": PRVSIYAN_SHARE, "zbigniew_share": ZBIGNIEW_SHARE, "ultrabert_share": ULTRABERT_SHARE, "ours_share": OURS_SHARE, "gauss_weight": GAUSS_WEIGHT, "gauss14_weight": GAUSS14_WEIGHT, "gauss14_t": GAUSS14_T, "modernbert_share": MODERNBERT_SHARE, "gauss": gauss_info, "atlas_share": ATLAS_SHARE, "atlas": atlas_info, "witness_weight": WITNESS_WEIGHT, "pool_weight": POOL_WEIGHT, "timings": timings, "seconds": round(time.time() - T0),
            "predicted": sub["model"].value_counts().to_dict()}
 json.dump(summary, open(f"{OUT}/summary.json", "w"), indent=1)
 print(json.dumps(summary, indent=1))
