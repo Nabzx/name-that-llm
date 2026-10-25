@@ -6,7 +6,7 @@ transcripts, and a readable Markdown version of the conversation.
     python scripts/export_session.py <session-id> [--name NAME]
 
 The transcript is looked up under ~/.claude/projects/*/<session-id>.jsonl.
-Output goes to materials/ai-sessions/, which is gitignored.
+Output goes to ai-sessions/ in the repo, so the logs travel with the code. Pass --out to write elsewhere.
 """
 
 import argparse
@@ -15,7 +15,7 @@ import zipfile
 from pathlib import Path
 
 PROJECTS = Path.home() / ".claude" / "projects"
-OUT = Path(__file__).resolve().parent.parent / "materials" / "ai-sessions"
+OUT = Path(__file__).resolve().parent.parent / "ai-sessions"
 RESULT_CAP = 3000  # tool results are cut in the Markdown only, never in the raw file
 
 
@@ -60,15 +60,17 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("session_id")
     ap.add_argument("--name", default=None)
+    ap.add_argument("--out", default=str(OUT))
     args = ap.parse_args()
+    out = Path(args.out)
 
     jsonl = find_transcript(args.session_id)
     name = args.name or args.session_id
-    OUT.mkdir(parents=True, exist_ok=True)
-    md = OUT / f"{name}.md"
+    out.mkdir(parents=True, exist_ok=True)
+    md = out / f"{name}.md"
     md.write_text(render(jsonl))
 
-    zpath = OUT / f"{name}.zip"
+    zpath = out / f"{name}.zip"
     with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
         z.write(jsonl, f"{name}/transcript.jsonl")
         z.write(md, f"{name}/transcript.md")

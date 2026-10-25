@@ -11,10 +11,12 @@ Every AI session used for this entry, as required by the competition rules. Each
    .venv/bin/python scripts/export_session.py <transcript-id> --name <nn-short-name>
    ```
 
-   It finds `~/.claude/projects/*/<transcript-id>.jsonl` and writes `materials/ai-sessions/<name>.zip` (gitignored). The zip holds the raw transcript untouched, the subagent transcripts if there are any, and a readable `transcript.md` where long tool results are cut. The raw file is the complete log.
+   It finds `~/.claude/projects/*/<transcript-id>.jsonl` and writes `ai-sessions/<name>.zip` and `ai-sessions/<name>.md` in the repo, so the logs travel with the code. The zip holds the raw transcript untouched, the subagent transcripts if there are any, and a readable `transcript.md` where long tool results are cut. The raw file is the complete log.
 3. The transcript id is the file name under `~/.claude/projects/`. The app id (`local_...`) is not the same thing.
 
-Before handing in, check each export for anything personal. Session 1 holds Nabil's email and memory notes on unrelated projects. Nothing secret: token strings in it are masked or placeholders. Redacting would make the log incomplete, so decide with Nabil before cutting anything.
+Re-run the export after the last message of a session, and commit the result. An export is a snapshot: anything said after it is missing.
+
+Before handing in, check each export for anything personal. Session 1 holds Nabil's email and memory notes on unrelated projects. Nothing secret: a scan on 2026-10-25 for Kaggle, GitHub, Hugging Face, OpenAI and AWS token patterns found none. Redacting would make the log incomplete, so decide with Nabil before cutting anything.
 
 Every new session or subagent run gets a row here the moment it starts.
 
@@ -22,7 +24,7 @@ Every new session or subagent run gets a row here the moment it starts.
 
 | # | Tool | Session | Started | Purpose | Exported |
 |---|---|---|---|---|---|
-| 1 | Claude Code desktop, Claude Opus 5.5 | "AI Soc Kaggle Tournament", app id `local_1aa315e8-bae2-43a1-9ca3-370ff2a0a459`, transcript `5d7d3493-861c-4044-bd86-4e023fd27b66` | 2026-10-24 02:03 BST | Track research, Kaggle playbook, task analysis, repo set-up, direction research, the Phase 0 to 5 tickets and the work on them | Trial export 2026-10-24, final export at the end |
+| 1 | Claude Code desktop, Claude Opus 5.5 | "AI Soc Kaggle Tournament", app id `local_1aa315e8-bae2-43a1-9ca3-370ff2a0a459`, transcript `5d7d3493-861c-4044-bd86-4e023fd27b66` | 2026-10-24 02:03 BST | Track research, Kaggle playbook, task analysis, repo set-up, direction research, the Phase 0 to 5 tickets and the work on them | Snapshot in `ai-sessions/01-main-session.zip` (2026-10-25 ~01:00, 8 subagent logs), final export at the end |
 | 2 | Claude Code subagent of session 1, Claude Opus 5.5 | Research agent for #20 (blend validation). Transcript in session 1's `subagents` folder | 2026-10-24 16:28 BST | Read and wrote the #20 research note on its own branch | Exported with session 1 |
 | 3 | Claude Code subagent of session 1, Claude Opus 5.5 | Research agent for #23 (Sinkhorn and centring). Transcript in session 1's `subagents` folder | 2026-10-24 16:28 BST | Read, simulated on our OOF predictions and wrote the #23 note | Exported with session 1 |
 | 4 | Claude Code subagent of session 1, Claude Opus 5.5 | Research agent for #24 (what top teams do). Transcript in session 1's `subagents` folder | 2026-10-24 16:28 BST | Read the leaderboard and discussion and wrote the #24 note | Exported with session 1 |
