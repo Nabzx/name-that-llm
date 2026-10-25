@@ -28280,3 +28280,253 @@ Now committing, merging, then the final re-export of every session.
  "timeout": 400000
 }
 ```
+
+**Tool result**
+
+```
+https://github.com/Nabzx/name-that-llm/pull/107
+ 2 files changed, 26 insertions(+)
+/Users/nabilshah/Random/research-arm-kaggle/ai-sessions/11-own-lora-member.zip (0.2 MB)
+/Users/nabilshah/Random/research-arm-kaggle/ai-sessions/12-report-draft.zip (2.7 MB)
+/Users/nabilshah/Random/research-arm-kaggle/ai-sessions/13-video-script.zip (0.4 MB)
+/Users/nabilshah/Random/research-arm-kaggle/ai-sessions/14-qwen27b-check.zip (0.4 MB)
+/Users/nabilshah/Random/research-arm-kaggle/ai-sessions/15-encoders-122k.zip (0.2 MB)
+/Users/nabilshah/Random/research-arm-kaggle/ai-sessions/16-hard-pairs.zip (0.2 MB)
+/Users/nabilshah/Random/research-arm-kaggle/ai-sessions/01-main-session.zip (6.8 MB)
+0
+https://github.com/Nabzx/name-that-llm/pull/108
+ 9 files changed, 206 insertions(+), 1 deletion(-)
+ca9409a Merge pull request #108 from Nabzx/docs/final-export-2
+16:13
+```
+
+## Claude (2026-10-25 16:14:18 UTC)
+
+The three new sections are in the report and merged to main ([PR #107](https://github.com/Nabzx/name-that-llm/pull/107)). The PDF is still 2 pages; I checked it with `pdftotext` and by eye.
+
+**Added to the report:**
+- **Literature review:** five short entries, each saying what the prior work found and how it shaped my plan.
+  - Nishant Dahal's two-stage LoRA on a public pool.
+  - prvsiyan's shared-prompt Gaussian heads.
+  - Likelihood attribution: ATLAS (Ko et al.), Fast-DetectGPT and Binoculars.
+  - The forum study on test-time balancing.
+  - The public pool audits.
+- **Research practice:**
+  - Every idea started as a hypothesis with a reason.
+  - All 29 log rows are kept, about a dozen of them failures or ties.
+  - Only held-out evidence I could trust: frozen prompt-grouped folds, test-like groups clustered with the real test texts, honest features.
+  - One change per probe.
+  - Every source and licence cited.
+  - The honest number chosen over the flattering one, such as the 27B's held-out 0.521.
+- **How to reproduce:** the commands from cloning the repo to the tests, the Kaggle login, the code upload, the LoRA training and the probe 9 submission. Folds are frozen, every seed is 42, and every log row names its notebook and version.
+
+**AI logs:** all seven exports were re-done at 16:13 GMT and merged to main ([PR #108](https://github.com/Nabzx/name-that-llm/pull/108)). That's this session with its 8 subagents, plus the six side sessions. The token scan is clean. Only this last reply comes after the export. To include it, run the export command from earlier just before you submit, then commit and push.
+
+**Left for you, before 18:00:**
+1. **Final picks:** tick probe 9 and probe 7 on Kaggle.
+2. **Notebook:** share `nabilshah/nthl-submit` and give **version 12** in the form.
+3. **Repo access:** invite the organisers to the repo, or attach the PDFs and zips.
+4. **Video:** record it and upload it unlisted.
+
+## Nabil (2026-10-25 16:17:52 UTC)
+
+update readme to reflect new results/updates including images.
+
+reexport chat.
+
+send me downloadable pdf of report, slides, and speakers notes.
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "git checkout -q -b docs/readme-final && python3 - <<'EOF'\np='scripts/make_progress_chart.py'\ns=open(p).read()\nold=s[s.index('PROBES = ['):s.index(']\\n',s.index('PROBES = ['))+2]\nnew='''PROBES = [  # (label, public LB, short note)\n    (\"1\", 0.626, \"spine + SVC\"),\n    (\"2\", 0.629, \"half Sinkhorn\"),\n    (\"3\", 0.631, \"+ seeds\"),\n    (\"4\", 0.627, \"+ in-style\"),\n    (\"5\", 0.631, \"+ ATLAS\"),\n    (\"6\", 0.622, \"peer corr.\"),\n    (\"7\", 0.631, \"+ our LoRA\"),\n    (\"8\", 0.631, \"Gauss 0.4\"),\n    (\"9\", 0.637, \"Gauss 1.0\"),\n    (\"10\", 0.630, \"14B Gauss\"),\n]\n'''\ns=s.replace(old,new)\ns=s.replace('LO, HI = 0.615, 0.642','LO, HI = 0.615, 0.643')\ns=s.replace('W, H, L, R, T, B = 1000, 520, 90, 40, 80, 110','W, H, L, R, T, B = 1200, 520, 90, 40, 80, 110')\nopen(p,'w').write(s)\nEOF\ngrep -n \"font-size=\\\"13\\\"\" scripts/make_progress_chart.py | head -2; .venv/bin/python scripts/make_progress_chart.py && rsvg-convert -w 1800 assets/progress.svg -o assets/progress.png && cp docs/report/pipeline.svg assets/pipeline.svg && rsvg-convert -w 1600 assets/pipeline.svg -o assets/pipeline.png && echo ok",
+ "description": "Redraw the score chart and pipeline images",
+ "timeout": 60000
+}
+```
+
+**Tool call: Read**
+
+```json
+{
+ "file_path": "/Users/nabilshah/Random/research-arm-kaggle/assets/progress.png"
+}
+```
+
+**Tool call: Read**
+
+```json
+{
+ "file_path": "/Users/nabilshah/Random/research-arm-kaggle/assets/pipeline.png"
+}
+```
+
+**Tool result**
+
+```
+48:        out.append(f'<text x="{a:.1f}" y="{H - B + 52}" font-size="13" fill="#666" text-anchor="middle">{note}</text>')
+ok
+```
+
+**Tool result**
+
+```
+
+```
+
+**Tool result**
+
+```
+
+```
+
+## Claude (2026-10-25 16:18:07 UTC)
+
+Both images are current. One fix: the "best public notebook" label sits on top of the 0.637 point, so I'm moving the reference labels to the left. I'll also add a slide preview image.
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "python3 - <<'EOF'\np='scripts/make_progress_chart.py'\ns=open(p).read()\ns=s.replace(\"out.append(f'<text x=\\\"{W - R}\\\" y=\\\"{y(v) - 7:.1f}\\\" font-size=\\\"14\\\" fill=\\\"#777\\\" text-anchor=\\\"end\\\">{name} {v:.3f}</text>')\",\n            \"out.append(f'<text x=\\\"{L + 8}\\\" y=\\\"{y(v) - 7:.1f}\\\" font-size=\\\"14\\\" fill=\\\"#777\\\" text-anchor=\\\"start\\\">{name} {v:.3f}</text>')\")\nopen(p,'w').write(s)\nEOF\ngrep -c 'text-anchor=\\\\\"start\\\\\"' scripts/make_progress_chart.py; .venv/bin/python scripts/make_progress_chart.py && rsvg-convert -w 1800 assets/progress.svg -o assets/progress.png && pdftoppm -r 40 -png -f 7 -l 7 -singlefile documents/presentation.pdf assets/slide-ablation && pdftoppm -r 40 -png -f 3 -l 3 -singlefile documents/presentation.pdf assets/slide-literature && ls assets",
+ "description": "Move the chart labels and make slide previews",
+ "timeout": 60000
+}
+```
+
+**Tool call: Read**
+
+```json
+{
+ "file_path": "/Users/nabilshah/Random/research-arm-kaggle/assets/progress.png"
+}
+```
+
+**Tool result**
+
+```
+0
+pipeline.png
+pipeline.svg
+progress.png
+progress.svg
+slide-ablation.png
+slide-literature.png
+```
+
+**Tool result**
+
+```
+
+```
+
+## Claude (2026-10-25 16:18:13 UTC)
+
+Clean. Now the README.
+
+**Tool call: Read**
+
+```json
+{
+ "file_path": "/Users/nabilshah/Random/research-arm-kaggle/README.md"
+}
+```
+
+**Tool result**
+
+```
+1	<div align="center">
+2	
+3	# Name That LLM
+4	
+5	**Which of 18 language models wrote this passage?**
+6	
+7	[![Licence: Apache 2.0](https://img.shields.io/badge/licence-Apache_2.0-3b82f6.svg)](LICENSE)
+8	&nbsp;[![tests](https://github.com/Nabzx/name-that-llm/actions/workflows/tests.yml/badge.svg)](https://github.com/Nabzx/name-that-llm/actions/workflows/tests.yml)
+9	&nbsp;[![Kaggle](https://img.shields.io/badge/Kaggle-Name_That_LLM-20beff.svg)](https://www.kaggle.com/competitions/name-that-llm)
+10	&nbsp;![Public LB](https://img.shields.io/badge/public_LB-0.631-2a62b8.svg)
+11	&nbsp;![Python 3.11+](https://img.shields.io/badge/python-3.11+-3776ab.svg)
+12	
+13	</div>
+14	
+15	A solo entry to the Imperial Research Arm qualifier, run on Kaggle's [Name That LLM](https://www.kaggle.com/competitions/name-that-llm). Each passage is 40 to 250 words, written by one of 18 frontier models from OpenAI, Google, Anthropic, Qwen, Z.ai and Moonshot. Test prompts never appear in training, and the score is balanced accuracy.
+16	
+17	<p align="center"><img src="assets/pipeline.png" alt="Pipeline: our SVC and published LoRA checkpoints feed a log-space blend, then fixed shares, then balancing, then one label per passage" width="860" /></p>
+18	
+19	## Method
+20	
+21	1. **Validation first.** Five folds grouped by prompt, frozen in `src/nthl/folds.csv`, so no prompt is in both train and validation.
+22	2. **More data.** A pool of 84,470 passages from 19 public, open-licence datasets, cleaned and de-duplicated.
+23	3. **Our n-gram SVC.** Four TF-IDF views of each passage. Adding the pool took CV from 0.348 to 0.484.
+24	4. **Published checkpoints, our own loader.** LoRA classifiers other Kagglers published on Qwen3 and Qwen2.5, read by code we wrote from scratch, with checks on label order and end token.
+25	5. **Blend and balance.** A weighted sum of log probabilities, fixed shares for extra members, then half-strength Sinkhorn or peer correction.
+26	6. **Our own LoRA.** A two-stage Qwen3-8B classifier trained on Kaggle: the pool first, then host train.
+27	
+28	Every change is one row in [`docs/experiments/LOG.md`](docs/experiments/LOG.md). The reasoning sits in [`docs/research/`](docs/research).
+29	
+30	<p align="center"><img src="assets/progress.png" alt="Public leaderboard by probe: 0.626, 0.629, 0.631, 0.627, 0.631" width="760" /></p>
+31	
+32	## Reproduce
+33	
+34	```bash
+35	python -m venv .venv && .venv/bin/pip install -e ".[dev]" kaggle
+36	.venv/bin/pytest -q                              # unit tests, CPU only
+37	.venv/bin/kaggle auth login                       # your own Kaggle account
+38	scripts/push_src.sh                               # uploads src/nthl as the code dataset
+39	.venv/bin/kaggle kernels push -p notebooks/submit --accelerator NvidiaTeslaT4
+40	```
+41	
+42	Nothing is trained on a laptop. Every model is trained and run in a Kaggle notebook under `notebooks/`, with seed 42 and the frozen folds. Each probe is one version of `nabilshah/nthl-submit`, and its settings sit 
+... (450 more characters in the raw transcript)
+```
+
+**Tool call: Write**
+
+```json
+{
+ "file_path": "/Users/nabilshah/Random/research-arm-kaggle/README.md",
+ "content": "<div align=\"center\">\n\n# Name That LLM\n\n**Which of 18 language models wrote this passage?**\n\n[![Licence: Apache 2.0](https://img.shields.io/badge/licence-Apache_2.0-3b82f6.svg)](LICENSE)\n&nbsp;[![tests](https://github.com/Nabzx/name-that-llm/actions/workflows/tests.yml/badge.svg)](https://github.com/Nabzx/name-that-llm/actions/workflows/tests.yml)\n&nbsp;[![Kaggle](https://img.shields.io/badge/Kaggle-Name_That_LLM-20beff.svg)](https://www.kaggle.com/competitions/name-that-llm)\n&nbsp;![Public LB](https://img.shields.io/badge/public_LB-0.637-2a62b8.svg)\n&nbsp;![Python 3.11+](https://img.shields.io/badge/python-3.11+-3776ab.svg)\n\n</div>\n\nA solo entry to the Imperial Research Arm qualifier, run on Kaggle's [Name That LLM](https://www.kaggle.com/competitions/name-that-llm). Each passage is 40 to 250 words, written by one of 18 frontier models from OpenAI, Google, Anthropic, Qwen, Z.ai and Moonshot. Test prompts never appear in training, and the score is balanced accuracy. Best public score **0.637**.\n\n**Hand-in:** [report (2 pages)](docs/report/report.pdf) · [slides](documents/presentation.pdf) · [speaker notes](documents/speaker-notes.pdf) · [experiment log](docs/experiments/LOG.md) · [AI sessions](ai-sessions)\n\n<p align=\"center\"><img src=\"assets/pipeline.png\" alt=\"Pipeline: our SVC, published LoRA checkpoints, our Gaussian group head, our own Qwen3-8B LoRA and ModernBERT feed a log-space blend, then fixed shares, then half-strength balancing, then one label per passage\" width=\"860\" /></p>\n\n## Method\n\n1. **Research before code.** 22 public notebooks, 18 discussion threads and 15 research notes, each ending in a decision ([`docs/research/`](docs/research)).\n2. **Validation first.** Five folds grouped by prompt, frozen in `src/nthl/folds.csv`, so no prompt is in both train and validation.\n3. **More data.** A pool of 84,470 passages from 19 public, open-licence datasets took our n-gram SVC from 0.348 to 0.484 CV.\n4. **Published checkpoints, our own loader.** LoRA classifiers other Kagglers published on Qwen, read by code we wrote, with checks on label order and end token.\n5. **Our own LoRA.** A two-stage Qwen3-8B classifier trained on Kaggle overnight: 0.519 on unseen host train after stage 1.\n6. **Shared-prompt Gaussian group head.** Our own code after prvsiyan's public method: test passages that share a prompt are decoded together with the prompt's effect removed. **+0.058** on its own view.\n7. **Blend and balance.** A weighted sum of log probabilities, fixed shares for extra members, then half-strength Sinkhorn.\n\nEvery change is one row in [`docs/experiments/LOG.md`](docs/experiments/LOG.md): 29 rows, failures included.\n\n<p align=\"center\"><img src=\"assets/progress.png\" alt=\"Public leaderboard by probe: 0.626, 0.629, 0.631, 0.627, 0.631, 0.622, 0.631, 0.631, 0.637, 0.630\" width=\"860\" /></p>\n\nFinal picks: **probe 9** (0.637, Gaussian head at full weight plus ModernBERT) and **probe 7** (0.631, a simpler blend that carries our own LoRA).\n\n<p align=\"center\">\n  <img src=\"assets/slide-literature.png\" alt=\"Slide: literature review, 22 notebooks, 18 threads, 15 research notes\" width=\"420\" />\n  &nbsp;\n  <img src=\"assets/slide-ablation.png\" alt=\"Slide: ablation table of the ten leaderboard probes\" width=\"420\" />\n</p>\n\n## Reproduce\n\n```bash\ngit clone https://github.com/Nabzx/name-that-llm && cd name-that-llm\npython -m venv .venv && .venv/bin/pip install -e \".[dev]\" kaggle\n.venv/bin/pytest -q                              # 88 unit tests, CPU only\n.venv/bin/kaggle auth login                       # your own Kaggle account\nscripts/push_src.sh                               # uploads src/nthl as the code dataset\n.venv/bin/kaggle kernels push -p notebooks/train-lora --accelerator NvidiaTeslaT4   # our LoRA\n.venv/bin/kaggle kernels push -p notebooks/submit --accelerator NvidiaTeslaT4       # probe 9\n```\n\nNothing is trained on a laptop. Every model is trained and run in a Kaggle notebook under `notebooks/`, with seed 42 and the frozen folds. Each probe is one version of `nabilshah/nthl-submit` (probe 9 is version 12), and its settings sit at the top of `notebooks/submit/run.py`.\n\n## How AI was used\n\nClaude Code (Claude Opus 5.5) from the first hour, in a repo set up for agents: [`AGENTS.md`](AGENTS.md) and [`CLAUDE.md`](CLAUDE.md) hold the competition rules as invariants, work runs in phases of small tickets, every decision starts from a research note and every change gets a log row. Side sessions ran research and experiments in parallel on their own branches. Every session is exported in [`ai-sessions/`](ai-sessions) and listed in [`docs/ai-sessions.md`](docs/ai-sessions.md).\n\n## Credits\n\nPublished checkpoints, public pools and notebooks we read are listed in [`CITATIONS.md`](CITATIONS.md), with their licences. They keep their own terms.\n\n## Licence\n\nThe code in this repository is [Apache 2.0](LICENSE).\n"
+}
+```
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "cat > /private/tmp/claude-501/-Users-nabilshah--claude-spares-spare-GAqgHJ/5d7d3493-861c-4044-bd86-4e023fd27b66/scratchpad/notes.css <<'EOF'\n@page { size: A4; margin: 16mm 18mm; }\nbody { font-family: \"Helvetica Neue\", Arial, sans-serif; font-size: 10.5pt; line-height: 1.4; color: #111; }\nh1 { font-size: 18pt; margin: 0 0 6pt; } h2 { font-size: 11.5pt; margin: 12pt 0 3pt; }\nblockquote { margin: 0; padding: 0 0 0 10pt; border-left: 2pt solid #111; } p { margin: 3pt 0; }\nEOF\ncp /private/tmp/claude-501/-Users-nabilshah--claude-spares-spare-GAqgHJ/5d7d3493-861c-4044-bd86-4e023fd27b66/scratchpad/notes.css docs/report/notes.css && pandoc documents/speaker-notes.md -s --embed-resources -c docs/report/notes.css -M pagetitle=\"Speaker notes\" -o /private/tmp/claude-501/-Users-nabilshah--claude-spares-spare-GAqgHJ/5d7d3493-861c-4044-bd86-4e023fd27b66/scratchpad/notes.html && \"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --no-pdf-header-footer --print-to-pdf=documents/speaker-notes.pdf /private/tmp/claude-501/-Users-nabilshah--claude-spares-spare-GAqgHJ/5d7d3493-861c-4044-bd86-4e023fd27b66/scratchpad/notes.html 2>/dev/null; pdftotext documents/speaker-notes.pdf - | head -5; python3 -c \"import re;print('pages', len(re.findall(rb'/Type\\s*/Page[^s]', open('documents/speaker-notes.pdf','rb').read())))\"",
+ "description": "Render the speaker notes to PDF",
+ "timeout": 120000
+}
+```
+
+**Tool result**
+
+```
+The file /Users/nabilshah/Random/research-arm-kaggle/README.md has been updated successfully. (file state is current in your context — no need to Read it back)
+```
+
+**Tool result**
+
+```
+Speaker notes: Name That LLM
+Read these while showing documents/presentation.pdf, one block per slide. About 480 words,
+so three minutes at a brisk, steady pace. Say “glm-5.3” as “G L M five point three”.
+
+1. Cover (0:00)
+pages 2
+```
+
+## Claude (2026-10-25 16:18:44 UTC)
+
+Commit, merge, re-export, then send you the PDFs.
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "git add README.md assets scripts/make_progress_chart.py documents/speaker-notes.pdf docs/report/notes.css && git commit -q -m \"docs(readme): final results, images and hand-in links\" -m \"Badge 0.637, method with the Gaussian head and our own LoRA, the ten-probe chart, the updated pipeline, two slide previews, final picks, reproduce steps, how AI was used. Adds a PDF of the speaker notes.\n\nrefs #49 #51\" && git push -q -u origin docs/readme-final 2>&1 | grep -v '^remote:'; gh pr create --base main --title \"docs(readme): final results, images and hand-in links\" --body \"README brought up to date with the final results and images; speaker notes as PDF. refs #49 #51\" 2>&1 | tail -1; sleep 2; gh pr merge docs/readme-final --merge --delete-branch 2>&1 | tail -1; git checkout -q main && git pull -q && git checkout -q -b docs/final-export-3 && for x in \"1788d878-ee76-4ed9-9017-f601dac928f4 11-own-lora-member\" \"95546f37-fd4a-4ca4-b719-e8966412838b 12-report-draft\" \"9014c337-56e2-446b-9370-78528936a8ee 13-video-script\" \"b11845df-3e07-44bc-860a-265c1192f2c8 14-qwen27b-check\" \"40d48bf4-5e80-4eef-9fc0-837396d4f3e5 15-encoders-122k\" \"66776953-8515-46ab-ba28-5071c1f5cd44 16-hard-pairs\" \"5d7d3493-861c-4044-bd86-4e023fd27b66 01-main-session\"; do set -- $x; .venv/bin/python scripts/export_session.py $1 --name $2 >/dev/null; done; T=$(date -u +%H:%M); grep -cE \"(KGAT_[A-Za-z0-9]{8,}|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9-]{20,}|hf_[A-Za-z0-9]{20,}|AKIA[A-Z0-9]{16})\" ~/.claude/projects/-Users-nabilshah-Random/5d7d3493-861c-4044-bd86-4e023fd27b66.jsonl; sed -i '' -E \"s/final export 2026-10-25 [0-9:]+ GMT with 8 subagent logs/final export 2026-10-25 $T GMT with 8 subagent logs/\" docs/ai-sessions.md; git add -A ai-sessions docs/ai-sessions.md && git commit -q -m \"docs(ai-sessions): re-export every AI session\" -m \"refs #52\" && git push -q -u origin docs/final-export-3 2>&1 | grep -v '^remote:'; gh pr create --base main --title \"docs(ai-sessions): re-export every AI session\" --body \"Re-export at $T GMT; token scan clean. refs #52\" 2>&1 | tail -1; sleep 2; gh pr merge docs/final-export-3 --merge --delete-branch 2>&1 | tail -1; git checkout -q main && git pull -q && git log --oneline -1; echo $T; ls -la docs/report/report.pdf documents/presentation.pdf documents/speaker-notes.pdf | awk '{print $5, $9}'",
+ "description": "Merge the README, re-export everything and merge",
+ "timeout": 400000
+}
+```
