@@ -8,6 +8,14 @@ I wrote no code for the first two hours. I read the rules, 22 public notebooks, 
 
 So my approach was: validate first, build on the published spine with my own loader, and add members I could check on my own folds. I froze five folds grouped by `prompt_id` before fitting anything, so validation looked like the hidden test. My first model, a four-view n-gram SVC on host data, scored 0.348.
 
+## Literature review
+
+- **Two-stage LoRA on a public pool** (Nishant Dahal, 0.592 then 0.620): truncate a Qwen decoder, fine-tune on public in-style passages, then on host train; most of the gain came from the pool, not the backbone.
+- **Shared-prompt Gaussian heads** (prvsiyan, *The Prompt Is Not the Author*): model features as author mean plus prompt effect plus noise and decode prompt groups jointly; about +0.005 each time it was added publicly.
+- **Likelihood attribution** (ATLAS, Ko et al., arXiv 2610.19583; Fast-DetectGPT, Binoculars): source-conditioned likelihoods beat single-score detectors at naming a model, but add little on top of fine-tuned classifiers.
+- **Test-time balancing** (forum study by s0chn1y): full Sinkhorn is a bet that the test is even; a partial balance keeps most of the gain and caps the loss.
+- **Data audits** (rmsgrk, nuridudak): a bigger merged pool helps encoders; filtering it rarely helps.
+
 ## How I made decisions
 
 One change per leaderboard probe, and I kept a change only if my cross-validation or a research note backed it too. When a probe and my CV disagreed, I trusted the CV: the public slice is small, and four probes in a row tied at 0.631. I dropped members that hurt (Zbigniew Kirchner's in-style LoRA, −0.004) and ideas that stayed in the noise, and wrote both down.
@@ -52,6 +60,24 @@ Peer correction, a public idea, replaces balancing: inside each topic cluster ev
 ## What I'd try next
 
 Retrain on the open 122k pool (stage 1 alone is about 10 hours on two T4s). Give every member five folds, so the blend is fitted on honest scores rather than probes. Decode each prompt group jointly across all members. Ask the organisers whether self-generated passages count as external data, then target the sibling pairs.
+
+## Research practice
+
+I treated the weekend as a small research project, not a leaderboard chase. Every idea started as a hypothesis with a reason, and every result, good or bad, became a row in the log: 29 rows, about a dozen of them failures or ties. I used held-out evidence I could trust: frozen prompt-grouped folds, test-like groups of 1 to 5 passages clustered with the real test texts, and features from a model that never saw the rows it was scored on. Leaderboard probes changed one thing at a time, so each score has a cause. I cited every source and licence, and I chose the honest result over the flattering one when they disagreed: the 27B model's held-out 0.521, not its in-sample score.
+
+## How to reproduce
+
+```
+git clone https://github.com/Nabzx/name-that-llm && cd name-that-llm
+python -m venv .venv && .venv/bin/pip install -e ".[dev]" kaggle
+.venv/bin/pytest -q                  # 88 unit tests, CPU only
+.venv/bin/kaggle auth login           # your own Kaggle account
+scripts/push_src.sh                   # src/nthl as the code dataset
+.venv/bin/kaggle kernels push -p notebooks/train-lora --accelerator NvidiaTeslaT4   # my LoRA
+.venv/bin/kaggle kernels push -p notebooks/submit --accelerator NvidiaTeslaT4       # probe 9
+```
+
+Folds are frozen in `src/nthl/folds.csv` and every seed is 42. Each log row names its notebook and version, so any number can be rerun on its own; the submission's settings sit at the top of `notebooks/submit/run.py`.
 
 ## How I used AI
 
