@@ -6,6 +6,7 @@ Every public notebook, discussion, dataset and pretrained model used or read for
 
 - avazaku, *Name That LLM, Peer Correction: 0.631*. https://www.kaggle.com/code/avazaku/name-that-llm-fingerprint-ensemble. Read for leave-one-out peer correction in place of Sinkhorn.
 - Roman Tamrazov, *Name That LLM, Who am I?*. https://www.kaggle.com/code/romantamrazov/name-that-llm-who-am-i. Read for UltraBERT use and consensus-gated reranking.
+- Vladislav Lavrentev, *0.642 LoRA + Llama + Qwen3.8-27B*. https://www.kaggle.com/code/lightningv08/0-642-lora-llama-qwen3-8-27b. Read, not copied, for how the full-text Qwen3.8-27B classifier is run (#46).
 - Vladislav Lavrentev, *0.637 LoRA Llama Qwen3.8-27B*. https://www.kaggle.com/code/lightningv08/0-637-lora-llama-qwen3-8-27b. Read to see what the 0.637 to 0.639 stacks contain.
 - gougou1, *ntllm v9 final*. https://www.kaggle.com/code/gougou1/ntllm-v9-final. Read for in-style LoRA plus Gaussian group heads.
 - s0chn1y, *Sinkhorn balancing on an uneven test*. https://www.kaggle.com/code/jusill/sinkhorn-balancing-on-an-uneven-test. Read for the risk of full balancing.
@@ -40,6 +41,7 @@ Every public notebook, discussion, dataset and pretrained model used or read for
 - NTL own extra v1 (michaelsemenoff/ntl-own-extra-v1), CC BY 4.0. https://www.kaggle.com/datasets/michaelsemenoff/ntl-own-extra-v1. Read in the pool census (#19).
 - NTL two-stage LoRA part two (nishantdahal/ntl-handwriting-blend), CC-BY-SA-4.0. https://www.kaggle.com/datasets/nishantdahal/ntl-handwriting-blend. Read in the pool census (#19).
 - NTL two-stage LoRA checkpoints and public pool (nishantdahal/ntl-two-stage-lora), CC-BY-SA-4.0. https://www.kaggle.com/datasets/nishantdahal/ntl-two-stage-lora. Metadata read for #19.
+- NTL 130k clean passages (nuridudak/ntl-130k-clean-passages), CC BY-SA 4.0. https://www.kaggle.com/datasets/nuridudak/ntl-130k-clean-passages. Its 122k encoder pool feeds the pair specialists in #97, with the olegzholobov and ankiteshtiwari rows left out.
 - Name That LLM: Response Corpus (olegzholobov/name-that-llm-response-corpus), other. https://www.kaggle.com/datasets/olegzholobov/name-that-llm-response-corpus. Read in the pool census (#19).
 - Name That LLM: own-prompt generations v1 (prvsiyan/ntl-own-prompt-generations-v1), CC-BY-SA-4.0. https://www.kaggle.com/datasets/prvsiyan/ntl-own-prompt-generations-v1. Read in the pool census (#19).
 - NTL public in-style pool v1 (prvsiyan/ntl-public-in-style-pool-v1), CC-BY-SA-4.0. https://www.kaggle.com/datasets/prvsiyan/ntl-public-in-style-pool-v1. Read in the pool census (#19).
@@ -60,6 +62,7 @@ Every public notebook, discussion, dataset and pretrained model used or read for
 - pjmathematician, *UltraBERT-380M Name That LLM 5-fold* (pjmathematician/ultrabert-380m-ntl). Apache 2.0. https://www.kaggle.com/datasets/pjmathematician/ultrabert-380m-ntl. Read for #18, run as a member in #28.
 - Dhruv Tibarewal, *nlm-l24-adapters* (dhruvtibarewal/nlm-l24-adapters). MIT. https://www.kaggle.com/datasets/dhruvtibarewal/nlm-l24-adapters. Read for #18.
 - Vladislav Lavrentev, *Name That LLM Artifacts* (lightningv08/ntl-olmo2-native24-final-inference-assets), including the Qwen3.8-27B NF4 LoRA. Mixed licences per component. https://www.kaggle.com/datasets/lightningv08/ntl-olmo2-native24-final-inference-assets. Read for #18.
+  - Used in #46 through our own loader (`src/nthl/qwen27b.py`): the full-text Qwen3.8-27B classifier only, that is the NF4 base `name-that-llm-artifacts/qwen38-27b-nf4` (greghavens/Qwen3.8-27B-bnb-4bit revision 26157380225e427827263c34df23018a1e28dff5, of Qwen/Qwen3.8-27B; its own Apache 2.0 LICENSE file), the task adapters `ntl627-own-fulltext/{final,outer0}.safetensors` and the offline wheels in `name-that-llm-artifacts/qwen38-offline-linux`. Licence of the 27B component, in the collection's own words: "Apache 2.0 terms apply to that model component." The adapter folder has no LICENSE file of its own. Wheels keep their packaged licences, printed by the check notebook. Nothing from the PriorLabs tabicl/tabular or Llama 3.1 parts is used.
 - Lucas Boesen, notebook outputs `name-that-llm-train-lora24-s7`, `-train-tokattn`, `-train-tokattn2`, `-glm4-9b-trunc25`, `-extract-encoders2`, `-electra-large-weights`, `-desklib-weights`. https://www.kaggle.com/lucasboesen. Read for #18.
 - Кирилл Тымчишин, *NTL Spectral Style Heads, Paired 4404* (kirilltym/ntl-spectral-style-heads-paired-4404). Licence unknown, so not used. Read for #18.
 - fle3n, *NTL Legacy Qwen24 Recovery* (fleongg/ntl-legacy-qwen24-recovery). Licence "other", so not used. Read for #18.
