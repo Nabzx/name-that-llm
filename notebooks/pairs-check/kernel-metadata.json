@@ -1,0 +1,15 @@
+{
+  "id": "nabilshah/nthl-pairs-check",
+  "title": "nthl pairs check",
+  "code_file": "run.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "dataset_sources": ["nabilshah/nthl-src", "nuridudak/ntl-130k-clean-passages"],
+  "competition_sources": ["name-that-llm"],
+  "kernel_sources": ["nabilshah/nthl-svc-pool-all-w025", "nabilshah/nthl-pool-build"],
+  "model_sources": []
+}
