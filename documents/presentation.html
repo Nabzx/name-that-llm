@@ -14,7 +14,7 @@
   .deck { display:flex; flex-direction:column; align-items:center; gap:32px; padding:32px 0; }
   .frame { width:calc(1920px * var(--s)); height:calc(1080px * var(--s)); position:relative; }
   section { width:1920px; height:1080px; position:absolute; top:0; left:0; transform:scale(var(--s)); transform-origin:top left;
-            background:var(--paper); padding:128px 128px 160px; display:flex; flex-direction:column; gap:56px; overflow:hidden; }
+            background:var(--paper); padding:128px 128px 160px; display:flex; flex-direction:column; justify-content:space-between; gap:56px; overflow:hidden; }
   section.dark { background:var(--ink); color:var(--paper); }
   .eyebrow { font-family:'Geist Mono', 'Courier New', monospace; font-size:24px; letter-spacing:2px; text-transform:uppercase; }
   h1 { font-size:200px; font-weight:600; line-height:1; letter-spacing:-8px; }
@@ -31,7 +31,7 @@
   .col { border-top:2px solid var(--ink); padding-top:28px; display:flex; flex-direction:column; gap:14px; }
   .dark .col { border-top-color:var(--paper); }
   .num { font-family:'Geist Mono', 'Courier New', monospace; font-size:24px; color:var(--grey); }
-  .big { font-size:120px; font-weight:600; letter-spacing:-4px; line-height:1; }
+  .big { font-size:104px; font-weight:600; letter-spacing:-4px; line-height:1; }
   table { border-collapse:collapse; width:100%; }
   th { font-family:'Geist Mono', 'Courier New', monospace; font-size:22px; font-weight:500; letter-spacing:1.5px; text-transform:uppercase;
        text-align:left; color:var(--grey); padding:0 20px 14px 0; }
@@ -68,12 +68,12 @@
     <h2>Which of 18 language models wrote this passage?</h2>
   </div>
   <div class="cols" style="grid-template-columns:repeat(4,1fr)">
-    <div class="col"><p class="big">18</p><p>models from six labs: OpenAI, Google, Anthropic, Qwen, Z.ai, Moonshot</p></div>
-    <div class="col"><p class="big">2,699</p><p>training passages, one per model for each of 150 prompts</p></div>
-    <div class="col"><p class="big">~4,000</p><p>hidden test passages on prompts never seen in training</p></div>
-    <div class="col"><p class="big">BA</p><p>balanced accuracy, so every model counts the same</p></div>
+    <div class="col"><p class="big">18</p><p>models, six labs</p></div>
+    <div class="col"><p class="big">2,699</p><p>training passages</p></div>
+    <div class="col"><p class="big">4,000</p><p>test passages, unseen prompts</p></div>
+    <div class="col"><p class="big">BA</p><p>balanced accuracy</p></div>
   </div>
-  <p class="small" style="max-width:1500px">Labs are easy to tell apart. Siblings are not: glm-5.3 against glm-5.3-flash, and gemini-3.7-flash against gemini-3.8-flash. Every model we tried stalls on those two pairs.</p>
+  <p class="small">Hardest: glm-5.3 vs glm-5.3-flash, gemini-3.7 vs 3.8-flash.</p>
   <div class="foot"><span>Name That LLM</span><span>02 / 10</span></div>
 </section></div>
 
@@ -81,14 +81,13 @@
 <div class="frame"><section>
   <div style="display:flex; flex-direction:column; gap:16px">
     <p class="eyebrow">Starting point</p>
-    <h2>Validation first, then build on what others had already published.</h2>
+    <h2>Validation first, then build on published work.</h2>
   </div>
   <div class="cols" style="grid-template-columns:1fr 1fr 1fr">
-    <div class="col"><p class="num">01</p><h3>Freeze the folds</h3><p>Five folds grouped by prompt, seed 42, saved to a file. No prompt sits in both training and validation, as in the hidden test.</p></div>
-    <div class="col"><p class="num">02</p><h3>A plain baseline</h3><p>A four-view n-gram SVC on host data only: <b>0.348</b> cross-validated. Every later change is one row in an experiment log.</p></div>
-    <div class="col"><p class="num">03</p><h3>Read, don't fork</h3><p>The best public blend scored 0.620. We wrote our own loader for its published LoRA weights and added our own members on top.</p></div>
+    <div class="col"><p class="num">01</p><h3>Freeze the folds</h3><p>Grouped by prompt, like the hidden test.</p></div>
+    <div class="col"><p class="num">02</p><h3>Plain baseline</h3><p>n-gram SVC, host data only: <b>0.348</b></p></div>
+    <div class="col"><p class="num">03</p><h3>Read, don't fork</h3><p>Our own loader for the best public weights (0.620).</p></div>
   </div>
-  <p class="small">Rules we kept: train only on Kaggle, everything free and openly licensed, cite every source, no hand-labelling of test data.</p>
   <div class="foot"><span>Name That LLM</span><span>03 / 10</span></div>
 </section></div>
 
@@ -136,22 +135,21 @@
       <text x="1380" y="262" text-anchor="middle" font-size="22" fill="#5E5E5A">best public LB 0.637</text>
     </g>
   </svg>
-  <p class="small">Filled boxes are ours. Outlined boxes are published weights run through our own loader, with the end token and label order checked.</p>
+  <p class="small">Filled = ours. Outlined = published, through our own loader.</p>
   <div class="foot"><span>Name That LLM</span><span>04 / 10</span></div>
 </section></div>
 
 <!-- 5 · Hypotheses -->
-<div class="frame"><section style="gap:40px">
+<div class="frame"><section>
   <div style="display:flex; flex-direction:column; gap:16px">
     <p class="eyebrow">Hypotheses</p>
-    <h2>Our hypotheses, and what happened.</h2>
+    <h2>What would separate the models?</h2>
   </div>
-  <div>
-    <div class="row" style="border-top:none; padding-top:0"><p class="mono small" style="text-transform:uppercase; letter-spacing:1.5px">Hypothesis</p><p class="mono small" style="text-transform:uppercase; letter-spacing:1.5px">Why</p><p class="mono small" style="text-transform:uppercase; letter-spacing:1.5px">Result</p></div>
-    <div class="row"><h3>Style lives in small habits</h3><p>Function words, punctuation and word shapes change little with the topic.</p><p>Four n-gram views: CV 0.348 on host data alone.</p></div>
-    <div class="row"><h3>Data beats model size</h3><p>2,699 passages is tiny. Public in-style passages show more of each model's habits.</p><p>84k public passages took the SVC to <b>0.484</b>.</p></div>
-    <div class="row"><h3>The prompt hides the author</h3><p>Test passages come in groups that share a prompt. Take out what a group shares and style is left.</p><p>Gaussian group head: <b>+0.058</b> on its own view.</p></div>
-    <div class="row"><h3>The test mix is uneven</h3><p>Full balancing bets on an even test. A half step hedges.</p><p>Half Sinkhorn: <b>+0.003</b> on the leaderboard.</p></div>
+  <div style="display:flex; flex-direction:column">
+    <div class="row" style="grid-template-columns:1fr 1fr"><h3>Style lives in small habits</h3><p>n-gram SVC: 0.348</p></div>
+    <div class="row" style="grid-template-columns:1fr 1fr"><h3>Data beats model size</h3><p>+ 84k public passages: <b>0.484</b></p></div>
+    <div class="row" style="grid-template-columns:1fr 1fr"><h3>The prompt hides the author</h3><p>Gaussian group head: <b>+0.058</b></p></div>
+    <div class="row" style="grid-template-columns:1fr 1fr"><h3>The test mix is uneven</h3><p>Half-strength balancing: <b>+0.003</b></p></div>
   </div>
   <div class="foot"><span>Name That LLM</span><span>05 / 10</span></div>
 </section></div>
@@ -160,19 +158,19 @@
 <div class="frame"><section style="gap:36px">
   <div style="display:flex; flex-direction:column; gap:16px">
     <p class="eyebrow">Ablation · public leaderboard</p>
-    <h2>Each probe changed one thing.</h2>
+    <h2>One change per probe.</h2>
   </div>
   <table>
     <tr><th>Probe</th><th>Change</th><th class="r">Public LB</th><th class="r">Δ</th></tr>
-    <tr><td class="mono">1</td><td>Our SVC + Nishant Dahal's published spine, full Sinkhorn</td><td class="r">0.626</td><td class="r">—</td></tr>
-    <tr><td class="mono">2</td><td>Sinkhorn at half strength</td><td class="r">0.629</td><td class="r pos">+0.003</td></tr>
-    <tr class="hl"><td class="mono">3</td><td>+ prvsiyan's two Qwen3-8B seeds at 10%, SVC pool weight 0.25</td><td class="r">0.631</td><td class="r">+0.002</td></tr>
-    <tr><td class="mono">4</td><td>+ Zbigniew Kirchner's in-style Qwen3-8B at 10%</td><td class="r">0.627</td><td class="r">−0.004</td></tr>
-    <tr><td class="mono">5</td><td>Probe 3 + UltraBERT 10% + ATLAS on unsure rows</td><td class="r">0.631</td><td class="r">±0</td></tr>
-    <tr><td class="mono">6</td><td>Peer correction in place of Sinkhorn</td><td class="r">0.622</td><td class="r">−0.009</td></tr>
-    <tr><td class="mono">7</td><td>Probe 3 + our own Qwen3-8B LoRA at 10%</td><td class="r">0.631</td><td class="r">±0</td></tr>
-    <tr><td class="mono">8</td><td>+ Gaussian group head at weight 0.4</td><td class="r">0.631</td><td class="r">±0</td></tr>
-    <tr class="hl"><td class="mono">9</td><td>Gaussian head at weight 1.0 + ModernBERT at 10%</td><td class="r"><b>0.637</b></td><td class="r"><b>+0.006</b></td></tr>
+    <tr><td class="mono">1</td><td>Our SVC + published spine</td><td class="r">0.626</td><td class="r">—</td></tr>
+    <tr><td class="mono">2</td><td>Half-strength balancing</td><td class="r">0.629</td><td class="r pos">+0.003</td></tr>
+    <tr class="hl"><td class="mono">3</td><td>+ two public Qwen3-8B seeds</td><td class="r">0.631</td><td class="r">+0.002</td></tr>
+    <tr><td class="mono">4</td><td>+ in-style Qwen3-8B</td><td class="r">0.627</td><td class="r">−0.004</td></tr>
+    <tr><td class="mono">5</td><td>+ UltraBERT, ATLAS</td><td class="r">0.631</td><td class="r">±0</td></tr>
+    <tr><td class="mono">6</td><td>Peer correction</td><td class="r">0.622</td><td class="r">−0.009</td></tr>
+    <tr><td class="mono">7</td><td>+ our own Qwen3-8B LoRA</td><td class="r">0.631</td><td class="r">±0</td></tr>
+    <tr><td class="mono">8</td><td>+ Gaussian head (weight 0.4)</td><td class="r">0.631</td><td class="r">±0</td></tr>
+    <tr class="hl"><td class="mono">9</td><td>Gaussian head at 1.0 + ModernBERT</td><td class="r"><b>0.637</b></td><td class="r"><b>+0.006</b></td></tr>
   </table>
   <div class="foot"><span>Name That LLM</span><span>06 / 10</span></div>
 </section></div>
@@ -181,7 +179,7 @@
 <div class="frame"><section style="gap:40px">
   <div style="display:flex; flex-direction:column; gap:16px">
     <p class="eyebrow">Ablation · honest cross-validation</p>
-    <h2>Scores on folds each model never saw.</h2>
+    <h2>Honest scores, on unseen folds.</h2>
   </div>
   <svg viewBox="0 0 1664 560" width="1486" height="500" style="flex:none" aria-label="Balanced accuracy on unseen folds: SVC host only 0.348, SVC with pool 0.484, our LoRA stage 1 0.519, Qwen3.8-27B 0.521, plain head on test-like groups 0.518, plus Gaussian head 0.577" font-family="Geist, Arial, sans-serif">
     <g font-size="26">
@@ -200,7 +198,7 @@
       <rect x="560" y="452" width="808" height="40" fill="#111111"/><text x="1383" y="482" font-weight="600" font-family="Geist Mono, monospace">0.577 (+0.058)</text>
     </g>
   </svg>
-  <p class="small">Flat, within noise: a prompt-centred SVC (+0.003 ± 0.013), pair specialists for the hard pairs (+0.0026), a 122k public pool for the SVC (−0.004). The 27B needs about 3 s a passage, too slow for a 9-hour run.</p>
+  <p class="small">Within noise: centred SVC, pair specialists, bigger SVC pool.</p>
   <div class="foot"><span>Name That LLM</span><span>07 / 10</span></div>
 </section></div>
 
@@ -208,14 +206,13 @@
 <div class="frame"><section class="dark">
   <div style="display:flex; flex-direction:column; gap:16px">
     <p class="eyebrow" style="color:var(--soft)">What didn't work</p>
-    <h2>Peer correction: 0.631 → 0.622, our worst probe.</h2>
+    <h2>Peer correction: 0.631 → 0.622</h2>
   </div>
   <div class="cols" style="grid-template-columns:1fr 1fr 1fr">
-    <div class="col"><p class="num" style="color:var(--soft)">The idea</p><p>A public trick: inside each topic cluster, remove the lean the SVC gives every passage, and drop class quotas.</p></div>
-    <div class="col"><p class="num" style="color:var(--soft)">Why we tried it</p><p>Its author saw +0.010, on a weaker blend. On paper it targets the same problem as our hypothesis about prompts.</p></div>
-    <div class="col"><p class="num" style="color:var(--soft)">Why it failed</p><p>With no quotas, a strong blend drifts towards the models it already favours. On the full public stack it also lost (−0.001).</p></div>
+    <div class="col"><p class="num" style="color:var(--soft)">The idea</p><p>Remove a topic's shared lean. Drop class quotas.</p></div>
+    <div class="col"><p class="num" style="color:var(--soft)">Why we tried it</p><p>+0.010 for its author, on a weaker blend.</p></div>
+    <div class="col"><p class="num" style="color:var(--soft)">Why it failed</p><p>No quotas: a strong blend drifts to its favourites.</p></div>
   </div>
-  <p class="small">Lesson: a trick that rescues a weak blend can hurt a strong one. Measure it on your own base.</p>
   <div class="foot"><span>Name That LLM</span><span>08 / 10</span></div>
 </section></div>
 
@@ -223,14 +220,14 @@
 <div class="frame"><section>
   <div style="display:flex; flex-direction:column; gap:16px">
     <p class="eyebrow">What the leaderboard told us</p>
-    <h2>Four ties at 0.631, then a jump to 0.637.</h2>
+    <h2>Four ties at 0.631, then 0.637.</h2>
   </div>
   <div class="cols" style="grid-template-columns:1fr 1fr">
-    <div class="col"><h3>The public slice is small</h3><p>Probes 3, 5, 7 and 8 each changed real members, and each scored 0.631. Gains of a few thousandths round away, so we steered by cross-validation, not the board.</p></div>
-    <div class="col"><h3>The Gaussian head needed full weight</h3><p>At 0.4 it moved too few rows. At 1.0, the weight our cross-validation picked, plus ModernBERT, the score rose to 0.637.</p></div>
+    <div class="col"><h3>Small gains round away</h3><p>So we steered by cross-validation.</p></div>
+    <div class="col"><h3>Full weight mattered</h3><p>The Gaussian head moved the board at 1.0, not 0.4.</p></div>
   </div>
   <div style="display:flex; gap:48px; align-items:baseline">
-    <p class="big">0.637</p><p class="small" style="max-width:900px">Best public score (probe 9), up from 0.626 at our first probe and 0.620 for the published spine alone.</p>
+    <p class="big">0.637</p><p class="small">best public score · from 0.620</p>
   </div>
   <div class="foot"><span>Name That LLM</span><span>09 / 10</span></div>
 </section></div>
@@ -239,15 +236,15 @@
 <div class="frame"><section class="dark">
   <div style="display:flex; flex-direction:column; gap:16px">
     <p class="eyebrow" style="color:var(--soft)">What I'd try next</p>
-    <h2>More data where we are weakest, and honest numbers for every member.</h2>
+    <h2>More data, honest numbers everywhere.</h2>
   </div>
   <div class="cols" style="grid-template-columns:repeat(4,1fr)">
-    <div class="col"><p class="num" style="color:var(--soft)">01</p><h3>Bigger pool</h3><p>Retrain on the open 122k pool. Stage 1 alone is about 10 h on two T4s.</p></div>
-    <div class="col"><p class="num" style="color:var(--soft)">02</p><h3>Five folds each</h3><p>Fold models for every member, so the blend is fitted on honest scores, not probes.</p></div>
-    <div class="col"><p class="num" style="color:var(--soft)">03</p><h3>Joint decoding</h3><p>One Gaussian group model across all members, with one shared prompt effect.</p></div>
-    <div class="col"><p class="num" style="color:var(--soft)">04</p><h3>The hard pairs</h3><p>Targeted data for the GLM and Gemini siblings, once the rules on generated data are clear.</p></div>
+    <div class="col"><p class="num" style="color:var(--soft)">01</p><h3>Bigger pool</h3><p>Retrain on 122k open passages.</p></div>
+    <div class="col"><p class="num" style="color:var(--soft)">02</p><h3>Five folds each</h3><p>Fit the blend on honest scores.</p></div>
+    <div class="col"><p class="num" style="color:var(--soft)">03</p><h3>Joint decoding</h3><p>One Gaussian model for all members.</p></div>
+    <div class="col"><p class="num" style="color:var(--soft)">04</p><h3>Hard pairs</h3><p>Targeted data for the siblings.</p></div>
   </div>
-  <p class="small">Code: github.com/Nabzx/name-that-llm · Every AI session exported in ai-sessions/ · Thanks for watching.</p>
+  <p class="small">github.com/Nabzx/name-that-llm · Thanks for watching.</p>
   <div class="foot"><span>Name That LLM</span><span>10 / 10</span></div>
 </section></div>
 
