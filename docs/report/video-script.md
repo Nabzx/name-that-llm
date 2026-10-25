@@ -1,6 +1,6 @@
 # Video script: three minutes
 
-For the hand-in video (#50). One speaker, one screen, recorded solo. About 440 spoken words, which is close to three minutes at a calm pace. Numbers come from `docs/experiments/LOG.md` (rows 1 to 27) and `docs/research/`. TODO marks a number we do not have yet.
+For the hand-in video (#50). One speaker, one screen, recorded solo. About 440 spoken words, which is close to three minutes at a calm pace. Numbers come from `docs/experiments/LOG.md` (rows 1 to 27), `docs/research/` and probe 9 (0.637 public). The facts match `documents/speaker-notes.md`, which goes with the slides in `documents/presentation.pdf`: use whichever is easier to record from.
 
 ## Before you record
 
@@ -13,7 +13,7 @@ Open these in browser tabs, left to right, so each section is one tab switch:
 5. `docs/report/pipeline.svg`, opened full screen.
 6. The competition leaderboard, filtered to our team, plus our submissions page.
 
-Record each section as its own clip with QuickTime or OBS, then join them. A fumbled line costs one clip, not the whole take. Read the TODO lines last, once probe 9 and the final score are in.
+Record each section as its own clip with QuickTime or OBS, then join them. A fumbled line costs one clip, not the whole take.
 
 Say "glm-5.3" as "G L M five point three".
 
@@ -41,7 +41,7 @@ Say "glm-5.3" as "G L M five point three".
 
 > Then leaderboard probes, one idea each. The published spine with my SVC scored 0.626. Balancing at half strength: 0.629. Adding prvsiyan's two seeds: 0.631. Then four probes in a row landed on exactly 0.631, with new members that each changed real rows. That tells me the public slice is too small to show gains of this size, so I trust cross-validation more than this board.
 
-**On screen:** tab 6, our submissions page, scrolling from probe 1 to probe 8. Cut to tab 3, rows 12 to 26, if the submissions page is hard to read.
+**On screen:** tab 6, our submissions page, scrolling from probe 1 to probe 8; stop before probe 9, which comes at the end. Cut to tab 3, rows 12 to 26, if the submissions page is hard to read.
 
 ### 5. The biggest gain (1:35 to 2:05), about 60 words
 
@@ -61,13 +61,11 @@ Say "glm-5.3" as "G L M five point three".
 
 **On screen:** tab 3, rows 24 and 27, then the PR list on GitHub showing the hard-pairs and Qwen 27B pull requests.
 
-### 8. Next, and the result (2:40 to 3:00), about 55 words
+### 8. The result, and next (2:40 to 3:00), about 65 words
 
-> TODO probe 9: "The last probe put the Gaussian head at full weight and added ModernBERT at ten per cent. It scored ___."
->
-> Next I would add a model from outside the Qwen family, and test each step on folds that look like the test. TODO final: "The final submission scored ___. Thanks for watching."
+> Probe nine put the Gaussian head at full weight and added ModernBERT at ten per cent. The run of ties ended at 0.637, our best, and the head that won offline was the one that moved the board. Next: retrain on the bigger open pool, five folds for every member, and targeted data for the GLM and Gemini siblings. Thanks for watching.
 
-**On screen:** tab 6, the leaderboard with our row highlighted.
+**On screen:** tab 6, the submissions page on probe 9 (0.637), then the leaderboard with our row highlighted.
 
 ## Timing check
 
@@ -80,6 +78,6 @@ Say "glm-5.3" as "G L M five point three".
 | 5. Gaussian head | 1:35 | 60 |
 | 6. Failure | 2:05 | 45 |
 | 7. Flat tests | 2:25 | 40 |
-| 8. Next | 2:40 | 55 with the TODOs |
+| 8. Result and next | 2:40 | 65 |
 
 If a run goes over three minutes, cut the 27B line in section 7 first, then the two loader traps in section 3.
