@@ -27157,3 +27157,921 @@ Now the AI logs. I'm registering the six side sessions and exporting each, plus 
  "timeout": 300000
 }
 ```
+
+**Tool result**
+
+```
+/Users/nabilshah/Random/research-arm-kaggle/ai-sessions/11-own-lora-member.zip (0.2 MB)
+/Users/nabilshah/Random/research-arm-kaggle/ai-sessions/12-report-draft.zip (2.7 MB)
+/Users/nabilshah/Random/research-arm-kaggle/ai-sessions/13-video-script.zip (0.4 MB)
+/Users/nabilshah/Random/research-arm-kaggle/ai-sessions/14-qwen27b-check.zip (0.4 MB)
+/Users/nabilshah/Random/research-arm-kaggle/ai-sessions/15-encoders-122k.zip (0.2 MB)
+/Users/nabilshah/Random/research-arm-kaggle/ai-sessions/16-hard-pairs.zip (0.2 MB)
+/Users/nabilshah/Random/research-arm-kaggle/ai-sessions/01-main-session.zip (6.5 MB)
+```
+
+## Claude (2026-10-25 16:01:32 UTC)
+
+All seven are exported. Next, the secret scan on every transcript.
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "cd ~/.claude/projects/-Users-nabilshah-Random && cat 5d7d3493-861c-4044-bd86-4e023fd27b66.jsonl 5d7d3493-861c-4044-bd86-4e023fd27b66/subagents/*.jsonl 1788d878-ee76-4ed9-9017-f601dac928f4.jsonl 95546f37-fd4a-4ca4-b719-e8966412838b.jsonl 9014c337-56e2-446b-9370-78528936a8ee.jsonl b11845df-3e07-44bc-860a-265c1192f2c8.jsonl 40d48bf4-5e80-4eef-9fc0-837396d4f3e5.jsonl 66776953-8515-46ab-ba28-5071c1f5cd44.jsonl | grep -ohE \"(KGAT_[A-Za-z0-9]{8,}|ghp_[A-Za-z0-9]{20,}|gho_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9-]{20,}|hf_[A-Za-z0-9]{20,}|AKIA[A-Z0-9]{16}|eyJ[A-Za-z0-9_-]{30,}\\.[A-Za-z0-9_-]{20,})\" | sort | uniq -c | head; echo \"scan done\"",
+ "description": "Scan every transcript for token patterns",
+ "timeout": 120000
+}
+```
+
+**Tool result**
+
+```
+scan done
+Shell cwd was reset to /Users/nabilshah/Random
+```
+
+## Claude (2026-10-25 16:01:40 UTC)
+
+The scan is clean. Now checking `CITATIONS.md` against everything we used or read.
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "cd /Users/nabilshah/Random/research-arm-kaggle && for k in nishantdahal \"prvsiyan/ntl-two-stage\" \"the-prompt-is-not-the-author\" zbigniewkirchner pjmathematician josephadamski91 \"nuridudak/ntl-two-stage-encoders\" \"nuridudak/ntl-130k\" lightningv08 avazaku kirilltym fleongg rmsgrk dddmdd \"qwen-lm\" ModernBERT \"Ko et al\\|2610.19583\" lucasboesen vnton37nguyn dhruvtibarewal \"aryan\\|752357\" \"s0chn1y\\|752365\"; do printf \"%-38s %s\\n\" \"$k\" \"$(grep -ci \"$k\" CITATIONS.md)\"; done",
+ "description": "Check each source appears in CITATIONS.md"
+}
+```
+
+**Tool result**
+
+```
+nishantdahal                           6
+prvsiyan/ntl-two-stage                 1
+the-prompt-is-not-the-author           1
+zbigniewkirchner                       4
+pjmathematician                        1
+josephadamski91                        1
+nuridudak/ntl-two-stage-encoders       1
+nuridudak/ntl-130k                     1
+lightningv08                           3
+avazaku                                1
+kirilltym                              1
+fleongg                                2
+rmsgrk                                 0
+dddmdd                                 0
+qwen-lm                                0
+ModernBERT                             1
+Ko et al\|2610.19583                   1
+lucasboesen                            3
+vnton37nguyn                           0
+dhruvtibarewal                         1
+aryan\|752357                          1
+s0chn1y\|752365                        2
+```
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "grep -n \"^#\" CITATIONS.md; grep -ciE \"qwen3-14b|qwen2\\.5-14b|qwen3-8b-base|gemma\" CITATIONS.md; tail -5 CITATIONS.md",
+ "description": "See CITATIONS sections and base-model entries"
+}
+```
+
+**Tool result**
+
+```
+1:# Citations
+5:## Notebooks and discussions
+27:## Datasets
+53:## Pretrained models
+1
+- Vladislav Lavrentev, *Name That LLM Artifacts* (lightningv08/ntl-olmo2-native24-final-inference-assets), including the Qwen3.8-27B NF4 LoRA. Mixed licences per component. https://www.kaggle.com/datasets/lightningv08/ntl-olmo2-native24-final-inference-assets. Read for #18.
+  - Used in #46 through our own loader (`src/nthl/qwen27b.py`): the full-text Qwen3.8-27B classifier only, that is the NF4 base `name-that-llm-artifacts/qwen38-27b-nf4` (greghavens/Qwen3.8-27B-bnb-4bit revision 26157380225e427827263c34df23018a1e28dff5, of Qwen/Qwen3.8-27B; its own Apache 2.0 LICENSE file), the task adapters `ntl627-own-fulltext/{final,outer0}.safetensors` and the offline wheels in `name-that-llm-artifacts/qwen38-offline-linux`. Licence of the 27B component, in the collection's own words: "Apache 2.0 terms apply to that model component." The adapter folder has no LICENSE file of its own. Wheels keep their packaged licences, printed by the check notebook. Nothing from the PriorLabs tabicl/tabular or Llama 3.1 parts is used.
+- Lucas Boesen, notebook outputs `name-that-llm-train-lora24-s7`, `-train-tokattn`, `-train-tokattn2`, `-glm4-9b-trunc25`, `-extract-encoders2`, `-electra-large-weights`, `-desklib-weights`. https://www.kaggle.com/lucasboesen. Read for #18.
+- Кирилл Тымчишин, *NTL Spectral Style Heads, Paired 4404* (kirilltym/ntl-spectral-style-heads-paired-4404). Licence unknown, so not used. Read for #18.
+- fle3n, *NTL Legacy Qwen24 Recovery* (fleongg/ntl-legacy-qwen24-recovery). Licence "other", so not used. Read for #18.
+```
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "sed -n 53,60p CITATIONS.md | cut -c1-200; grep -n \"Qwen\" CITATIONS.md | head -5 | cut -c1-160",
+ "description": "Read the pretrained models section"
+}
+```
+
+**Tool result**
+
+```
+## Pretrained models
+
+- Nishant Dahal, *NTL two-stage LoRA part two* (nishantdahal/ntl-handwriting-blend): Qwen3-14B and Qwen2.5-14B LoRAs, DeBERTa-v3-large. CC BY-SA 4.0. https://www.kaggle.com/datasets/nishantdahal/ntl-h
+- Nishant Dahal, *NTL two-stage LoRA checkpoints and public pool* (nishantdahal/ntl-two-stage-lora). CC BY-SA 4.0. https://www.kaggle.com/datasets/nishantdahal/ntl-two-stage-lora. Read for #18.
+- prvsiyan, *NTL two-stage LoRA adapters v1* (prvsiyan/ntl-two-stage-lora-adapters-v1). CC BY-SA 4.0. https://www.kaggle.com/datasets/prvsiyan/ntl-two-stage-lora-adapters-v1. Read for #18.
+- Zbigniew Kirchner, *In-Style Qwen3-8B LoRA* (zbigniewkirchner/ntl-qwen3-8b-lora-instyle). Apache 2.0. https://www.kaggle.com/datasets/zbigniewkirchner/ntl-qwen3-8b-lora-instyle. Read for #18.
+- Zbigniew Kirchner, *Qwen3-8B LoRA + Claude Head* (zbigniewkirchner/ntl-qwen3-8b-lora-claude-head). Apache 2.0. https://www.kaggle.com/datasets/zbigniewkirchner/ntl-qwen3-8b-lora-claude-head. Read fo
+- Joseph Adamski, *NTL ATLAS Qwen3 8B v1* (josephadamski91/ntl-atlas-qwen3-8b-v1). Weights CC BY-SA 4.0, code Apache 2.0. ATLAS method by Ko et al., arXiv 2610.19583. https://www.kaggle.com/datasets/j
+9:- Vladislav Lavrentev, *0.642 LoRA + Llama + Qwen3.8-27B*. https://www.kaggle.com/code/lightningv08/0-642-lora-llama-qwen3-8-27b. Read, not copied, for how th
+10:- Vladislav Lavrentev, *0.637 LoRA Llama Qwen3.8-27B*. https://www.kaggle.com/code/lightningv08/0-637-lora-llama-qwen3-8-27b. Read to see what the 0.637 to 0
+18:- Zbigniew Kirchner, *0.574 In-Style Qwen3-8B LoRA (fully public)*. https://www.kaggle.com/code/zbigniewkirchner/0-574-in-style-qwen3-8b-lora-fully-public. R
+20:- HALX2158 and replies, *Forked a 0.600+ notebook and hit the 9-hour limit? Check the Qwen3.5-9B load time*, Name That LLM discussion 751268. https://www.kag
+55:- Nishant Dahal, *NTL two-stage LoRA part two* (nishantdahal/ntl-handwriting-blend): Qwen3-14B and Qwen2.5-14B LoRAs, DeBERTa-v3-large. CC BY-SA 4.0. https:/
+```
+
+## Claude (2026-10-25 16:01:54 UTC)
+
+A few things are missing: the base models we load from Kaggle Models, plus three sources we only read. Adding them.
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "cat >> CITATIONS.md <<'EOF'\n- Qwen Team, base models from Kaggle Models, all Apache 2.0: Qwen3-14B-Base (`qwen-lm/qwen-3/Transformers/14b-base`), Qwen2.5-14B (`qwen-lm/qwen2.5/Transformers/14b`), Qwen3-8B-Base (`qwen-lm/qwen-3/Transformers/8b-base`, also the base of our own LoRA) and Qwen3-4B-Base (`qwen-lm/qwen-3/Transformers/4b-base`, the witness). https://www.kaggle.com/models/qwen-lm. Used as the trunks the published and our own adapters sit on.\n- Google, Gemma 4 E2B (`google/gemma-4/transformers/gemma-4-e2b`). Gemma terms. Only its tokenizer is used, for the tokens-per-word witness feature.\n- dddmdd, *Name That LLM fine-tuned BERT-family encoders* (dddmdd/ntl-finetuned-encoders). CC BY-SA 4.0. https://www.kaggle.com/datasets/dddmdd/ntl-finetuned-encoders. Read, not used.\n- Travis Nguyen, notebook output `vnton37nguyn/ntl-train-lora-qwen25-instyle`. https://www.kaggle.com/code/vnton37nguyn/ntl-train-lora-qwen25-instyle. Read, not used.\n\n## Read for the pool and today's checks\n\n- rmsgrk, *NTL Pool Audit: Keep the Whole Pool* (rmsgrk/ntl-pool-audit). CC BY-SA 4.0. https://www.kaggle.com/datasets/rmsgrk/ntl-pool-audit. Read for the 122k pool test (LOG row 27).\n\n## Our own artefacts\n\nOur code (this repository) is Apache 2.0. Our trained weights (`nabilshah/nthl-train-lora`) and the code dataset `nabilshah/nthl-src` stay private and are shared with the organisers on request. Anything we publish that is derived from a CC BY-SA 4.0 dataset would carry CC BY-SA 4.0.\nEOF\nsed -i '' 's/| Trial export 2026-10-24, final export at the end |/| `ai-sessions\\/01-main-session.zip`, final export after the deadline |/; s/| Snapshot in `ai-sessions\\/01-main-session.zip` (2026-10-25 ~01:00, 8 subagent logs), final export at the end |/| `ai-sessions\\/01-main-session.zip` (re-exported 2026-10-25 16:15 with 8 subagent logs), final export after the last message |/' docs/ai-sessions.md; grep -n \"^| 1 |\" docs/ai-sessions.md | cut -c1-80; grep -o \"Exported[^|]*|[^|]*$\" docs/ai-sessions.md | head -2; git add -A CITATIONS.md docs/ai-sessions.md ai-sessions && git commit -q -m \"docs(hand-in): export every AI session and complete the citations\" -m \"Seven exports in ai-sessions/: the main session (with its 8 subagents) and the six side sessions started on 25 October, each registered in docs/ai-sessions.md with its app id and transcript id. A token scan of all of them found nothing. CITATIONS.md adds the Kaggle base models, the Gemma tokenizer, the pool audit and sources read but not used.\n\nrefs #52\" && git push -q -u origin docs/hand-in 2>&1 | grep -v '^remote:'; echo pushed",
+ "description": "Finish citations, update register, commit and push",
+ "timeout": 120000
+}
+```
+
+**Tool result**
+
+```
+27:| 1 | Claude Code desktop, Claude Opus 5.5 | "AI Soc Kaggle Tournament", app 
+Exported |
+Exported with session 1 |
+pushed
+```
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "grep \"^| 1 |\" docs/ai-sessions.md | grep -oE \"\\| [^|]*\\|$\"; printf '## What this does\\n\\nThe hand-in pass: the probe 9 submission code (nthl-submit v12) and the own-LoRA training code on main, the full experiment log (29 rows), the report and slides with probe 10 and the final picks (probes 9 and 7), a How I used AI slide, every AI session exported, and complete citations.\\n\\n## Why\\n\\nThe organisers audit top entries: the repo has to match the selected notebook, and every AI log and source has to be there.\\n\\n## Result\\n\\n- Report PDF: 2 pages\\n- Slides: 11, notes about 480 words, shot list matches\\n- `ai-sessions/`: 7 exports (main session with 8 subagents, plus 6 side sessions), token scan clean\\n- 88 tests pass\\n\\n## Checklist\\n\\n- [x] Final picks recorded: probe 9 (0.637) and probe 7 (0.631)\\n- [x] Every session in `docs/ai-sessions.md`\\n- [ ] Final re-export of session 1 after the last message\\n\\n## Test plan\\n\\n- `pytest -q`, `scripts/report_pdf.sh` (2 pages), every slide rendered and checked\\n\\nrefs #49 #50 #51 #52\\n' > /private/tmp/claude-501/-Users-nabilshah--claude-spares-spare-GAqgHJ/5d7d3493-861c-4044-bd86-4e023fd27b66/scratchpad/pr-hand.md; gh pr create --base main --head docs/hand-in --title \"docs(hand-in): final picks, probe 10, AI slide, all session exports and citations\" --body-file /private/tmp/claude-501/-Users-nabilshah--claude-spares-spare-GAqgHJ/5d7d3493-861c-4044-bd86-4e023fd27b66/scratchpad/pr-hand.md 2>&1 | tail -1; date",
+ "description": "Open the hand-in PR",
+ "timeout": 60000
+}
+```
+
+**Tool result**
+
+```
+| `ai-sessions/01-main-session.zip` (re-exported 2026-10-25 16:15 with 8 subagent logs), final export after the last message |
+https://github.com/Nabzx/name-that-llm/pull/104
+Sun Oct 25 16:02:21 GMT 2026
+```
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "sed -i '' 's/re-exported 2026-10-25 16:15 with 8 subagent logs/re-exported 2026-10-25 16:00 GMT with 8 subagent logs/' docs/ai-sessions.md && git commit -qam \"docs(ai-sessions): correct the export time\" -m \"refs #52\" && git push -q 2>&1 | grep -v '^remote:'; sleep 2; gh pr merge 104 --merge 2>&1 | tail -1; git checkout -q main && git pull -q && git log --oneline -1; ls ai-sessions documents",
+ "description": "Fix the export time and merge the hand-in PR",
+ "timeout": 120000
+}
+```
+
+**Tool result**
+
+```
+84c98ca Merge pull request #104 from Nabzx/docs/hand-in
+ai-sessions:
+01-main-session.md
+01-main-session.zip
+11-own-lora-member.md
+11-own-lora-member.zip
+12-report-draft.md
+12-report-draft.zip
+13-video-script.md
+13-video-script.zip
+14-qwen27b-check.md
+14-qwen27b-check.zip
+15-encoders-122k.md
+15-encoders-122k.zip
+16-hard-pairs.md
+16-hard-pairs.zip
+
+documents:
+presentation.html
+presentation.pdf
+speaker-notes.md
+```
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "cd /Users/nabilshah/.claude/projects/-Users-nabilshah-Random/memory && python3 - <<'EOF'\np='research-arm-kaggle.md'\ns=open(p).read()\nadd='''FINAL (25 Oct 16:05 GMT): probes 8 0.631, 9 **0.637** (Gaussian head w1.0 on honest stage-1 features + nuridudak ModernBERT 10%,\nnthl-submit v12), 10 0.630 (Gaussian heads on in-sample 14B features hurt). Final picks probe 9 + probe 7; no more submissions.\nPR #104 merged: main holds probe 9 code, LOG rows 1-29, report PDF (2 pages), documents/presentation (11 slides incl. How I used\nAI) + speaker-notes.md, ai-sessions/ exports 01 + 11-16 (side sessions), CITATIONS complete. Nabil records the video himself.\nLeft: re-export session 1 at the very end; Nabil selects picks on Kaggle, shares nthl-submit v12 and repo with organisers.\n'''\ns=s.replace('OVERNIGHT 25 Oct', add+'OVERNIGHT 25 Oct',1)\nopen(p,'w').write(s)\nEOF\necho ok",
+ "description": "Save the final state to memory"
+}
+```
+
+**Tool result**
+
+```
+ok
+Shell cwd was reset to /Users/nabilshah/Random
+```
+
+## Claude (2026-10-25 16:03:03 UTC)
+
+Everything you asked for is merged to main ([PR #104](https://github.com/Nabzx/name-that-llm/pull/104)), and probes 9 and 7 are recorded as the final picks.
+
+- **Report** ([docs/report/report.pdf](research-arm-kaggle/docs/report/report.pdf)): adds probe 10 (0.630) and the reason it dropped, the final picks and a fuller "How we used AI" paragraph. Still 2 pages.
+- **Slides** ([documents/presentation.pdf](research-arm-kaggle/documents/presentation.pdf)): now 11, with probe 10 in the table, picks 9 and 7 highlighted, and a new slide 10, **"How I used AI"**, in four parts:
+  - **Structure:** `AGENTS.md` and `CLAUDE.md`, with the rules as invariants, phases and tickets.
+  - **Method:** a research note leading to a recommendation, and one log row per change.
+  - **Reproducible:** frozen folds, tests first, fixed seeds, everything run on Kaggle.
+  - **Parallel:** six side sessions, each on its own branch, while you made the calls.
+- **Speaker notes** ([documents/speaker-notes.md](research-arm-kaggle/documents/speaker-notes.md)): about 480 spoken words, a brisk 3 minutes. The AI slide's script stresses that the structure from your other repos gave us a head start.
+- **Video script** ([docs/report/video-script.md](research-arm-kaggle/docs/report/video-script.md)): the shot list now matches all 11 slides.
+- **AI logs** (`ai-sessions/`): seven exports. One is this session with its 8 subagents; six are the side sessions started today, each registered with its app id and transcript id. A token scan of every transcript found nothing.
+- **Citations:** I added the Qwen base models from Kaggle Models, the Gemma tokenizer, the pool audit and the sources we read but didn't use.
+- **Code:** main now holds the exact probe 9 code (notebook version 12), and 88 tests pass.
+
+**What only you can do, before 18:00:**
+1. **Select the final picks on Kaggle:** Submissions page, tick probe 9 and probe 7.
+2. **Share the notebook:** on `nabilshah/nthl-submit` use **Share** to add the organisers, and give **version 12** in the form.
+3. **Give the organisers repo access:** the repo is private, so invite them as collaborators on GitHub, or attach the PDFs and the `ai-sessions/` zips to the form.
+4. **Record and upload the video,** unlisted on YouTube or Drive.
+
+**What you might have missed:**
+- **Re-export this session last.** Anything after 16:00 isn't in the export yet. Tell me when you're about to submit the form and I'll re-export and push. If I'm not available, run this, then commit and push `ai-sessions/`:
+  ```bash
+  cd ~/Random/research-arm-kaggle && .venv/bin/python scripts/export_session.py 5d7d3493-861c-4044-bd86-4e023fd27b66 --name 01-main-session
+  ```
+- **The 27B run may still be going** on Kaggle until its 9-hour limit. It's harmless.
+- **Four experiment PRs are still open:** #91, #93, #98 and #100. Their code is already on main through the merges, so I can close them as merged-in, or leave them for the record. Which would you prefer?
+
+## Nabil (2026-10-25 16:06:40 UTC)
+
+Ultimately the decision is heavily based on your reasoning and thinking as well as how you used ai 
+
+We were told displaying this in our submission is of utmost importance^
+
+i also think one of the slides should also be a 'literature review' as we fisrt analysed all public notebooks and did our research first (kaggle website, online forums etc.) before we commenced any coding.
+
+
+for the report make it in 1st person, british grammer etc. find any reasonable report making skill you can. 
+
+after this the final thing to do is rexport all chat
+
+## Claude (2026-10-25 16:06:47 UTC)
+
+I'll do all three: a literature review slide, a first-person report that puts the reasoning and the AI method up front, then the final re-export. First, a check for a report-writing skill, and a count of exactly what we researched before writing any code.
+
+**Tool call: ToolSearch**
+
+```json
+{
+ "query": "select:ListSkills,SearchSkills",
+ "max_results": 2
+}
+```
+
+**Tool result**
+
+```
+
+
+```
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "cd /Users/nabilshah/Random/research-arm-kaggle && echo \"kernels read: $(ls materials/kernels | wc -l)\"; echo \"discussion threads saved: $(ls materials/discussion 2>/dev/null | wc -l)\"; ls docs/research/ | tr '\\n' ' '; echo; grep -c \"^- \\|^[0-9]*\\. \" docs/research/preliminary-tracks-3-4-5.md; grep -cE \"https?://\" CITATIONS.md docs/research/*.md | awk -F: '{s+=$2} END {print \"links in notes+citations:\", s}'; git log --reverse --format=\"%ad %s\" --date=format:\"%a %H:%M\" | grep -iE \"feat|research|docs\\(research\" | head -8",
+ "description": "Count the research done before coding"
+}
+```
+
+**Tool result**
+
+```
+kernels read:       22
+discussion threads saved:       18
+README.md issue-17-kaggle-cli-runs.md issue-18-published-checkpoints.md issue-19-public-pools.md issue-20-blend-validation.md issue-21-lora24-readout.md issue-22-kaggle-pitfalls.md issue-23-sinkhorn-and-centring.md issue-24-what-top-teams-do.md issue-31-witness-models.md issue-32-likelihood-attribution.md issue-33-likelihood-features.md issue-38-glm-pair.md issue-39-gemini-flash-pair.md issue-40-gpt56-trio.md 
+ugrep: warning: docs/research/preliminary-tracks-3-4-5.md: No such file or directory
+links in notes+citations: 98
+Sat 11:16 docs: add the research folder readme
+Sat 12:09 feat(scripts): add a session export that keeps the raw transcript
+Sat 12:31 feat(cv): build the prompt-grouped folds
+Sat 12:31 feat(cv): freeze the five folds in folds.csv
+Sat 12:32 Merge pull request #54 from Nabzx/feat/folds-13
+Sat 12:35 feat(metric): add the 18 labels in the competition's order
+Sat 12:35 feat(metric): add balanced accuracy
+Sat 12:36 feat(preds): add the prediction file format and its checks
+```
+
+**Tool call: ListSkills**
+
+```json
+{
+ "keywords": [
+  "report",
+  "writing",
+  "pdf",
+  "document"
+ ]
+}
+```
+
+**Tool result**
+
+```
+{"results":[{"id":"docs","name":"docs","description":"docs (editable docs people share and comment on; the default for any document, named as a doc or not: a document, report, proposal, resume, cover letter, letter, contract, policy, form, template, worksheet, essay, handbook, guide, how-to, cheat sheet, SOP or other writing to keep, share, collaborate on, send, submit, print or sign; a doc exports to Word, PDF, Markdown or Google Docs, so needing a file to send, attach, upload, submit or print is no reason to pick Word, and a file nobody asked for is a doc, not Word; a plan, comparison, summary or notes asked in chat stays in chat; a pasted claude.ai artifact link may be a doc: check with docs tools first; Word or another file format named, tracked changes wanted, or a .docx to change or use as a template → that format's skill): making one → if no docs-connector instructions are in context, call its `guide` (topic.instructions) first; then create the doc (headings only, no body) before any search, file read or plan, even with files attached.","enabled":true},{"id":"google-workspace","name":"google-workspace","description":"Read this before the first Google Drive, Docs, Sheets or Slides connector call whenever the task creates or changes a Google file. Use this skill whenever the user wants to create or change a Google Doc, Sheet or Slides file in their Google Drive. Triggers include: a request that names Google Docs, Sheets, Slides or Drive and asks to make, edit, format, copy or rename a file; a docs.google.com link with a request to change that file, even a one-line fix or suggested edits; and any follow-up change to a Google file from earlier in the chat, even \"change it\" or \"add a tab\". Includes helper scripts for document positions, cell ranges and slide layout. However, if the user asks for a doc, deck or spreadsheet without naming Google, or gives a Google file only as source material for something new, use Claude's own output type instead. Do NOT use for read-only questions about a Google file, or for Word, Excel, PowerPoint or PDF files.","enabled":true},{"id":"deep-research","name":"deep-research","description":"Use this skill when the user's prompt requires (1) researching a topic across multiple sources, comparing options or alternatives, analyzing trends or history, understanding markets or industries, or reviewing literature or studies and (2) synthesizing that research into a comprehensive, narrative report. If you're planning to search the web or internal knowledge bases, consider using this skill. This skill coordinates research subagents, so use it only when you have a tool for spawning subagents (the Agent or Task tool); otherwise, research the question directly.","enabled":true},{"id":"xlsx","name":"xlsx","description":"Use this skill any time a spreadsheet file is the primary input or output. This means any task where the user wants to: open, read, edit, or fix an existing .xlsx, .xlsm, .xltx, .csv, or .tsv file (e.g., a
+... (2253 more characters in the raw transcript)
+```
+
+## Claude (2026-10-25 16:06:56 UTC)
+
+The organisers want a PDF, so the `pdf` skill fits best. Loading it to check our render against its guidance.
+
+**Tool call: Skill**
+
+```json
+{
+ "skill": "pdf"
+}
+```
+
+**Tool result**
+
+```
+Launching skill: pdf
+```
+
+## Nabil (2026-10-25 16:06:56 UTC)
+
+Base directory for this skill: /Users/nabilshah/Library/Application Support/Claude/local-agent-mode-sessions/skills-plugin/f878edc2-2c73-494a-8327-04480ce56a2c/45c3de34-5f76-4009-a383-a2e709d40425/skills/pdf
+
+# PDF Processing Guide
+
+## Overview
+
+This guide covers essential PDF processing operations using Python libraries and command-line tools. For advanced features, JavaScript libraries, and detailed examples, see REFERENCE.md. If you need to fill out a PDF form, read FORMS.md and follow its instructions.
+
+## Quick Start
+
+```python
+from pypdf import PdfReader, PdfWriter
+
+# Read a PDF
+reader = PdfReader("document.pdf")
+print(f"Pages: {len(reader.pages)}")
+
+# Extract text
+text = ""
+for page in reader.pages:
+    text += page.extract_text()
+```
+
+## Python Libraries
+
+### pypdf - Basic Operations
+
+#### Merge PDFs
+```python
+from pypdf import PdfWriter, PdfReader
+
+writer = PdfWriter()
+for pdf_file in ["doc1.pdf", "doc2.pdf", "doc3.pdf"]:
+    reader = PdfReader(pdf_file)
+    for page in reader.pages:
+        writer.add_page(page)
+
+with open("merged.pdf", "wb") as output:
+    writer.write(output)
+```
+
+#### Split PDF
+```python
+reader = PdfReader("input.pdf")
+for i, page in enumerate(reader.pages):
+    writer = PdfWriter()
+    writer.add_page(page)
+    with open(f"page_{i+1}.pdf", "wb") as output:
+        writer.write(output)
+```
+
+#### Extract Metadata
+```python
+reader = PdfReader("document.pdf")
+meta = reader.metadata
+print(f"Title: {meta.title}")
+print(f"Author: {meta.author}")
+print(f"Subject: {meta.subject}")
+print(f"Creator: {meta.creator}")
+```
+
+#### Rotate Pages
+```python
+reader = PdfReader("input.pdf")
+writer = PdfWriter()
+
+page = reader.pages[0]
+page.rotate(90)  # Rotate 90 degrees clockwise
+writer.add_page(page)
+
+with open("rotated.pdf", "wb") as output:
+    writer.write(output)
+```
+
+### pdfplumber - Text and Table Extraction
+
+#### Extract Text with Layout
+```python
+import pdfplumber
+
+with pdfplumber.open("document.pdf") as pdf:
+    for page in pdf.pages:
+        text = page.extract_text()
+        print(text)
+```
+
+#### Extract Tables
+```python
+with pdfplumber.open("document.pdf") as pdf:
+    for i, page in enumerate(pdf.pages):
+        tables = page.extract_tables()
+        for j, table in enumerate(tables):
+            print(f"Table {j+1} on page {i+1}:")
+            for row in table:
+                print(row)
+```
+
+#### Advanced Table Extraction
+```python
+import pandas as pd
+
+with pdfplumber.open("document.pdf") as pdf:
+    all_tables = []
+    for page in pdf.pages:
+        tables = page.extract_tables()
+        for table in tables:
+            if table:  # Check if table is not empty
+                df = pd.DataFrame(table[1:], columns=table[0])
+                all_tables.append(df)
+
+# Combine all tables
+if all_tables:
+    combined_df = pd.concat(all_tables, ignore_index=True)
+    combined_df.to_excel("extracted_tables.xlsx", index=False)
+```
+
+### reportlab - Create PDFs
+
+#### Basic PDF Creation
+```python
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+
+c = canvas.Canvas("hello.pdf", pagesize=letter)
+width, height = letter
+
+# Add text
+c.drawString(100, height - 100, "Hello World!")
+c.drawString(100, height - 120, "This is a PDF created with reportlab")
+
+# Add a line
+c.line(100, height - 140, 400, height - 140)
+
+# Save
+c.save()
+```
+
+#### Create PDF with Multiple Pages
+```python
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
+from reportlab.lib.styles import getSampleStyleSheet
+
+doc = SimpleDocTemplate("report.pdf", pagesize=letter)
+styles = getSampleStyleSheet()
+story = []
+
+# Add content
+title = Paragraph("Report Title", styles['Title'])
+story.append(title)
+story.append(Spacer(1, 12))
+
+body = Paragraph("This is the body of the report. " * 20, styles['Normal'])
+story.append(body)
+story.append(PageBreak())
+
+# Page 2
+story.append(Paragraph("Page 2", styles['Heading1']))
+story.append(Paragraph("Content for page 2", styles['Normal']))
+
+# Build PDF
+doc.build(story)
+```
+
+#### Subscripts and Superscripts
+
+**IMPORTANT**: Never use Unicode subscript/superscript characters (₀₁₂₃₄₅₆₇₈₉, ⁰¹²³⁴⁵⁶⁷⁸⁹) in ReportLab PDFs. The built-in fonts do not include these glyphs, causing them to render as solid black boxes.
+
+Instead, use ReportLab's XML markup tags in Paragraph objects:
+```python
+from reportlab.platypus import Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
+
+styles = getSampleStyleSheet()
+
+# Subscripts: use <sub> tag
+chemical = Paragraph("H<sub>2</sub>O", styles['Normal'])
+
+# Superscripts: use <super> tag
+squared = Paragraph("x<super>2</super> + y<super>2</super>", styles['Normal'])
+```
+
+For canvas-drawn text (not Paragraph objects), manually adjust font the size and position rather than using Unicode subscripts/superscripts.
+
+## Command-Line Tools
+
+### pdftotext (poppler-utils)
+```bash
+# Extract text
+pdftotext input.pdf output.txt
+
+# Extract text preserving layout
+pdftotext -layout input.pdf output.txt
+
+# Extract specific pages
+pdftotext -f 1 -l 5 input.pdf output.txt  # Pages 1-5
+```
+
+### qpdf
+```bash
+# Merge PDFs
+qpdf --empty --pages file1.pdf file2.pdf -- merged.pdf
+
+# Split pages
+qpdf input.pdf --pages . 1-5 -- pages1-5.pdf
+qpdf input.pdf --pages . 6-10 -- pages6-10.pdf
+
+# Rotate pages
+qpdf input.pdf output.pdf --rotate=+90:1  # Rotate page 1 by 90 degrees
+
+# Remove password
+qpdf --password=mypassword --decrypt encrypted.pdf decrypted.pdf
+```
+
+### pdftk (if available)
+```bash
+# Merge
+pdftk file1.pdf file2.pdf cat output merged.pdf
+
+# Split
+pdftk input.pdf burst
+
+# Rotate
+pdftk input.pdf rotate 1east output rotated.pdf
+```
+
+## Common Tasks
+
+### Extract Text from Scanned PDFs
+```python
+# Requires: pip install pytesseract pdf2image
+import pytesseract
+from pdf2image import convert_from_path
+
+# Convert PDF to images
+images = convert_from_path('scanned.pdf')
+
+# OCR each page
+text = ""
+for i, image in enumerate(images):
+    text += f"Page {i+1}:\n"
+    text += pytesseract.image_to_string(image)
+    text += "\n\n"
+
+print(text)
+```
+
+### Add Watermark
+```python
+from pypdf import PdfReader, PdfWriter
+
+# Create watermark (or load existing)
+watermark = PdfReader("watermark.pdf").pages[0]
+
+# Apply to all pages
+reader = PdfReader("document.pdf")
+writer = PdfWriter()
+
+for page in reader.pages:
+    page.merge_page(watermark)
+    writer.add_page(page)
+
+with open("watermarked.pdf", "wb") as output:
+    writer.write(output)
+```
+
+### Extract Images
+```bash
+# Using pdfimages (poppler-utils)
+pdfimages -j input.pdf output_prefix
+
+# This extracts all images as output_prefix-000.jpg, output_prefix-001.jpg, etc.
+```
+
+### Password Protection
+```python
+from pypdf import PdfReader, PdfWriter
+
+reader = PdfReader("input.pdf")
+writer = PdfWriter()
+
+for page in reader.pages:
+    writer.add_page(page)
+
+# Add password
+writer.encrypt("userpassword", "ownerpassword")
+
+with open("encrypted.pdf", "wb") as output:
+    writer.write(output)
+```
+
+## Quick Reference
+
+| Task | Best Tool | Command/Code |
+|------|-----------|--------------|
+| Merge PDFs | pypdf | `writer.add_page(page)` |
+| Split PDFs | pypdf | One page per file |
+| Extract text | pdfplumber | `page.extract_text()` |
+| Extract tables | pdfplumber | `page.extract_tables()` |
+| Create PDFs | reportlab | Canvas or Platypus |
+| Command line merge | qpdf | `qpdf --empty --pages ...` |
+| OCR scanned PDFs | pytesseract | Convert to image first |
+| Fill PDF forms | pdf-lib or pypdf (see FORMS.md) | See FORMS.md |
+
+## Next Steps
+
+- For advanced pypdfium2 usage, see REFERENCE.md
+- For JavaScript libraries (pdf-lib), see REFERENCE.md
+- If you need to fill out a PDF form, follow the instructions in FORMS.md
+- For troubleshooting guides, see REFERENCE.md
+
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "sed -n 1,54p docs/report/report-draft.md",
+ "description": "Read the first half of the report"
+}
+```
+
+**Tool result**
+
+```
+# Name That LLM
+
+Nabil Shah, solo entry, Imperial Research Arm qualifier. Numbers come from `docs/experiments/LOG.md`.
+
+## Starting point and approach
+
+We wrote our own code from scratch. The first model was a four-view n-gram LinearSVC on host train only, scored on frozen `GroupKFold` folds over `prompt_id`: 0.3485 balanced accuracy, in line with public train-only SVCs.
+
+We then worked in two branches. Branch A is a published spine we run through our own loader: Nishant Dahal's two-stage LoRA blend, 0.620 on the public LB. Branch B is what we can check on our own folds: our SVC, our own LoRA and test-time heads. Published members have no out-of-fold predictions, so for them the LB is the only test. We probed it one change at a time and kept a change only if our CV or a research note also backed it.
+
+## Hypotheses
+
+- **Data beats model size.** Public work showed 8B and 14B backbones tied on the same data, while a bigger pool gave +0.028 on the LB.
+- **Labs differ in surface style, siblings do not.** Our baseline put the right lab first 0.57 of the time, and half its errors stayed inside the right lab. Hardest: gemini-3.7-flash against 3.8-flash, and glm-5.3 read as claude-opus-5.
+- **The prompt is louder than the author.** Passages that answer the same prompt share content, so taking out the prompt should leave mostly style.
+- **The test mix is unequal.** Balancing towards 1/18 should help, but at half strength, since we cannot see the test's skew.
+
+## The published LoRA24 weights and what we built on them
+
+Each LoRA24 checkpoint turns a passage into 18 probabilities like this. Tokenise with no special tokens, cut at 447 and append the end token from the checkpoint's `meta.json` (151643), not the tokenizer's (151645). Keep only the first 27 of Qwen3-14B's 40 decoder layers, with the final norm off. Merge the rank-16 adapter into each attention and MLP weight: W + B·A × 2. Take a masked mean of the hidden states at 8 depths, leaving out the first token. LayerNorm each depth, join them into one 40,960-wide vector and apply a linear head. A second, centred head reads the same vector minus its topic cluster's mean. The traps are silent: a wrong label order puts claude-fable-5's probabilities under another Claude model, and the wrong end token changed 14% of top picks in Nishant's tests.
+
+**What is ours:**
+
+- The loader (`nthl.lora24`), written from that recipe. It asserts the end token and reorders label columns by `meta.json`. Nishant's Qwen3-14B scored 0.858 in-sample through it, with every Claude label right.
+- The pool: 84,470 passages from open-licence public datasets, filtered, de-duplicated and tagged by source.
+- Our SVC and its tuning, 0.3485 to 0.4838 CV.
+- Half-strength Sinkhorn, and peer correction re-implemented from avazaku's idea.
+- A likelihood witness from Qwen3-4B-Base, about +0.003 on the SVC.
+- Our own Qwen3-8B LoRA24, trained on Kaggle with our own code in 4.5 hours: stage 1 on a balanced pool sample, stage 2 on host train.
+- A s
+... (1625 more characters in the raw transcript)
+```
+
+## Claude (2026-10-25 16:07:09 UTC)
+
+Now writing the first-person report. It leads with the literature review and how I made each decision, keeps the brief's five sections, and gives the AI method its own section.
+
+**Tool call: Write**
+
+```json
+{
+ "file_path": "/Users/nabilshah/Random/research-arm-kaggle/docs/report/report-draft.md",
+ "content": "# Name That LLM\n\nNabil Shah, solo entry, Imperial Research Arm qualifier. Best public LB **0.637**. Every number is a row in `docs/experiments/LOG.md`.\n\n## Starting point: research before code\n\nI wrote no code for the first two hours. I read the rules, the 22 strongest public notebooks, 18 discussion threads and the papers they cite, and wrote 15 short research notes, each ending in a recommendation (`docs/research/`). Three findings set my plan. Data mattered more than model size: the same Qwen3-14B recipe went from 0.569 to 0.611 when its public pool grew from 35k to 84k passages. The best public blend (0.620, Nishant Dahal) published its LoRA weights, which the organisers confirmed I could use if I showed I understood them. And no public checkpoint had out-of-fold predictions, so the leaderboard would be my only test for those members.\n\nSo my approach was: validate first, build on the published spine with my own loader, and add members I could check on my own folds. I froze five folds grouped by `prompt_id` before fitting anything, so validation looked like the hidden test. My first model, a four-view n-gram SVC on host data, scored 0.348.\n\n## How I made decisions\n\nOne change per leaderboard probe, and I kept a change only if my cross-validation or a research note backed it too. When a probe and my CV disagreed, I trusted the CV: the public slice is small, and four probes in a row tied at 0.631. I dropped members that hurt (Zbigniew Kirchner's in-style LoRA, −0.004) and ideas that stayed in the noise, and wrote both down.\n\n## Hypotheses\n\n- **Style lives in small habits.** Function words, punctuation and word shapes change little with topic, so n-grams should separate labs. They did: the SVC put the right lab first 0.57 of the time. Siblings stayed hard: glm-5.3 against its flash model, gemini-3.7 against 3.8.\n- **Data beats model size.** 84,470 open-licence public passages took the SVC from 0.348 to 0.484.\n- **The prompt hides the author.** Test passages come in groups answering one prompt. Remove what a group shares and style is left. A shared-prompt Gaussian group head on my own model's honest features added **+0.058** on test-like groups.\n- **The test mix is uneven.** Full balancing bets on an even test, so I balanced halfway: +0.003 on the LB.\n\n## The published weights, and what is mine\n\nA LoRA24 checkpoint tokenises with no special tokens, cuts at 447 and appends the end token from its `meta.json` (151643, not the tokenizer's 151645). It keeps the first 27 of Qwen3-14B's 40 layers with the final norm off, merges the rank-16 adapter (W + B·A × 2), mean-pools 8 depths without the first token, LayerNorms each and applies a linear head. Both traps are silent: the wrong end token changed 14% of top picks, and a wrong label order puts one Claude model's probabilities under another's name.\n\n**Mine:** the loader, which asserts both traps (0.858 in-sample on Nishant's 14B); the 84k pool; the SVC and its tuning; half-strength balancing; my own Qwen3-8B LoRA, trained on Kaggle in 4.5 hours with my own code; the Gaussian group head, my own code after prvsiyan's public method; and every blend experiment. **Used as released:** Nishant Dahal's Qwen3-14B, Qwen2.5-14B and DeBERTa, prvsiyan's two Qwen3-8B seeds and nuridudak's ModernBERT. Sources are in `CITATIONS.md`.\n\n## Ablation\n\n| Change | CV | Public LB | Δ |\n|---|---|---|---|\n| SVC, host data only | 0.348 | | |\n| + 84k public pool, weight 0.25 | 0.484 | | +0.136 |\n| My Qwen3-8B LoRA, stage 1, on unseen host train | 0.519 | | |\n| + Gaussian group head, test-like groups | | | **+0.058** |\n| Centred SVC, pair specialists, 122k pool | | | noise or worse |\n| Probe 1: published spine + my SVC | | 0.626 | +0.006 on 0.620 |\n| Probe 2: half-strength balancing | | 0.629 | +0.003 |\n| Probe 3: + prvsiyan's seeds at 10% | | 0.631 | +0.002 |\n| Probe 4: + in-style Qwen3-8B | | 0.627 | −0.004 |\n| Probes 5, 7, 8: + UltraBERT and ATLAS / my LoRA / Gaussian head at 0.4 | | 0.631 | 0 |\n| Probe 6: peer correction | | 0.622 | −0.009 |\n| **Probe 9: Gaussian head at 1.0 + ModernBERT** | | **0.637** | **+0.006** |\n| Probe 10: + Gaussian heads on the 14B LoRAs | | 0.630 | −0.007 |\n\nFinal picks: probe 9 (best) and probe 7 (0.631, a simpler blend that carries my own model).\n\n## One thing that didn't work, and why\n\nPeer correction, a public idea, replaces balancing: inside each topic cluster every passage loses a share of its neighbours' shared SVC lean, and class quotas go. Its author gained +0.010 on a weaker blend. On mine the LB fell from 0.631 to 0.622. Without quotas a strong blend drifts towards the classes it already favours, and balanced accuracy punishes every class it starves. A trick that rescues a weak blend can hurt a strong one. Probe 10 taught a related lesson: the Gaussian head helped on my own model's honest features but hurt on the 14B models, which had seen all of train, so their train features were too clean.\n\n## What I'd try next\n\nRetrain on the open 122k pool (stage 1 alone is about 10 hours on two T4s). Give every member five folds, so the blend is fitted on honest scores rather than probes. Decode each prompt group jointly across all members. Ask the organisers whether self-generated passages count as external data, then target the sibling pairs.\n\n## How I used AI\n\nI used Claude Code (Claude Opus 5.5) from the first hour, set up like my other repositories, and that structure is why one person could run this many experiments. Before any model, the repo had an `AGENTS.md` and `CLAUDE.md` with the competition rules as invariants (no hand-labelling, train only on Kaggle, cite everything), phases with small tickets, a research note before every decision and one log row per change. Folds were frozen, tests came before code and every model ran in a Kaggle notebook, so any result can be rerun. With that in place, Claude researched, wrote code and ran checks, and up to six side sessions worked in parallel on their own branches: the report, the video, the encoders, the 27B, the pair specialists and my LoRA's wiring. I set the direction, chose every probe, made every submission and merge call, and asked for evidence before keeping anything. Every session is exported in `ai-sessions/` and listed in `docs/ai-sessions.md`.\n"
+}
+```
+
+**Tool result**
+
+```
+<tool_use_error>File has been modified since read, either by the user or by a linter. Read it again before attempting to write it.</tool_use_error>
+```
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "sh scripts/report_pdf.sh 2>&1 | tail -1; wc -w docs/report/report-draft.md; grep -c \"—\" docs/report/report-draft.md; pdftotext -layout docs/report/report.pdf - | tail -12",
+ "description": "Render the report and check page count",
+ "timeout": 120000
+}
+```
+
+**Tool result**
+
+```
+pages: 2
+    1461 docs/report/report-draft.md
+0
+Final picks: probe 9 (0.637, our best) and probe 7 (0.631, which carries our own LoRA and matches our steady 0.631
+setup), so one pick covers the best score and the other a simpler, well-tested blend.
+
+How we used AI
+We used Claude Code (Claude Opus 5.5) throughout, set up from the first hour like Nabil’s other repos: an AGENTS.md
+and CLAUDE.md with the competition’s rules as invariants, phases with wayfinder tickets, research notes ending in a
+recommendation, an experiment log row per change, frozen folds and tests before code. One main session planned and
+reviewed; side sessions and agents ran research and parallel experiments, each in its own worktree and branch. Every
+session is listed in docs/ai-sessions.md and exported to ai-sessions/. Claude wrote much of the code and the notes.
+Nabil set the direction, chose every probe and reviewed and merged every pull request. Every model fit ran on Kaggle,
+and no test passage was labelled by hand or by an LLM.
+```
+
+## Claude (2026-10-25 16:07:39 UTC)
+
+The write was blocked because I'd edited that file with a script since my last read. Re-reading it, then writing the first-person version.
+
+**Tool call: Read**
+
+```json
+{
+ "file_path": "/Users/nabilshah/Random/research-arm-kaggle/docs/report/report-draft.md",
+ "limit": 3
+}
+```
+
+**Tool result**
+
+```
+1	# Name That LLM
+2	
+3	Nabil Shah, solo entry, Imperial Research Arm qualifier. Numbers come from `docs/experiments/LOG.md`.
+```
+
+**Tool call: Write**
+
+```json
+{
+ "file_path": "/Users/nabilshah/Random/research-arm-kaggle/docs/report/report-draft.md",
+ "content": "# Name That LLM\n\nNabil Shah, solo entry, Imperial Research Arm qualifier. Best public LB **0.637**. Every number is a row in `docs/experiments/LOG.md`.\n\n## Starting point: research before code\n\nI wrote no code for the first two hours. I read the rules, the 22 strongest public notebooks, 18 discussion threads and the papers they cite, and wrote 15 short research notes, each ending in a recommendation (`docs/research/`). Three findings set my plan. Data mattered more than model size: the same Qwen3-14B recipe went from 0.569 to 0.611 when its public pool grew from 35k to 84k passages. The best public blend (0.620, Nishant Dahal) published its LoRA weights, which the organisers confirmed I could use if I showed I understood them. And no public checkpoint had out-of-fold predictions, so the leaderboard would be my only test for those members.\n\nSo my approach was: validate first, build on the published spine with my own loader, and add members I could check on my own folds. I froze five folds grouped by `prompt_id` before fitting anything, so validation looked like the hidden test. My first model, a four-view n-gram SVC on host data, scored 0.348.\n\n## How I made decisions\n\nOne change per leaderboard probe, and I kept a change only if my cross-validation or a research note backed it too. When a probe and my CV disagreed, I trusted the CV: the public slice is small, and four probes in a row tied at 0.631. I dropped members that hurt (Zbigniew Kirchner's in-style LoRA, −0.004) and ideas that stayed in the noise, and wrote both down.\n\n## Hypotheses\n\n- **Style lives in small habits.** Function words, punctuation and word shapes change little with topic, so n-grams should separate labs. They did: the SVC put the right lab first 0.57 of the time. Siblings stayed hard: glm-5.3 against its flash model, gemini-3.7 against 3.8.\n- **Data beats model size.** 84,470 open-licence public passages took the SVC from 0.348 to 0.484.\n- **The prompt hides the author.** Test passages come in groups answering one prompt. Remove what a group shares and style is left. A shared-prompt Gaussian group head on my own model's honest features added **+0.058** on test-like groups.\n- **The test mix is uneven.** Full balancing bets on an even test, so I balanced halfway: +0.003 on the LB.\n\n## The published weights, and what is mine\n\nA LoRA24 checkpoint tokenises with no special tokens, cuts at 447 and appends the end token from its `meta.json` (151643, not the tokenizer's 151645). It keeps the first 27 of Qwen3-14B's 40 layers with the final norm off, merges the rank-16 adapter (W + B·A × 2), mean-pools 8 depths without the first token, LayerNorms each and applies a linear head. Both traps are silent: the wrong end token changed 14% of top picks, and a wrong label order puts one Claude model's probabilities under another's name.\n\n**Mine:** the loader, which asserts both traps (0.858 in-sample on Nishant's 14B); the 84k pool; the SVC and its tuning; half-strength balancing; my own Qwen3-8B LoRA, trained on Kaggle in 4.5 hours with my own code; the Gaussian group head, my own code after prvsiyan's public method; and every blend experiment. **Used as released:** Nishant Dahal's Qwen3-14B, Qwen2.5-14B and DeBERTa, prvsiyan's two Qwen3-8B seeds and nuridudak's ModernBERT. Sources are in `CITATIONS.md`.\n\n## Ablation\n\n| Change | CV | Public LB | Δ |\n|---|---|---|---|\n| SVC, host data only | 0.348 | | |\n| + 84k public pool, weight 0.25 | 0.484 | | +0.136 |\n| My Qwen3-8B LoRA, stage 1, on unseen host train | 0.519 | | |\n| + Gaussian group head, test-like groups | | | **+0.058** |\n| Centred SVC, pair specialists, 122k pool | | | noise or worse |\n| Probe 1: published spine + my SVC | | 0.626 | +0.006 on 0.620 |\n| Probe 2: half-strength balancing | | 0.629 | +0.003 |\n| Probe 3: + prvsiyan's seeds at 10% | | 0.631 | +0.002 |\n| Probe 4: + in-style Qwen3-8B | | 0.627 | −0.004 |\n| Probes 5, 7, 8: + UltraBERT and ATLAS / my LoRA / Gaussian head at 0.4 | | 0.631 | 0 |\n| Probe 6: peer correction | | 0.622 | −0.009 |\n| **Probe 9: Gaussian head at 1.0 + ModernBERT** | | **0.637** | **+0.006** |\n| Probe 10: + Gaussian heads on the 14B LoRAs | | 0.630 | −0.007 |\n\nFinal picks: probe 9 (best) and probe 7 (0.631, a simpler blend that carries my own model).\n\n## One thing that didn't work, and why\n\nPeer correction, a public idea, replaces balancing: inside each topic cluster every passage loses a share of its neighbours' shared SVC lean, and class quotas go. Its author gained +0.010 on a weaker blend. On mine the LB fell from 0.631 to 0.622. Without quotas a strong blend drifts towards the classes it already favours, and balanced accuracy punishes every class it starves. A trick that rescues a weak blend can hurt a strong one. Probe 10 taught a related lesson: the Gaussian head helped on my own model's honest features but hurt on the 14B models, which had seen all of train, so their train features were too clean.\n\n## What I'd try next\n\nRetrain on the open 122k pool (stage 1 alone is about 10 hours on two T4s). Give every member five folds, so the blend is fitted on honest scores rather than probes. Decode each prompt group jointly across all members. Ask the organisers whether self-generated passages count as external data, then target the sibling pairs.\n\n## How I used AI\n\nI used Claude Code (Claude Opus 5.5) from the first hour, set up like my other repositories, and that structure is why one person could run this many experiments. Before any model, the repo had an `AGENTS.md` and `CLAUDE.md` with the competition rules as invariants (no hand-labelling, train only on Kaggle, cite everything), phases with small tickets, a research note before every decision and one log row per change. Folds were frozen, tests came before code and every model ran in a Kaggle notebook, so any result can be rerun. With that in place, Claude researched, wrote code and ran checks, and up to six side sessions worked in parallel on their own branches: the report, the video, the encoders, the 27B, the pair specialists and my LoRA's wiring. I set the direction, chose every probe, made every submission and merge call, and asked for evidence before keeping anything. Every session is exported in `ai-sessions/` and listed in `docs/ai-sessions.md`.\n"
+}
+```
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "sh scripts/report_pdf.sh 2>&1 | tail -1; wc -w docs/report/report-draft.md; pdftotext -layout docs/report/report.pdf - | tail -6",
+ "description": "Render the first-person report",
+ "timeout": 120000
+}
+```
+
+**Tool result**
+
+```
+The file /Users/nabilshah/Random/research-arm-kaggle/docs/report/report-draft.md has been updated successfully. (file state is current in your context — no need to Read it back)
+```
+
+**Tool result**
+
+```
+pages: 2
+    1108 docs/report/report-draft.md
+model ran in a Kaggle notebook, so any result can be rerun. With that in place, Claude researched, wrote code and ran
+checks, and up to six side sessions worked in parallel on their own branches: the report, the video, the encoders, the
+27B, the pair specialists and my LoRA’s wiring. I set the direction, chose every probe, made every submission and merge
+call, and asked for evidence before keeping anything. Every session is exported in ai-sessions/ and listed in docs/ai-
+sessions.md.
+```
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "sed -i '' 's/I read the rules, the 22 strongest public notebooks, 18 discussion threads and the papers they cite,/I read the rules, 22 public notebooks, 18 discussion threads and the papers behind them,/' docs/report/report-draft.md && sh scripts/report_pdf.sh 2>&1 | tail -1 && python3 - <<'EOF'\nimport re\np='documents/presentation.html'\ns=open(p).read()\nlit='''<!-- 3 · Literature review -->\n<div class=\"frame\"><section>\n  <div style=\"display:flex; flex-direction:column; gap:16px\">\n    <p class=\"eyebrow\">Literature review</p>\n    <h2>Research before code.</h2>\n  </div>\n  <div class=\"cols\" style=\"grid-template-columns:repeat(4,1fr)\">\n    <div class=\"col\"><p class=\"big\">22</p><p>public notebooks read</p></div>\n    <div class=\"col\"><p class=\"big\">18</p><p>discussion threads</p></div>\n    <div class=\"col\"><p class=\"big\">15</p><p>research notes, each ending in a decision</p></div>\n    <div class=\"col\"><p class=\"big\">~100</p><p>sources cited</p></div>\n  </div>\n  <div class=\"cols\" style=\"grid-template-columns:repeat(3,1fr)\">\n    <div class=\"col\"><h3>Data beats size</h3><p>A bigger pool: 0.569 → 0.611.</p></div>\n    <div class=\"col\"><h3>The spine is public</h3><p>0.620 blend, weights published.</p></div>\n    <div class=\"col\"><h3>No public OOF</h3><p>So validate on my own folds.</p></div>\n  </div>\n  <div class=\"foot\"><span>Name That LLM</span><span>03 / 12</span></div>\n</section></div>\n\n'''\ns=s.replace('<!-- 3 · Starting point -->', lit+'<!-- 3 · Starting point -->',1)\n# renumber footers: NN / 11 -> recompute by order\nframes=s.split('<div class=\"frame\">')\nout=[frames[0]]\nfor k,f in enumerate(frames[1:],start=1):\n    f=re.sub(r'<span>\\d\\d / 1[12]</span>', f'<span>{k:02d} / 12</span>', f)\n    out.append(f)\ns='<div class=\"frame\">'.join(out)\nopen(p,'w').write(s)\nprint(s.count('class=\"frame\"'), re.findall(r'(\\d\\d / 12)', s))\nEOF",
+ "description": "Fix the report wording and add the literature review slide",
+ "timeout": 120000
+}
+```
+
+**Tool result**
+
+```
+pages: 2
+12 ['02 / 12', '03 / 12', '04 / 12', '05 / 12', '06 / 12', '07 / 12', '08 / 12', '09 / 12', '10 / 12', '11 / 12', '12 / 12']
+```
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "python3 - <<'EOF'\np='documents/presentation.html'\ns=open(p).read()\ns=s.replace('<p class=\"small\">Claude Code (Opus 5.5) · every session exported in ai-sessions/</p>','<p class=\"small\">My rule: one change per probe, kept only if CV or a research note backs it. Every session in ai-sessions/</p>')\nopen(p,'w').write(s)\nEOF\n\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --no-pdf-header-footer --virtual-time-budget=8000 --print-to-pdf=documents/presentation.pdf \"file://$PWD/documents/presentation.html\" 2>/dev/null; for n in 3 11; do pdftoppm -r 30 -png -f $n -l $n documents/presentation.pdf /private/tmp/claude-501/-Users-nabilshah--claude-spares-spare-GAqgHJ/5d7d3493-861c-4044-bd86-4e023fd27b66/scratchpad/deck/z; done; ls /private/tmp/claude-501/-Users-nabilshah--claude-spares-spare-GAqgHJ/5d7d3493-861c-4044-bd86-4e023fd27b66/scratchpad/deck | grep ^z",
+ "description": "Add the decision rule and render the new slides",
+ "timeout": 120000
+}
+```
+
+**Tool call: Read**
+
+```json
+{
+ "file_path": "/private/tmp/claude-501/-Users-nabilshah--claude-spares-spare-GAqgHJ/5d7d3493-861c-4044-bd86-4e023fd27b66/scratchpad/deck/z-03.png"
+}
+```
+
+**Tool call: Read**
+
+```json
+{
+ "file_path": "/private/tmp/claude-501/-Users-nabilshah--claude-spares-spare-GAqgHJ/5d7d3493-861c-4044-bd86-4e023fd27b66/scratchpad/deck/z-11.png"
+}
+```
+
+**Tool result**
+
+```
+z-03.png
+z-11.png
+```
+
+**Tool result**
+
+```
+
+```
+
+**Tool result**
+
+```
+
+```
+
+## Claude (2026-10-25 16:08:36 UTC)
+
+Both slides look right. Now the speaker notes and shot list for 12 slides. Total length stays at 3 minutes by trimming elsewhere.
+
+**Tool call: Write**
+
+```json
+{
+ "file_path": "/Users/nabilshah/Random/research-arm-kaggle/documents/speaker-notes.md",
+ "content": "# Speaker notes: Name That LLM\n\nRead these while showing `documents/presentation.pdf`, one block per slide. About 480 words, so three minutes at a brisk, steady pace. Say \"glm-5.3\" as \"G L M five point three\".\n\n## 1. Cover (0:00)\n\n> Hi, I'm Nabil. This is my solo entry to Name That LLM.\n\n## 2. The task (0:04)\n\n> Each passage was written by one of eighteen models. I train on 2,699 passages and am scored on about four thousand, on prompts I never see. Labs are easy to tell apart. Siblings are not: the two GLM models, and Gemini 3.7 against 3.8.\n\n## 3. Literature review (0:17)\n\n> I wrote no code for the first two hours. I read twenty-two public notebooks and eighteen discussion threads, and wrote fifteen research notes, each ending in a decision. Three findings set the plan: data beats model size, the best blend's weights were public, and no public model had honest out-of-fold scores, so I had to validate on my own folds.\n\n## 4. Starting point (0:37)\n\n> So I froze the folds first, grouped by prompt, like the hidden test. A plain n-gram SVC scored 0.348. Then I wrote my own loader for the published 0.620 weights and built on top.\n\n## 5. Approach (0:50)\n\n> Each member gives log-probabilities. They are blended, a few extra members join at fixed shares, and half-strength balancing evens out the classes. The filled boxes are mine: the SVC, a Gaussian group head and my own Qwen3-8B LoRA, trained overnight on Kaggle.\n\n## 6. Hypotheses (1:06)\n\n> Four ideas. Style lives in small habits, so n-grams should work. Data beats size: public passages took the SVC to 0.484. The prompt hides the author: take out what passages on one prompt share, and style is left. And the test mix is uneven, so balance only halfway.\n\n## 7. Ablation, leaderboard (1:24)\n\n> One change per probe. The spine with my SVC: 0.626. Half-strength balancing: 0.629. Two public seeds: 0.631. Then four ties at 0.631. Probe nine, the Gaussian head at full weight plus ModernBERT, reached 0.637. My picks are probe nine, and probe seven, which carries my own model.\n\n## 8. Ablation, cross-validation (1:45)\n\n> These scores come from folds each model never saw. My own LoRA reached 0.519, level with a 27-billion model. The Gaussian group head added 0.058, my biggest single gain. Other ideas stayed within noise.\n\n## 9. What didn't work (2:00)\n\n> Peer correction removes a topic's shared lean and drops class quotas. It helped its author's weaker blend. On mine it fell to 0.622: without quotas, a strong blend drifts towards the models it already favours.\n\n## 10. What the leaderboard told me (2:14)\n\n> Small gains round away on the public slice, so I steered by cross-validation. And features must be honest: the head helped on my own model, but on the 14B models, which saw all of train, it dropped to 0.630.\n\n## 11. How I used AI (2:27)\n\n> I used Claude Code from the first hour, set up like my other repos: an AGENTS file with the rules as invariants, small tickets, a research note before each decision and a log row for every change. Frozen folds, tests first and every model on Kaggle make it reproducible. That structure let six side sessions work in parallel while I made every call.\n\n## 12. What I'd try next (2:47)\n\n> Next: a bigger open pool, five folds per member for honest blending, joint decoding across members, and targeted data for the sibling pairs. Thanks for watching.\n"
+}
+```
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "awk '/^> /' documents/speaker-notes.md | wc -w && python3 - <<'EOF'\np='docs/report/video-script.md'\ns=open(p).read()\ni=s.index(\"| Slide | Start |\"); j=s.index(\"If a take runs long\")\ns=s[:i]+'''| Slide | Start | On screen | Optional cut-away |\n|---|---|---|---|\n| 1 Cover | 0:00 | Title | |\n| 2 The task | 0:04 | Four big numbers | |\n| 3 Literature review | 0:17 | Research counts, three findings | `docs/research/` on GitHub |\n| 4 Starting point | 0:37 | Folds, baseline, loader | `docs/experiments/LOG.md` row 1 |\n| 5 Approach | 0:50 | Pipeline diagram | Kaggle notebook `nthl-train-lora` |\n| 6 Hypotheses | 1:06 | Four hypotheses and results | |\n| 7 Leaderboard | 1:24 | Probe table, picks 9 and 7 highlighted | Our Kaggle submissions page |\n| 8 Cross-validation | 1:45 | Bar chart, +0.058 | `LOG.md` row 25 |\n| 9 What didn't work | 2:00 | Peer correction | `LOG.md` row 18 |\n| 10 Leaderboard lesson | 2:14 | 0.631 ties, then 0.637 | `LOG.md` row 29 (probe 10) |\n| 11 How I used AI | 2:27 | Structure, method, reproducible, parallel | `AGENTS.md`, the issue board, `ai-sessions/` |\n| 12 Next | 2:47 | Four next steps | The GitHub repo |\n\n'''+s[j:]\ns=s.replace(\"About 480 words, three minutes at a brisk pace.\",\"About 480 words, three minutes at a brisk pace, 12 slides.\")\ns=s.replace(\"then the second sentence of slide 10.\",\"then the second sentence of slide 11.\")\nopen(p,'w').write(s)\nEOF\ngit checkout -q -b docs/final-reasoning && git add -A docs/report documents && git commit -q -m \"docs: first-person report, a literature review slide and the reasoning up front\" -m \"Report rewritten in the first person: research before code, how I made decisions, hypotheses, the published weights and what is mine, ablation, one failure, next steps and how I used AI. Still 2 pages (checked with pdftotext). Deck gains a literature review slide (12 slides) and the decision rule on the AI slide; notes and shot list match.\n\nrefs #49 #50 #51\" && git push -q -u origin docs/final-reasoning 2>&1 | grep -v '^remote:'; gh pr create --base main --title \"docs: first-person report, literature review slide, reasoning up front\" --body \"Report in the first person with research and decision-making first, still 2 pages. Deck now 12 slides with a literature review slide; notes and shot list updated.\n\nrefs #49 #50 #51\" 2>&1 | tail -1",
+ "description": "Update shot list, commit and open the PR",
+ "timeout": 120000
+}
+```
+
+**Tool result**
+
+```
+The file /Users/nabilshah/Random/research-arm-kaggle/documents/speaker-notes.md has been updated successfully. (file state is current in your context — no need to Read it back)
+```
+
+**Tool result**
+
+```
+     496
+https://github.com/Nabzx/name-that-llm/pull/105
+```
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "gh pr merge 105 --merge --delete-branch 2>&1 | tail -1; git checkout -q main && git pull -q && git checkout -q -b docs/final-export && for x in \"1788d878-ee76-4ed9-9017-f601dac928f4 11-own-lora-member\" \"95546f37-fd4a-4ca4-b719-e8966412838b 12-report-draft\" \"9014c337-56e2-446b-9370-78528936a8ee 13-video-script\" \"b11845df-3e07-44bc-860a-265c1192f2c8 14-qwen27b-check\" \"40d48bf4-5e80-4eef-9fc0-837396d4f3e5 15-encoders-122k\" \"66776953-8515-46ab-ba28-5071c1f5cd44 16-hard-pairs\" \"5d7d3493-861c-4044-bd86-4e023fd27b66 01-main-session\"; do set -- $x; .venv/bin/python scripts/export_session.py $1 --name $2 | head -1; done; date -u +%H:%M",
+ "description": "Merge the PR and re-export every session",
+ "timeout": 300000
+}
+```
