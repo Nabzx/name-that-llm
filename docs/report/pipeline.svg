@@ -72,7 +72,7 @@
   <rect x="930" y="208" width="230" height="156" rx="12" fill="#111" stroke="#111" stroke-width="3"/>
   <text x="1045" y="268" font-size="24" font-weight="bold" text-anchor="middle" fill="#fff">5. One label</text>
   <text x="1045" y="298" font-size="24" font-weight="bold" text-anchor="middle" fill="#fff">per passage</text>
-  <text x="1045" y="334" font-size="16" text-anchor="middle" fill="#ddd">best public LB 0.631</text>
+  <text x="1045" y="334" font-size="16" text-anchor="middle" fill="#ddd">best public LB 0.637</text>
 
   <g stroke="#444" stroke-width="2.5" fill="none" marker-end="url(#arrow)">
     <!-- five members into the blend -->

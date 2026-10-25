@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Name That LLM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#111111; --paper:#F5F5F2; --grey:#5E5E5A; --soft:#a1a19c; --line:#d9d9d4; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { background:#2a2a28; }
+  body { font-family:'Geist', Arial, sans-serif; color:var(--ink); }
+  .deck { display:flex; flex-direction:column; align-items:center; gap:32px; padding:32px 0; }
+  .frame { width:calc(1920px * var(--s)); height:calc(1080px * var(--s)); position:relative; }
+  section { width:1920px; height:1080px; position:absolute; top:0; left:0; transform:scale(var(--s)); transform-origin:top left;
+            background:var(--paper); padding:128px 128px 160px; display:flex; flex-direction:column; justify-content:space-between; gap:56px; overflow:hidden; }
+  section.dark { background:var(--ink); color:var(--paper); }
+  .eyebrow { font-family:'Geist Mono', 'Courier New', monospace; font-size:24px; letter-spacing:2px; text-transform:uppercase; }
+  h1 { font-size:200px; font-weight:600; line-height:1; letter-spacing:-8px; }
+  h2 { font-size:64px; font-weight:600; line-height:1.1; letter-spacing:-1.5px; max-width:1560px; }
+  h3 { font-size:36px; font-weight:600; line-height:1.25; }
+  p, li, td, th { font-size:32px; line-height:1.35; }
+  .mono { font-family:'Geist Mono', 'Courier New', monospace; }
+  .small { font-size:24px; line-height:1.4; color:var(--grey); }
+  .dark .small { color:var(--soft); }
+  .foot { position:absolute; left:128px; right:128px; bottom:64px; display:flex; justify-content:space-between;
+          font-family:'Geist Mono', 'Courier New', monospace; font-size:24px; color:var(--grey); }
+  .dark .foot { color:var(--soft); }
+  .cols { display:grid; gap:48px; }
+  .col { border-top:2px solid var(--ink); padding-top:28px; display:flex; flex-direction:column; gap:14px; }
+  .dark .col { border-top-color:var(--paper); }
+  .num { font-family:'Geist Mono', 'Courier New', monospace; font-size:24px; color:var(--grey); }
+  .big { font-size:104px; font-weight:600; letter-spacing:-4px; line-height:1; }
+  table { border-collapse:collapse; width:100%; }
+  th { font-family:'Geist Mono', 'Courier New', monospace; font-size:22px; font-weight:500; letter-spacing:1.5px; text-transform:uppercase;
+       text-align:left; color:var(--grey); padding:0 20px 14px 0; }
+  td { border-top:2px solid var(--ink); padding:14px 20px 14px 0; font-size:28px; vertical-align:top; }
+  td.r, th.r { text-align:right; font-variant-numeric:tabular-nums; }
+  tr.hl td { background:var(--ink); color:var(--paper); }
+  tr.hl td:first-child { padding-left:16px; }
+  .pos { font-weight:600; }
+  .row { display:grid; grid-template-columns:520px 1fr 1fr; gap:40px; border-top:2px solid var(--ink); padding:16px 0; }
+  .row:last-child { border-bottom:2px solid var(--ink); }
+  @media print {
+    @page { size:1920px 1080px; margin:0; }
+    html, body { background:var(--paper); }
+    .deck { display:block; padding:0; gap:0; }
+    .frame { width:1920px; height:1080px; page-break-after:always; break-after:page; }
+    section { transform:none; }
+  }
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- 1 · Cover -->
+<div class="frame"><section class="dark" style="justify-content:flex-end; gap:40px">
+  <p class="eyebrow" style="color:var(--soft)">Imperial Research Arm · Kaggle qualifier</p>
+  <h1>Name That<br>LLM</h1>
+  <p class="mono small" style="font-size:24px">Nabil Shah · MSc Advanced Computing @ Imperial College London · October 2026</p>
+</section></div>
+
+<!-- 2 · The task -->
+<div class="frame"><section>
+  <div style="display:flex; flex-direction:column; gap:16px">
+    <p class="eyebrow">The task</p>
+    <h2>Which of 18 language models wrote this passage?</h2>
+  </div>
+  <div class="cols" style="grid-template-columns:repeat(4,1fr)">
+    <div class="col"><p class="big">18</p><p>models, six labs</p></div>
+    <div class="col"><p class="big">2,699</p><p>training passages</p></div>
+    <div class="col"><p class="big">4,000</p><p>test passages, unseen prompts</p></div>
+    <div class="col"><p class="big">BA</p><p>balanced accuracy</p></div>
+  </div>
+  <p class="small">Hardest: glm-5.3 vs glm-5.3-flash, gemini-3.7 vs 3.8-flash.</p>
+  <div class="foot"><span>Name That LLM</span><span>02 / 10</span></div>
+</section></div>
+
+<!-- 3 · Starting point -->
+<div class="frame"><section>
+  <div style="display:flex; flex-direction:column; gap:16px">
+    <p class="eyebrow">Starting point</p>
+    <h2>Validation first, then build on published work.</h2>
+  </div>
+  <div class="cols" style="grid-template-columns:1fr 1fr 1fr">
+    <div class="col"><p class="num">01</p><h3>Freeze the folds</h3><p>Grouped by prompt, like the hidden test.</p></div>
+    <div class="col"><p class="num">02</p><h3>Plain baseline</h3><p>n-gram SVC, host data only: <b>0.348</b></p></div>
+    <div class="col"><p class="num">03</p><h3>Read, don't fork</h3><p>Our own loader for the best public weights (0.620).</p></div>
+  </div>
+  <div class="foot"><span>Name That LLM</span><span>03 / 10</span></div>
+</section></div>
+
+<!-- 4 · Approach (pipeline) -->
+<div class="frame"><section style="gap:40px">
+  <div style="display:flex; flex-direction:column; gap:16px">
+    <p class="eyebrow">Approach</p>
+    <h2>Many views, one blend, then balancing.</h2>
+  </div>
+  <svg viewBox="0 0 1664 604" width="1553" height="564" style="flex:none" aria-label="Pipeline: members feed a log-space blend, then fixed shares, then partial balancing, giving one label per passage" font-family="Geist, Arial, sans-serif">
+    <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#111111"/></marker></defs>
+    <g font-size="24">
+      <rect x="0" y="0" width="520" height="70" fill="#111111"/><text x="24" y="44" fill="#F5F5F2" font-weight="600">Our n-gram SVC · pool, CV 0.484</text>
+      <rect x="0" y="86" width="520" height="70" fill="none" stroke="#111111" stroke-width="2"/><text x="24" y="130">Qwen3-14B LoRA + centred twin</text>
+      <rect x="0" y="172" width="520" height="70" fill="none" stroke="#111111" stroke-width="2"/><text x="24" y="216">Qwen2.5-14B LoRA + centred twin</text>
+      <rect x="0" y="258" width="520" height="70" fill="none" stroke="#111111" stroke-width="2"/><text x="24" y="302">DeBERTa-v3-large</text>
+      <rect x="0" y="344" width="520" height="70" fill="#111111"/><text x="24" y="388" fill="#F5F5F2" font-weight="600">Gaussian group head · ours</text>
+      <rect x="0" y="446" width="520" height="70" fill="#111111"/><text x="24" y="490" fill="#F5F5F2" font-weight="600">Our Qwen3-8B LoRA · 10%</text>
+      <rect x="0" y="530" width="520" height="70" fill="none" stroke="#111111" stroke-width="2"/><text x="24" y="574">prvsiyan seeds · ModernBERT · 10% each</text>
+    </g>
+    <g fill="none" stroke="#111111" stroke-width="2">
+      <path d="M520,35 C600,35 600,190 660,190" marker-end="url(#a)"/>
+      <path d="M520,121 C600,121 600,200 660,200" marker-end="url(#a)"/>
+      <path d="M520,207 C600,207 600,210 660,210" marker-end="url(#a)"/>
+      <path d="M520,293 C600,293 600,220 660,220" marker-end="url(#a)"/>
+      <path d="M520,379 C600,379 600,230 660,230" marker-end="url(#a)"/>
+      <path d="M520,481 C600,481 600,470 660,470" marker-end="url(#a)"/>
+      <path d="M520,565 C600,565 600,480 660,480" marker-end="url(#a)"/>
+      <path d="M840,270 L840,420" marker-end="url(#a)"/>
+      <path d="M1020,475 L1100,475" marker-end="url(#a)"/>
+      <path d="M1380,420 L1380,300" marker-end="url(#a)"/>
+    </g>
+    <g>
+      <rect x="660" y="140" width="360" height="130" fill="#F5F5F2" stroke="#111111" stroke-width="2"/>
+      <text x="840" y="196" text-anchor="middle" font-size="30" font-weight="600">Log-space blend</text>
+      <text x="840" y="234" text-anchor="middle" font-size="22" fill="#5E5E5A">weighted sum of log-probabilities</text>
+      <rect x="660" y="420" width="360" height="110" fill="#F5F5F2" stroke="#111111" stroke-width="2"/>
+      <text x="840" y="468" text-anchor="middle" font-size="30" font-weight="600">Fixed shares</text>
+      <text x="840" y="504" text-anchor="middle" font-size="22" fill="#5E5E5A">main 70% · others 10% each</text>
+      <rect x="1100" y="420" width="560" height="110" fill="#111111"/>
+      <text x="1380" y="468" text-anchor="middle" font-size="30" font-weight="600" fill="#F5F5F2">Half-strength Sinkhorn</text>
+      <text x="1380" y="504" text-anchor="middle" font-size="22" fill="#a1a19c">pulls class totals halfway to even</text>
+      <rect x="1100" y="160" width="560" height="140" fill="none" stroke="#111111" stroke-width="2"/>
+      <text x="1380" y="222" text-anchor="middle" font-size="34" font-weight="600">One label per passage</text>
+      <text x="1380" y="262" text-anchor="middle" font-size="22" fill="#5E5E5A">best public LB 0.637</text>
+    </g>
+  </svg>
+  <p class="small">Filled = ours. Outlined = published, through our own loader.</p>
+  <div class="foot"><span>Name That LLM</span><span>04 / 10</span></div>
+</section></div>
+
+<!-- 5 · Hypotheses -->
+<div class="frame"><section>
+  <div style="display:flex; flex-direction:column; gap:16px">
+    <p class="eyebrow">Hypotheses</p>
+    <h2>What would separate the models?</h2>
+  </div>
+  <div style="display:flex; flex-direction:column">
+    <div class="row" style="grid-template-columns:1fr 1fr"><h3>Style lives in small habits</h3><p>n-gram SVC: 0.348</p></div>
+    <div class="row" style="grid-template-columns:1fr 1fr"><h3>Data beats model size</h3><p>+ 84k public passages: <b>0.484</b></p></div>
+    <div class="row" style="grid-template-columns:1fr 1fr"><h3>The prompt hides the author</h3><p>Gaussian group head: <b>+0.058</b></p></div>
+    <div class="row" style="grid-template-columns:1fr 1fr"><h3>The test mix is uneven</h3><p>Half-strength balancing: <b>+0.003</b></p></div>
+  </div>
+  <div class="foot"><span>Name That LLM</span><span>05 / 10</span></div>
+</section></div>
+
+<!-- 6 · Ablation: leaderboard -->
+<div class="frame"><section style="gap:36px">
+  <div style="display:flex; flex-direction:column; gap:16px">
+    <p class="eyebrow">Ablation · public leaderboard</p>
+    <h2>One change per probe.</h2>
+  </div>
+  <table>
+    <tr><th>Probe</th><th>Change</th><th class="r">Public LB</th><th class="r">Δ</th></tr>
+    <tr><td class="mono">1</td><td>Our SVC + published spine</td><td class="r">0.626</td><td class="r">—</td></tr>
+    <tr><td class="mono">2</td><td>Half-strength balancing</td><td class="r">0.629</td><td class="r pos">+0.003</td></tr>
+    <tr class="hl"><td class="mono">3</td><td>+ two public Qwen3-8B seeds</td><td class="r">0.631</td><td class="r">+0.002</td></tr>
+    <tr><td class="mono">4</td><td>+ in-style Qwen3-8B</td><td class="r">0.627</td><td class="r">−0.004</td></tr>
+    <tr><td class="mono">5</td><td>+ UltraBERT, ATLAS</td><td class="r">0.631</td><td class="r">±0</td></tr>
+    <tr><td class="mono">6</td><td>Peer correction</td><td class="r">0.622</td><td class="r">−0.009</td></tr>
+    <tr><td class="mono">7</td><td>+ our own Qwen3-8B LoRA</td><td class="r">0.631</td><td class="r">±0</td></tr>
+    <tr><td class="mono">8</td><td>+ Gaussian head (weight 0.4)</td><td class="r">0.631</td><td class="r">±0</td></tr>
+    <tr class="hl"><td class="mono">9</td><td>Gaussian head at 1.0 + ModernBERT</td><td class="r"><b>0.637</b></td><td class="r"><b>+0.006</b></td></tr>
+  </table>
+  <div class="foot"><span>Name That LLM</span><span>06 / 10</span></div>
+</section></div>
+
+<!-- 7 · Ablation: cross-validation -->
+<div class="frame"><section style="gap:40px">
+  <div style="display:flex; flex-direction:column; gap:16px">
+    <p class="eyebrow">Ablation · honest cross-validation</p>
+    <h2>Honest scores, on unseen folds.</h2>
+  </div>
+  <svg viewBox="0 0 1664 560" width="1486" height="500" style="flex:none" aria-label="Balanced accuracy on unseen folds: SVC host only 0.348, SVC with pool 0.484, our LoRA stage 1 0.519, Qwen3.8-27B 0.521, plain head on test-like groups 0.518, plus Gaussian head 0.577" font-family="Geist, Arial, sans-serif">
+    <g font-size="26">
+      <text x="0" y="40">SVC, host data only</text>
+      <rect x="560" y="12" width="487" height="40" fill="#a1a19c"/><text x="1062" y="42" class="mono" font-family="Geist Mono, monospace">0.348</text>
+      <text x="0" y="120">SVC + 84k public pool</text>
+      <rect x="560" y="92" width="678" height="40" fill="#111111"/><text x="1253" y="122" font-family="Geist Mono, monospace">0.484</text>
+      <text x="0" y="200">Our Qwen3-8B LoRA, stage 1</text>
+      <rect x="560" y="172" width="727" height="40" fill="#111111"/><text x="1302" y="202" font-family="Geist Mono, monospace">0.519</text>
+      <text x="0" y="280">Qwen3.8-27B, held-out fold</text>
+      <rect x="560" y="252" width="729" height="40" fill="#a1a19c"/><text x="1304" y="282" font-family="Geist Mono, monospace">0.521</text>
+      <line x1="0" y1="330" x2="1664" y2="330" stroke="#111111" stroke-width="2"/>
+      <text x="0" y="400">Plain head, test-like groups</text>
+      <rect x="560" y="372" width="725" height="40" fill="#a1a19c"/><text x="1300" y="402" font-family="Geist Mono, monospace">0.518</text>
+      <text x="0" y="480" font-weight="600">+ Gaussian group head</text>
+      <rect x="560" y="452" width="808" height="40" fill="#111111"/><text x="1383" y="482" font-weight="600" font-family="Geist Mono, monospace">0.577 (+0.058)</text>
+    </g>
+  </svg>
+  <p class="small">Within noise: centred SVC, pair specialists, bigger SVC pool.</p>
+  <div class="foot"><span>Name That LLM</span><span>07 / 10</span></div>
+</section></div>
+
+<!-- 8 · What didn't work -->
+<div class="frame"><section class="dark">
+  <div style="display:flex; flex-direction:column; gap:16px">
+    <p class="eyebrow" style="color:var(--soft)">What didn't work</p>
+    <h2>Peer correction: 0.631 → 0.622</h2>
+  </div>
+  <div class="cols" style="grid-template-columns:1fr 1fr 1fr">
+    <div class="col"><p class="num" style="color:var(--soft)">The idea</p><p>Remove a topic's shared lean. Drop class quotas.</p></div>
+    <div class="col"><p class="num" style="color:var(--soft)">Why we tried it</p><p>+0.010 for its author, on a weaker blend.</p></div>
+    <div class="col"><p class="num" style="color:var(--soft)">Why it failed</p><p>No quotas: a strong blend drifts to its favourites.</p></div>
+  </div>
+  <div class="foot"><span>Name That LLM</span><span>08 / 10</span></div>
+</section></div>
+
+<!-- 9 · What the ties taught us -->
+<div class="frame"><section>
+  <div style="display:flex; flex-direction:column; gap:16px">
+    <p class="eyebrow">What the leaderboard told us</p>
+    <h2>Four ties at 0.631, then 0.637.</h2>
+  </div>
+  <div class="cols" style="grid-template-columns:1fr 1fr">
+    <div class="col"><h3>Small gains round away</h3><p>So we steered by cross-validation.</p></div>
+    <div class="col"><h3>Full weight mattered</h3><p>The Gaussian head moved the board at 1.0, not 0.4.</p></div>
+  </div>
+  <div style="display:flex; gap:48px; align-items:baseline">
+    <p class="big">0.637</p><p class="small">best public score · from 0.620</p>
+  </div>
+  <div class="foot"><span>Name That LLM</span><span>09 / 10</span></div>
+</section></div>
+
+<!-- 10 · Next -->
+<div class="frame"><section class="dark">
+  <div style="display:flex; flex-direction:column; gap:16px">
+    <p class="eyebrow" style="color:var(--soft)">What I'd try next</p>
+    <h2>More data, honest numbers everywhere.</h2>
+  </div>
+  <div class="cols" style="grid-template-columns:repeat(4,1fr)">
+    <div class="col"><p class="num" style="color:var(--soft)">01</p><h3>Bigger pool</h3><p>Retrain on 122k open passages.</p></div>
+    <div class="col"><p class="num" style="color:var(--soft)">02</p><h3>Five folds each</h3><p>Fit the blend on honest scores.</p></div>
+    <div class="col"><p class="num" style="color:var(--soft)">03</p><h3>Joint decoding</h3><p>One Gaussian model for all members.</p></div>
+    <div class="col"><p class="num" style="color:var(--soft)">04</p><h3>Hard pairs</h3><p>Targeted data for the siblings.</p></div>
+  </div>
+  <p class="small">github.com/Nabzx/name-that-llm · Thanks for watching.</p>
+  <div class="foot"><span>Name That LLM</span><span>10 / 10</span></div>
+</section></div>
+
+</div>
+<script>
+  function fit() {
+    const s = Math.min((window.innerWidth - 64) / 1920, 1);
+    document.documentElement.style.setProperty('--s', s);
+  }
+  window.addEventListener('resize', fit); fit();
+  window.addEventListener('beforeprint', () => document.documentElement.style.setProperty('--s', 1));
+  window.addEventListener('afterprint', fit);
+</script>
+</body>
+</html>
