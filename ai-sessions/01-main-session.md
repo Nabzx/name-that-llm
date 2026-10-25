@@ -28530,3 +28530,121 @@ Commit, merge, re-export, then send you the PDFs.
  "timeout": 400000
 }
 ```
+
+**Tool result**
+
+```
+https://github.com/Nabzx/name-that-llm/pull/109
+ create mode 100644 documents/speaker-notes.pdf
+0
+https://github.com/Nabzx/name-that-llm/pull/110
+ 9 files changed, 251 insertions(+), 1 deletion(-)
+0ce8ba7 Merge pull request #110 from Nabzx/docs/final-export-3
+16:19
+121207 docs/report/report.pdf
+419656 documents/presentation.pdf
+49148 documents/speaker-notes.pdf
+```
+
+**Tool call: SendUserFile**
+
+```json
+{
+ "files": [
+  "/Users/nabilshah/Random/research-arm-kaggle/docs/report/report.pdf",
+  "/Users/nabilshah/Random/research-arm-kaggle/documents/presentation.pdf",
+  "/Users/nabilshah/Random/research-arm-kaggle/documents/speaker-notes.pdf"
+ ],
+ "caption": "Report (2 pages), slides (12) and speaker notes (2 pages), as on main.",
+ "status": "normal",
+ "display": "attach"
+}
+```
+
+**Tool result**
+
+```
+3 files delivered to user.
+```
+
+## Claude (2026-10-25 16:19:34 UTC)
+
+I've sent you the three PDFs to download: the report (2 pages), the slides (12) and the speaker notes (2 pages). They match what's on main.
+
+**README** ([PR #109](https://github.com/Nabzx/name-that-llm/pull/109), merged):
+- **Score:** the badge now shows **0.637**, and a hand-in line near the top links the report, slides, speaker notes, experiment log and AI sessions.
+- **Method:** seven steps, now including the literature review, our own LoRA (0.519) and the Gaussian group head (+0.058).
+- **Images:**
+  - the updated pipeline diagram, with the Gaussian head, our LoRA and ModernBERT;
+  - a redrawn chart of all ten probes, with labels moved so they don't overlap;
+  - two slide previews (literature review and ablation).
+- **Also new:** the final picks (probes 9 and 7), reproduce steps that include training our LoRA, and a short "How AI was used" section.
+- **New file:** `documents/speaker-notes.pdf`.
+
+**AI logs:** all seven sessions were re-exported at 16:19 GMT and merged ([PR #110](https://github.com/Nabzx/name-that-llm/pull/110)). The token scan is clean. Only this reply comes after the export. The command from before covers it, if you run it just before submitting.
+
+**Still with you, before 18:00:** tick probes 9 and 7 on Kaggle, share `nthl-submit` version 12, give the organisers access to the repo, then record and upload the video.
+
+## Nabil (2026-10-25 16:31:29 UTC)
+
+the speakers note has way too much jargon, simplify language and make shorter.
+
+This is the last task before submission.
+
+thansk for you help. 
+
+reexport everything once done.
+
+**Tool call: Write**
+
+```json
+{
+ "file_path": "/Users/nabilshah/Random/research-arm-kaggle/documents/speaker-notes.md",
+ "content": "# Speaker notes: Name That LLM\n\nOne short block per slide. About 340 words, under three minutes at a calm pace.\n\n## 1. Cover (0:00)\n\n> Hi, I'm Nabil. This is my entry to Name That LLM.\n\n## 2. The task (0:05)\n\n> Each passage was written by one of eighteen AI models. My job is to guess which one. Different companies are easy to tell apart. Two versions of the same model are much harder.\n\n## 3. Literature review (0:18)\n\n> Before writing any code, I read the best public notebooks and forum threads, and wrote short notes on each idea. Three lessons: more data matters more than bigger models, the best public models were free to use, and I'd need my own way to test ideas.\n\n## 4. Starting point (0:36)\n\n> So I set up a fair test first, keeping each prompt's passages together. A simple model scored 0.348. Then I loaded the best public models with my own code.\n\n## 5. Approach (0:48)\n\n> Several models each make a guess, and I combine their guesses. The black boxes are mine, including a model I trained myself overnight.\n\n## 6. Hypotheses (0:59)\n\n> My four ideas: writing habits give a model away, more data helps most, passages on the same prompt hide the author's style, and the test isn't evenly split between models.\n\n## 7. Leaderboard results (1:14)\n\n> I changed one thing at a time. I started at 0.626 and got stuck at 0.631 for a while. Then my best change took me to 0.637. I picked probes nine and seven as my final two.\n\n## 8. Tested offline (1:31)\n\n> These scores are on data each model never saw. The biggest gain came from comparing passages that answer the same prompt: plus 0.058.\n\n## 9. What didn't work (1:44)\n\n> One public trick dropped my score to 0.622. It helped weaker setups but hurt mine, so I removed it.\n\n## 10. What the leaderboard taught me (1:55)\n\n> Small gains often don't show on the public scores, so I trusted my own tests. And a test is only fair if the model hasn't already seen the answers.\n\n## 11. How I used AI (2:08)\n\n> I used Claude Code from the start, with the same setup as my other projects: clear rules, small tasks, a note before each decision and a log of every change. That let several AI sessions work at once while I made the decisions. Every session is saved in the repo.\n\n## 12. What I'd try next (2:28)\n\n> Next, I'd train on more data, test every model properly, and focus on the two hardest pairs. Thanks for watching.\n"
+}
+```
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "git checkout -q -b docs/notes-plain && awk '/^> /' documents/speaker-notes.md | wc -w && python3 - <<'EOF'\np='docs/report/video-script.md'\ns=open(p).read()\nimport re\ntimes={'1 Cover':'0:00','2 The task':'0:05','3 Literature review':'0:18','4 Starting point':'0:36','5 Approach':'0:48','6 Hypotheses':'0:59','7 Leaderboard':'1:14','8 Cross-validation':'1:31','9 What didn\\'t work':'1:44','10 Leaderboard lesson':'1:55','11 How I used AI':'2:08','12 Next':'2:28'}\nfor k,v in times.items():\n    s=re.sub(r'(\\| '+re.escape(k)+r' \\| )[0-9:]+',r'\\g<1>'+v,s)\ns=s.replace(\"About 480 words, three minutes at a brisk pace, 12 slides.\",\"About 340 words, under three minutes, 12 slides.\")\nopen(p,'w').write(s)\nEOF\ngrep -E \"^\\| [0-9]+ \" docs/report/video-script.md | cut -d'|' -f2,3; pandoc documents/speaker-notes.md -s --embed-resources -c docs/report/notes.css -M pagetitle=\"Speaker notes\" -o /private/tmp/claude-501/-Users-nabilshah--claude-spares-spare-GAqgHJ/5d7d3493-861c-4044-bd86-4e023fd27b66/scratchpad/notes.html && \"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --no-pdf-header-footer --print-to-pdf=documents/speaker-notes.pdf /private/tmp/claude-501/-Users-nabilshah--claude-spares-spare-GAqgHJ/5d7d3493-861c-4044-bd86-4e023fd27b66/scratchpad/notes.html 2>/dev/null; python3 -c \"import re;print('pages', len(re.findall(rb'/Type\\s*/Page[^s]', open('documents/speaker-notes.pdf','rb').read())))\"",
+ "description": "Retime the shot list and render the notes PDF",
+ "timeout": 120000
+}
+```
+
+**Tool result**
+
+```
+The file /Users/nabilshah/Random/research-arm-kaggle/documents/speaker-notes.md has been updated successfully. (file state is current in your context — no need to Read it back)
+```
+
+**Tool result**
+
+```
+     362
+ 1 Cover | 0:00 
+ 2 The task | 0:05 
+ 3 Literature review | 0:18 
+ 4 Starting point | 0:36 
+ 5 Approach | 0:48 
+ 6 Hypotheses | 0:59 
+ 7 Leaderboard | 1:14 
+ 8 Cross-validation | 1:31 
+ 9 What didn't work | 1:44 
+ 10 Leaderboard lesson | 1:55 
+ 11 How I used AI | 2:08 
+ 12 Next | 2:28 
+pages 2
+```
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "sed -i '' 's/About 340 words, under three minutes at a calm pace./About 360 words, under three minutes at a calm pace./' documents/speaker-notes.md && sed -i '' 's/About 340 words, under three minutes, 12 slides./About 360 words, under three minutes, 12 slides./' docs/report/video-script.md && pandoc documents/speaker-notes.md -s --embed-resources -c docs/report/notes.css -M pagetitle=\"Speaker notes\" -o /private/tmp/claude-501/-Users-nabilshah--claude-spares-spare-GAqgHJ/5d7d3493-861c-4044-bd86-4e023fd27b66/scratchpad/notes.html && \"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --no-pdf-header-footer --print-to-pdf=documents/speaker-notes.pdf /private/tmp/claude-501/-Users-nabilshah--claude-spares-spare-GAqgHJ/5d7d3493-861c-4044-bd86-4e023fd27b66/scratchpad/notes.html 2>/dev/null; git add documents docs/report/video-script.md && git commit -q -m \"docs(documents): plain-language speaker notes\" -m \"Shorter (about 360 words) and free of jargon; shot list retimed to match.\n\nrefs #51\" && git push -q -u origin docs/notes-plain 2>&1 | grep -v '^remote:'; gh pr create --base main --title \"docs(documents): plain-language speaker notes\" --body \"Simpler, shorter speaker notes and a retimed shot list. refs #51\" 2>&1 | tail -1; sleep 2; gh pr merge docs/notes-plain --merge --delete-branch 2>&1 | tail -1; git checkout -q main && git pull -q && git checkout -q -b docs/final-export-4 && for x in \"1788d878-ee76-4ed9-9017-f601dac928f4 11-own-lora-member\" \"95546f37-fd4a-4ca4-b719-e8966412838b 12-report-draft\" \"9014c337-56e2-446b-9370-78528936a8ee 13-video-script\" \"b11845df-3e07-44bc-860a-265c1192f2c8 14-qwen27b-check\" \"40d48bf4-5e80-4eef-9fc0-837396d4f3e5 15-encoders-122k\" \"66776953-8515-46ab-ba28-5071c1f5cd44 16-hard-pairs\" \"5d7d3493-861c-4044-bd86-4e023fd27b66 01-main-session\"; do set -- $x; .venv/bin/python scripts/export_session.py $1 --name $2 >/dev/null; done; T=$(date -u +%H:%M); grep -cE \"(KGAT_[A-Za-z0-9]{8,}|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9-]{20,}|hf_[A-Za-z0-9]{20,}|AKIA[A-Z0-9]{16})\" ~/.claude/projects/-Users-nabilshah-Random/5d7d3493-861c-4044-bd86-4e023fd27b66.jsonl; sed -i '' -E \"s/final export 2026-10-25 [0-9:]+ GMT with 8 subagent logs/final export 2026-10-25 $T GMT with 8 subagent logs/\" docs/ai-sessions.md; git add -A ai-sessions docs/ai-sessions.md && git commit -q -m \"docs(ai-sessions): final re-export of every AI session\" -m \"refs #52\" && git push -q -u origin docs/final-export-4 2>&1 | grep -v '^remote:'; gh pr create --base main --title \"docs(ai-sessions): final re-export of every AI session\" --body \"Final re-export at $T GMT; token scan clean. refs #52\" 2>&1 | tail -1; sleep 2; gh pr merge docs/final-export-4 --merge --delete-branch 2>&1 | tail -1; git checkout -q main && git pull -q && git log --oneline -1; echo $T",
+ "description": "Merge the notes, re-export everything and merge",
+ "timeout": 400000
+}
+```
