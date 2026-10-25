@@ -28,9 +28,9 @@ Each LoRA24 checkpoint turns a passage into 18 probabilities like this. Tokenise
 - A likelihood witness from Qwen3-4B-Base, about +0.003 on the SVC.
 - Our own Qwen3-8B LoRA24, trained on Kaggle with our own code in 4.5 hours: stage 1 on a balanced pool sample, stage 2 on host train.
 - A shared-prompt Gaussian group head, our own code after prvsiyan's public method.
-- Every blend experiment, probes 1 to 8.
+- Every blend experiment, probes 1 to 9.
 
-**Used as released:** Nishant Dahal's Qwen3-14B, Qwen2.5-14B and DeBERTa-v3-large with his blend weights, and prvsiyan's two Qwen3-8B seeds. In probes 4 and 5 only: Zbigniew Kirchner's in-style Qwen3-8B, UltraBERT and ATLAS. All sources are in `CITATIONS.md`.
+**Used as released:** Nishant Dahal's Qwen3-14B, Qwen2.5-14B and DeBERTa-v3-large with his blend weights, and prvsiyan's two Qwen3-8B seeds. In probes 4 and 5 only: Zbigniew Kirchner's in-style Qwen3-8B, UltraBERT and ATLAS. In probe 9: nuridudak's ModernBERT-large. All sources are in `CITATIONS.md`.
 
 ## Ablation
 
@@ -41,10 +41,12 @@ CV is on our frozen folds. Δ is against the row before, unless named. The full 
 | SVC, host train only | 0.3485 | | |
 | + whole pool, weight 1 | 0.4634 | | +0.115 |
 | pool weight 0.5 | 0.4782 | | +0.015 |
-| pool weight 0.25 (C 0.25, C 1.0, min_df 3 no better) | 0.4838 | | +0.006 |
+| pool weight 0.25 (C 0.25, C 1.0, min_df 3 and the 122k pool no better) | 0.4838 | | +0.006 |
 | Prompt-centred SVC twin, test-like groups | | | +0.003 on the SVC, sd 0.013 |
 | Our Qwen3-8B LoRA, stage 1 only, on unseen host train | 0.519 | | +0.035 on the SVC |
 | + Gaussian group head on its features, test-like groups | | | **+0.058** on its plain head, sd 0.013 |
+| Hard-pair specialists on the SVC | | | +0.0026, below the noise bar |
+| Full-text Qwen3.8-27B classifier, held out | 0.521 | | 3.7 h on the test, too slow |
 | Probe 1: Nishant's spine with our SVC, full Sinkhorn | | 0.626 | +0.006 on his 0.620 |
 | Probe 2: half Sinkhorn | | 0.629 | +0.003 |
 | Probe 3: + prvsiyan's seeds at 10%, SVC weight 0.25 | | **0.631** | +0.002 |
@@ -52,11 +54,11 @@ CV is on our frozen folds. Δ is against the row before, unless named. The full 
 | Probe 5: + UltraBERT 10%, ATLAS 10% on unsure rows | | 0.631 | 0 on 3 |
 | Probe 6: peer correction in place of half Sinkhorn | | 0.622 | -0.009 on 3 |
 | Probe 7: + our own LoRA at 10% | | 0.631 | 0 on 3 |
-| Probe 8: + Gaussian head at 0.4 on grouped rows | | TODO | TODO on 7 |
-| Still running: 27B full-text classifier, 122k-pool SVC, ModernBERT, hard-pair specialists | TODO | TODO | TODO |
-| Final picks | | TODO | private TODO |
+| Probe 8: + Gaussian head at 0.4 on grouped rows | | 0.631 | 0 on 7 |
+| **TODO** Probe 9: Gaussian head at 1.0, + nuridudak's ModernBERT-large at 10% | | **TODO** | **TODO** on 8 |
+| **TODO** Final picks | | **TODO** | private **TODO** |
 
-Data did most of the work on CV. On the LB, changing how we balance moved the score most. Adding members at 10% moved it little or made it worse.
+Data did most of the work on CV. On the LB, changing how we balance moved the score most. Probes 3, 5, 7 and 8 all scored 0.631: the Gaussian head is strong on its own view, but at 0.4 inside the blend it flips too few rows to move the public slice, and members at 10% do the same.
 
 ## One thing that didn't work, and why
 
@@ -66,11 +68,12 @@ Peer correction removes the prompt's lean, but it has no class quotas. Sinkhorn 
 
 ## What we'd try next
 
-- Judge members by how much their errors overlap, using out-of-fold predictions from our own LoRA. Our LoRA, UltraBERT and ATLAS all tied at 10%, and Zbigniew's model hurt: a strong model whose errors match the blend's adds nothing.
-- Train a non-Qwen model. Almost all published members are Qwen, and they agree on about 77% of top picks.
-- Build the folds from one to five passages per prompt, as in the test, to judge every test-time step.
+- Train our own members five-fold, so each has honest out-of-fold predictions, the blend can be fitted on them and members can be judged by how much their errors overlap, not by LB probes. Our LoRA, UltraBERT and ATLAS tied at 10%, and Zbigniew's model hurt.
+- Retrain on a bigger pool. Swapping in the 122k pool did not help the SVC, and our LoRA would need about 10 hours of stage 1 on two T4s to use it.
+- Decode each shared-prompt group jointly across all members, not on one member's features.
+- Ask the organisers whether passages we generate ourselves count as external data under rule 2.6.
 
-TODO: final pick and why.
+**TODO:** final picks and why.
 
 ## How we used AI
 
