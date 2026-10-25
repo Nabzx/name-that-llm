@@ -61,7 +61,7 @@ for name in ["modernbert", "desklib"]:
     summary[name] = {
         "insample_balanced_accuracy": round(balanced_accuracy(truth, pred), 4),
         "recall": {m: round(float(np.mean(pred[truth == m] == m)), 3) for m in LABELS},
-        "test_pred_counts": pd.Series(np.asarray(LABELS)[te.argmax(1)]).value_counts().to_dict(),
+        "test_pred_counts": {k: int(v) for k, v in pd.Series(np.asarray(LABELS)[te.argmax(1)]).value_counts().items()},
         "seconds_incl_copy": round(seconds),
         "seconds_per_1000": round(1000 * seconds / len(texts), 1),
     }
