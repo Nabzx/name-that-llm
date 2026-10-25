@@ -52,4 +52,4 @@ Row 16 is the UltraBERT loader check: in-sample 0.966 on host train, not a score
 - Leaving suspect labels out hurt more than keeping them (row 8).
 - The likelihood witnesses carry real but small signal, about +0.003 on the SVC.
 - On the LB, the steps that changed how we combine and balance gave the most: half Sinkhorn +0.003. Adding strong published members gave little or hurt: prvsiyan's seeds shared +0.002, Zbigniew's in-style model -0.004, UltraBERT and ATLAS nothing.
-- From probe 3 on, every gain is 0.004 or less. On a public LB of 4,000 passages split 18 ways, that is close to noise, so we only kept changes the CV or a research note also backed.
+- From probe 3 on, every gain is 0.004 or less. The public LB scores only part of the 4,000 test passages, split 18 ways, so that is close to noise, so we only kept changes the CV or a research note also backed.
