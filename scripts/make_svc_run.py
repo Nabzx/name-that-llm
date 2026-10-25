@@ -1,6 +1,6 @@
 """Write a Kaggle notebook folder for one SVC run of nthl.svc.run.
 
-    python scripts/make_svc_run.py <name> [--pool] [--weight W] [--routes api openrouter] [--drop-pool-labels L ...] [--C C]
+    python scripts/make_svc_run.py <name> [--pool] [--weight W] [--routes api openrouter] [--drop-pool-labels L ...] [--C C] [--min-df N]
 
 Creates notebooks/svc-<name>/ with kernel-metadata.json and run.py. With
 --pool the run reads pool.parquet from the nabilshah/nthl-pool-build output,
@@ -54,9 +54,10 @@ def main():
     ap.add_argument("--routes", nargs="*", default=None)
     ap.add_argument("--drop-pool-labels", nargs="*", default=None)
     ap.add_argument("--C", type=float, default=0.5)
+    ap.add_argument("--min-df", type=int, default=2)
     args = ap.parse_args()
 
-    config = {"pool": args.pool, "pool_weight": args.weight, "routes": args.routes, "C": args.C}
+    config = {"pool": args.pool, "pool_weight": args.weight, "routes": args.routes, "C": args.C, "min_df": args.min_df}
     if args.drop_pool_labels:
         config["drop_pool_labels"] = args.drop_pool_labels
     folder = Path(__file__).resolve().parent.parent / "notebooks" / f"svc-{args.name}"
