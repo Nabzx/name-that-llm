@@ -185,15 +185,16 @@ def read_ours(ckpt_dir):
     }
 
 
-def run_checkpoint(ckpt_dir, base_dir, texts, batch_size=8, groups=None, twin=None):
+def run_checkpoint(ckpt_dir, base_dir, texts, batch_size=8, groups=None, twin=None, return_features=False):
     """Nishant's layout. See run_spec."""
-    return run_spec(read_nishant(ckpt_dir), base_dir, texts, batch_size, groups, twin)
+    return run_spec(read_nishant(ckpt_dir), base_dir, texts, batch_size, groups, twin, return_features)
 
 
 @torch.no_grad()
-def run_spec(spec, base_dir, texts, batch_size=8, groups=None, twin=None):
+def run_spec(spec, base_dir, texts, batch_size=8, groups=None, twin=None, return_features=False):
     """Probabilities [n, 18] in our LABELS order, centred-twin probabilities for the `twin` rows
-    (or None), and a dict of what happened."""
+    (or None), and a dict of what happened. With `return_features`, the pooled and normalised
+    features [n, hidden * depths] come fourth, for heads fitted outside the checkpoint."""
     from transformers import AutoTokenizer
 
     start = time.time()
@@ -260,4 +261,6 @@ def run_spec(spec, base_dir, texts, batch_size=8, groups=None, twin=None):
     del model
     gc.collect()
     torch.cuda.empty_cache()
+    if return_features:
+        return to_our_order(probs, spec["labels"]), centred, info, z
     return to_our_order(probs, spec["labels"]), centred, info
