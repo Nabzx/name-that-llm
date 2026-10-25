@@ -17,8 +17,9 @@ Built from `docs/experiments/LOG.md` (#48). CV is balanced accuracy on the froze
 | 21 | C 0.25 in place of 0.5 | 0.4775 | -0.006 | |
 | 22 | C 1.0 in place of 0.5 | 0.4801 | -0.004 | |
 | 23 | min_df 3 | 0.4841 | +0.0003 | |
+| 27 | nuridudak's 122k public pool in place of our 84k pool | 0.4797 | -0.004 | |
 
-Row 2 is a reproduction check: the same probabilities to the last digit. Rows 21 to 23 are against row 11 and show our settings were already at their best.
+Row 2 is a reproduction check: the same probabilities to the last digit. Rows 21 to 23 and 27 are against row 11 and show our settings and our pool were already the best for the SVC.
 
 ## Changes off the main chain
 
@@ -46,19 +47,20 @@ Each probe is meant to change one thing (#20). Δ is against the probe named in 
 | 17 | 5 | Add UltraBERT at 10%, and ATLAS at 10% on rows whose top two are under 0.3 apart | Probe 3 | 0.631 | 0 |
 | 18 | 6 | Peer correction in place of half Sinkhorn | Probe 3 | 0.622 | -0.009 |
 | 20 | 7 | Add our own Qwen3-8B LoRA24 at 10% (main 80%, prvsiyan 10%) | Probe 3 | 0.631 | 0 |
-| TODO | 8 | Add the Gaussian group head at 0.4 on grouped rows | Probe 7 | TODO | TODO |
+| 26 | 8 | Add the Gaussian group head at 0.4 on grouped rows | Probe 7 | 0.631 | 0 |
+| TODO | 9 | Gaussian head at 1.0, and nuridudak's ModernBERT-large (122k pool, published OOF 0.569) at 10% | Probe 8 | TODO | TODO |
 | TODO | final | TODO: the two picks for the private LB | | TODO | |
 
 Row 16 is the UltraBERT loader check: in-sample 0.966 on host train, not a score.
 
-## Still running
+## Checked, not submitted
 
 | Check | Result |
 |---|---|
-| 27B full-text classifier | TODO |
-| SVC on the 122k pool | TODO |
-| ModernBERT member | TODO |
-| Hard-pair specialists | TODO |
+| Hard-pair specialists (#98) | +0.0026 OOF, below the noise bar |
+| Full-text Qwen3.8-27B classifier (#100) | 0.521 honest held-out OOF, but about 3 s per passage, so 3.7 h on the test: too slow |
+| nuridudak's encoders through our loader (#99) | in-sample 0.806 and 0.659: a loader check, not a score |
+| SVC on the 122k pool (row 27) | 0.4797 against 0.4838: worse |
 
 ## What the table says
 
@@ -67,6 +69,6 @@ Row 16 is the UltraBERT loader check: in-sample 0.966 on host train, not a score
 - The pool-weight curve has flattened, so we stopped at 0.25.
 - Leaving suspect labels out hurt more than keeping them (row 8).
 - The likelihood witnesses carry real but small signal, about +0.003 on the SVC.
-- On the LB, the steps that changed how we combine and balance gave the most: half Sinkhorn +0.003. Adding strong published members gave little or hurt: prvsiyan's seeds shared +0.002, Zbigniew's in-style model -0.004, UltraBERT, ATLAS and our own LoRA nothing. Dropping the class quotas (peer correction) cost 0.009.
+- On the LB, the steps that changed how we combine and balance gave the most: half Sinkhorn +0.003. Adding strong published members gave little or hurt: prvsiyan's seeds shared +0.002, Zbigniew's in-style model -0.004, UltraBERT, ATLAS, our own LoRA and the Gaussian head at 0.4 nothing. Probes 3, 5, 7 and 8 all scored 0.631. Dropping the class quotas (peer correction) cost 0.009.
 - The one large gain on our own folds since the pool is the Gaussian group head, +0.058 on test-like groups.
 - From probe 3 on, every gain is 0.004 or less. The public LB scores only part of the 4,000 test passages, split 18 ways, so that is close to noise. We only kept changes the CV or a research note also backed.
