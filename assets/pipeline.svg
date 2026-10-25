@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" font-family="Helvetica, Arial, sans-serif">
+  <title>Name That LLM: submission pipeline</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#444"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="720" fill="#ffffff"/>
+
+  <text x="40" y="60" font-size="34" font-weight="bold" fill="#111">From passage to prediction</text>
+  <text x="40" y="96" font-size="20" fill="#555">18 labels, balanced accuracy. Ours in blue, published weights in grey.</text>
+
+  <!-- Members -->
+  <text x="40" y="150" font-size="22" font-weight="bold" fill="#111">1. Members</text>
+  <g font-size="20">
+    <rect x="40" y="170" width="360" height="62" rx="10" fill="#dbe8fb" stroke="#2a62b8" stroke-width="2"/>
+    <text x="60" y="198" fill="#111">Our n-gram SVC</text>
+    <text x="60" y="222" font-size="16" fill="#444">host train + pool at 0.25, CV 0.484</text>
+
+    <rect x="40" y="246" width="360" height="62" rx="10" fill="#eeeeee" stroke="#777" stroke-width="2"/>
+    <text x="60" y="274" fill="#111">Qwen3-14B LoRA + centred twin</text>
+    <text x="60" y="298" font-size="16" fill="#444">Nishant Dahal, through our loader</text>
+
+    <rect x="40" y="322" width="360" height="62" rx="10" fill="#eeeeee" stroke="#777" stroke-width="2"/>
+    <text x="60" y="350" fill="#111">Qwen2.5-14B LoRA + centred twin</text>
+    <text x="60" y="374" font-size="16" fill="#444">Nishant Dahal, through our loader</text>
+
+    <rect x="40" y="398" width="360" height="62" rx="10" fill="#eeeeee" stroke="#777" stroke-width="2"/>
+    <text x="60" y="426" fill="#111">DeBERTa-v3-large</text>
+    <text x="60" y="450" font-size="16" fill="#444">Nishant Dahal</text>
+
+    <rect x="40" y="520" width="360" height="62" rx="10" fill="#eeeeee" stroke="#777" stroke-width="2"/>
+    <text x="60" y="548" fill="#111">Two Qwen3-8B seeds</text>
+    <text x="60" y="572" font-size="16" fill="#444">prvsiyan, through our loader</text>
+
+    <rect x="40" y="596" width="360" height="62" rx="10" fill="#dbe8fb" stroke="#2a62b8" stroke-width="2" stroke-dasharray="8 6"/>
+    <text x="60" y="624" fill="#111">Our own Qwen3-8B LoRA</text>
+    <text x="60" y="648" font-size="16" fill="#444">trained on Kaggle overnight</text>
+  </g>
+
+  <!-- Log-space blend -->
+  <rect x="490" y="236" width="270" height="156" rx="12" fill="#ffffff" stroke="#111" stroke-width="3"/>
+  <text x="625" y="282" font-size="24" font-weight="bold" text-anchor="middle" fill="#111">2. Log-space</text>
+  <text x="625" y="312" font-size="24" font-weight="bold" text-anchor="middle" fill="#111">blend</text>
+  <text x="625" y="346" font-size="16" text-anchor="middle" fill="#444">weighted sum of</text>
+  <text x="625" y="368" font-size="16" text-anchor="middle" fill="#444">log probabilities</text>
+
+  <!-- Fixed shares -->
+  <rect x="490" y="510" width="270" height="140" rx="12" fill="#ffffff" stroke="#111" stroke-width="3"/>
+  <text x="625" y="556" font-size="24" font-weight="bold" text-anchor="middle" fill="#111">3. Fixed shares</text>
+  <text x="625" y="590" font-size="16" text-anchor="middle" fill="#444">blend 90%</text>
+  <text x="625" y="614" font-size="16" text-anchor="middle" fill="#444">Qwen3-8B seeds 10%</text>
+
+  <!-- Balancing -->
+  <rect x="850" y="510" width="390" height="140" rx="12" fill="#dbe8fb" stroke="#2a62b8" stroke-width="3"/>
+  <text x="1045" y="556" font-size="24" font-weight="bold" text-anchor="middle" fill="#111">4. Balancing</text>
+  <text x="1045" y="590" font-size="16" text-anchor="middle" fill="#444">half-strength Sinkhorn (probes 2 to 5)</text>
+  <text x="1045" y="614" font-size="16" text-anchor="middle" fill="#444">or peer correction (probe 6)</text>
+
+  <!-- Output -->
+  <rect x="930" y="236" width="230" height="156" rx="12" fill="#111" stroke="#111" stroke-width="3"/>
+  <text x="1045" y="296" font-size="24" font-weight="bold" text-anchor="middle" fill="#fff">5. One label</text>
+  <text x="1045" y="326" font-size="24" font-weight="bold" text-anchor="middle" fill="#fff">per passage</text>
+  <text x="1045" y="362" font-size="16" text-anchor="middle" fill="#ddd">best public LB 0.631</text>
+
+  <!-- Arrows: members into blend -->
+  <g stroke="#444" stroke-width="2.5" fill="none" marker-end="url(#arrow)">
+    <path d="M400,201 C450,201 450,280 488,280"/>
+    <path d="M400,277 C445,277 445,300 488,300"/>
+    <path d="M400,353 C445,353 445,328 488,328"/>
+    <path d="M400,429 C450,429 450,350 488,350"/>
+    <!-- seeds and own LoRA into fixed shares -->
+    <path d="M400,551 L488,560"/>
+    <path d="M400,627 L488,610" stroke-dasharray="8 6"/>
+    <!-- blend down to fixed shares -->
+    <path d="M625,392 L625,508"/>
+    <!-- fixed shares to balancing -->
+    <path d="M760,580 L848,580"/>
+    <!-- balancing up to output -->
+    <path d="M1045,510 L1045,394"/>
+  </g>
+</svg>
