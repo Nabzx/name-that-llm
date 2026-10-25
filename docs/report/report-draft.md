@@ -56,8 +56,9 @@ CV is on our frozen folds. Δ is against the row before, unless named. The full 
 | Probe 7: + our own LoRA at 10% | | 0.631 | 0 on 3 |
 | Probe 8: + Gaussian head at 0.4 on grouped rows | | 0.631 | 0 on 7 |
 | Probe 9: Gaussian head at 1.0, + nuridudak's ModernBERT-large at 10% | | **0.637** | **+0.006** on 8 |
+| Probe 10: + Gaussian heads on both 14B LoRAs (0.5 each) | | 0.630 | -0.007 on 9 |
 
-Data did most of the work on CV. On the LB, probes 3, 5, 7 and 8 all scored 0.631: members at 10% and the Gaussian head at 0.4 flipped too few rows to move the public slice. Probe 9 broke the run with 0.637, our best. At full weight the head's +0.058 on our folds finally showed on the board. It changed two things at once, so the gain is shared with ModernBERT.
+Data did most of the work on CV. On the LB, probes 3, 5, 7 and 8 all scored 0.631: members at 10% and the Gaussian head at 0.4 flipped too few rows to move the public slice. Probe 9 broke the run with 0.637, our best. At full weight the head's +0.058 on our folds finally showed on the board. It changed two things at once, so the gain is shared with ModernBERT. Probe 10 put the same head on the two 14B LoRAs and fell to 0.630: those checkpoints saw all of host train, so a head fitted on their train features is overconfident. The head needs honest features.
 
 ## One thing that didn't work, and why
 
@@ -72,8 +73,8 @@ Peer correction removes the prompt's lean, but it has no class quotas. Sinkhorn 
 - Decode each shared-prompt group jointly across all members, not on one member's features.
 - Ask the organisers whether passages we generate ourselves count as external data under rule 2.6.
 
-**TODO:** which two submissions Nabil selects for the private LB, and why.
+**Final picks:** probe 9 (0.637, our best) and probe 7 (0.631, which carries our own LoRA and matches our steady 0.631 setup), so one pick covers the best score and the other a simpler, well-tested blend.
 
 ## How we used AI
 
-We used Claude Code (Claude Opus 5.5) throughout: one main session to plan and review, with side sessions and agents for research notes and parallel experiments, each in its own branch. Every session is listed in `docs/ai-sessions.md` and exported to `ai-sessions/`. Claude wrote much of the code and the notes. Nabil set the direction, chose every probe and reviewed and merged every pull request. Every model fit ran on Kaggle, and no test passage was labelled by hand or by an LLM.
+We used Claude Code (Claude Opus 5.5) throughout, set up from the first hour like Nabil's other repos: an `AGENTS.md` and `CLAUDE.md` with the competition's rules as invariants, phases with wayfinder tickets, research notes ending in a recommendation, an experiment log row per change, frozen folds and tests before code. One main session planned and reviewed; side sessions and agents ran research and parallel experiments, each in its own worktree and branch. Every session is listed in `docs/ai-sessions.md` and exported to `ai-sessions/`. Claude wrote much of the code and the notes. Nabil set the direction, chose every probe and reviewed and merged every pull request. Every model fit ran on Kaggle, and no test passage was labelled by hand or by an LLM.

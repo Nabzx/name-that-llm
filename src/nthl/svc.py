@@ -111,3 +111,40 @@ def fit_scores(train, texts, pool=None, pool_weight=0.5, C=0.5, min_df=2, seed=4
     weights = np.r_[np.ones(len(train)), np.full(len(extra_text), pool_weight)]
     model.fit(train["text"].tolist() + extra_text, train["model"].tolist() + extra_label, linearsvc__sample_weight=weights)
     return _scores(model, list(texts))
+
+
+def group_centre(x, groups, rows=None):
+    """Subtract each group's mean row from its members. Only `rows` (a boolean mask) are changed; the rest come back as they were.
+
+    Removing what a group of passages shares (the prompt, the topic) leaves how each one is written.
+    """
+    from scipy.sparse import csr_matrix, diags
+
+    x = csr_matrix(x)
+    rows = np.ones(x.shape[0], dtype=bool) if rows is None else np.asarray(rows, dtype=bool)
+    idx = np.flatnonzero(rows)
+    if not len(idx):
+        return x.copy()
+    _, col = np.unique(np.asarray(groups)[idx], return_inverse=True)
+    member = csr_matrix((np.ones(len(idx)), (idx, col)), shape=(x.shape[0], col.max() + 1))
+    means = diags(1.0 / np.asarray(member.sum(0)).ravel()) @ (member.T @ x)
+    return (x - member @ means).tocsr()
+
+
+def fit_centred(texts, labels, prompts, C=0.5, min_df=2, seed=42):
+    """The centred twin: four views fitted on `texts`, rows centred within their prompt, then a balanced LinearSVC."""
+    vec = four_views(min_df=min_df).fit(list(texts))
+    x = group_centre(vec.transform(list(texts)), prompts)
+    svc = LinearSVC(C=C, class_weight="balanced", random_state=seed).fit(x, list(labels))
+    return vec, svc
+
+
+def centred_scores(vec, svc, texts, groups, rows):
+    """Raw twin scores in LABELS order for `rows` (centred within `groups`); zeros elsewhere."""
+    rows = np.asarray(rows, dtype=bool)
+    out = np.zeros((len(texts), len(LABELS)))
+    if rows.any():
+        x = group_centre(vec.transform(list(texts)), groups, rows)[np.flatnonzero(rows)]
+        order = [list(svc.classes_).index(label) for label in LABELS]
+        out[rows] = svc.decision_function(x)[:, order]
+    return out

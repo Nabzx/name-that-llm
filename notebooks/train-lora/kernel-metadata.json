@@ -1,0 +1,16 @@
+{
+  "id": "nabilshah/nthl-train-lora",
+  "title": "nthl train lora",
+  "code_file": "run.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "dataset_sources": ["nabilshah/nthl-src"],
+  "competition_sources": ["name-that-llm"],
+  "kernel_sources": ["nabilshah/nthl-pool-build"],
+  "model_sources": ["qwen-lm/qwen-3/Transformers/8b-base/1"],
+  "machine_shape": "NvidiaTeslaT4"
+}

@@ -168,15 +168,33 @@ def read_zbigniew(ckpt_dir):
     }
 
 
-def run_checkpoint(ckpt_dir, base_dir, texts, batch_size=8, groups=None, twin=None):
+def read_ours(ckpt_dir):
+    """Spec for checkpoints trained by our own nthl.train_lora: meta.json and model.safetensors."""
+    from safetensors.torch import load_file
+
+    meta = json.load(open(os.path.join(ckpt_dir, "meta.json")))
+    assert meta["labels"] == list(LABELS)
+    state = load_file(os.path.join(ckpt_dir, "model.safetensors"))
+    n = len(meta["layers"])
+    return {
+        "labels": meta["labels"], "keep": meta["keep"], "layers": meta["layers"], "max_len": meta["max_len"],
+        "prefix_id": None, "suffix_id": meta["eos_id"], "scale": meta["alpha"] / meta["r"], "adapter": state,
+        "norms": [(state[f"norms.{i}.weight"], state[f"norms.{i}.bias"]) for i in range(n)],
+        "plain": (state["fc.weight"].float().numpy(), state["fc.bias"].float().numpy()),
+        "centred": None,
+    }
+
+
+def run_checkpoint(ckpt_dir, base_dir, texts, batch_size=8, groups=None, twin=None, return_features=False):
     """Nishant's layout. See run_spec."""
-    return run_spec(read_nishant(ckpt_dir), base_dir, texts, batch_size, groups, twin)
+    return run_spec(read_nishant(ckpt_dir), base_dir, texts, batch_size, groups, twin, return_features)
 
 
 @torch.no_grad()
-def run_spec(spec, base_dir, texts, batch_size=8, groups=None, twin=None):
+def run_spec(spec, base_dir, texts, batch_size=8, groups=None, twin=None, return_features=False):
     """Probabilities [n, 18] in our LABELS order, centred-twin probabilities for the `twin` rows
-    (or None), and a dict of what happened."""
+    (or None), and a dict of what happened. With `return_features`, the pooled and normalised
+    features [n, hidden * depths] come fourth, for heads fitted outside the checkpoint."""
     from transformers import AutoTokenizer
 
     start = time.time()
@@ -243,4 +261,6 @@ def run_spec(spec, base_dir, texts, batch_size=8, groups=None, twin=None):
     del model
     gc.collect()
     torch.cuda.empty_cache()
+    if return_features:
+        return to_our_order(probs, spec["labels"]), centred, info, z
     return to_our_order(probs, spec["labels"]), centred, info

@@ -35,7 +35,7 @@
   table { border-collapse:collapse; width:100%; }
   th { font-family:'Geist Mono', 'Courier New', monospace; font-size:22px; font-weight:500; letter-spacing:1.5px; text-transform:uppercase;
        text-align:left; color:var(--grey); padding:0 20px 14px 0; }
-  td { border-top:2px solid var(--ink); padding:14px 20px 14px 0; font-size:28px; vertical-align:top; }
+  td { border-top:2px solid var(--ink); padding:10px 20px 10px 0; font-size:28px; vertical-align:top; }
   td.r, th.r { text-align:right; font-variant-numeric:tabular-nums; }
   tr.hl td { background:var(--ink); color:var(--paper); }
   tr.hl td:first-child { padding-left:16px; }
@@ -74,7 +74,7 @@
     <div class="col"><p class="big">BA</p><p>balanced accuracy</p></div>
   </div>
   <p class="small">Hardest: glm-5.3 vs glm-5.3-flash, gemini-3.7 vs 3.8-flash.</p>
-  <div class="foot"><span>Name That LLM</span><span>02 / 10</span></div>
+  <div class="foot"><span>Name That LLM</span><span>02 / 11</span></div>
 </section></div>
 
 <!-- 3 · Starting point -->
@@ -88,7 +88,7 @@
     <div class="col"><p class="num">02</p><h3>Plain baseline</h3><p>n-gram SVC, host data only: <b>0.348</b></p></div>
     <div class="col"><p class="num">03</p><h3>Read, don't fork</h3><p>Our own loader for the best public weights (0.620).</p></div>
   </div>
-  <div class="foot"><span>Name That LLM</span><span>03 / 10</span></div>
+  <div class="foot"><span>Name That LLM</span><span>03 / 11</span></div>
 </section></div>
 
 <!-- 4 · Approach (pipeline) -->
@@ -136,7 +136,7 @@
     </g>
   </svg>
   <p class="small">Filled = ours. Outlined = published, through our own loader.</p>
-  <div class="foot"><span>Name That LLM</span><span>04 / 10</span></div>
+  <div class="foot"><span>Name That LLM</span><span>04 / 11</span></div>
 </section></div>
 
 <!-- 5 · Hypotheses -->
@@ -151,28 +151,29 @@
     <div class="row" style="grid-template-columns:1fr 1fr"><h3>The prompt hides the author</h3><p>Gaussian group head: <b>+0.058</b></p></div>
     <div class="row" style="grid-template-columns:1fr 1fr"><h3>The test mix is uneven</h3><p>Half-strength balancing: <b>+0.003</b></p></div>
   </div>
-  <div class="foot"><span>Name That LLM</span><span>05 / 10</span></div>
+  <div class="foot"><span>Name That LLM</span><span>05 / 11</span></div>
 </section></div>
 
 <!-- 6 · Ablation: leaderboard -->
 <div class="frame"><section style="gap:36px">
   <div style="display:flex; flex-direction:column; gap:16px">
     <p class="eyebrow">Ablation · public leaderboard</p>
-    <h2>One change per probe.</h2>
+    <h2>One change per probe. Final picks: 9 and 7.</h2>
   </div>
   <table>
     <tr><th>Probe</th><th>Change</th><th class="r">Public LB</th><th class="r">Δ</th></tr>
     <tr><td class="mono">1</td><td>Our SVC + published spine</td><td class="r">0.626</td><td class="r">—</td></tr>
     <tr><td class="mono">2</td><td>Half-strength balancing</td><td class="r">0.629</td><td class="r pos">+0.003</td></tr>
-    <tr class="hl"><td class="mono">3</td><td>+ two public Qwen3-8B seeds</td><td class="r">0.631</td><td class="r">+0.002</td></tr>
+    <tr><td class="mono">3</td><td>+ two public Qwen3-8B seeds</td><td class="r">0.631</td><td class="r">+0.002</td></tr>
     <tr><td class="mono">4</td><td>+ in-style Qwen3-8B</td><td class="r">0.627</td><td class="r">−0.004</td></tr>
     <tr><td class="mono">5</td><td>+ UltraBERT, ATLAS</td><td class="r">0.631</td><td class="r">±0</td></tr>
     <tr><td class="mono">6</td><td>Peer correction</td><td class="r">0.622</td><td class="r">−0.009</td></tr>
-    <tr><td class="mono">7</td><td>+ our own Qwen3-8B LoRA</td><td class="r">0.631</td><td class="r">±0</td></tr>
+    <tr class="hl"><td class="mono">7</td><td>+ our own Qwen3-8B LoRA</td><td class="r">0.631</td><td class="r">±0</td></tr>
     <tr><td class="mono">8</td><td>+ Gaussian head (weight 0.4)</td><td class="r">0.631</td><td class="r">±0</td></tr>
     <tr class="hl"><td class="mono">9</td><td>Gaussian head at 1.0 + ModernBERT</td><td class="r"><b>0.637</b></td><td class="r"><b>+0.006</b></td></tr>
+    <tr><td class="mono">10</td><td>+ Gaussian heads on both 14B LoRAs</td><td class="r">0.630</td><td class="r">−0.007</td></tr>
   </table>
-  <div class="foot"><span>Name That LLM</span><span>06 / 10</span></div>
+  <div class="foot"><span>Name That LLM</span><span>06 / 11</span></div>
 </section></div>
 
 <!-- 7 · Ablation: cross-validation -->
@@ -199,7 +200,7 @@
     </g>
   </svg>
   <p class="small">Within noise: centred SVC, pair specialists, bigger SVC pool.</p>
-  <div class="foot"><span>Name That LLM</span><span>07 / 10</span></div>
+  <div class="foot"><span>Name That LLM</span><span>07 / 11</span></div>
 </section></div>
 
 <!-- 8 · What didn't work -->
@@ -213,7 +214,7 @@
     <div class="col"><p class="num" style="color:var(--soft)">Why we tried it</p><p>+0.010 for its author, on a weaker blend.</p></div>
     <div class="col"><p class="num" style="color:var(--soft)">Why it failed</p><p>No quotas: a strong blend drifts to its favourites.</p></div>
   </div>
-  <div class="foot"><span>Name That LLM</span><span>08 / 10</span></div>
+  <div class="foot"><span>Name That LLM</span><span>08 / 11</span></div>
 </section></div>
 
 <!-- 9 · What the ties taught us -->
@@ -224,15 +225,31 @@
   </div>
   <div class="cols" style="grid-template-columns:1fr 1fr">
     <div class="col"><h3>Small gains round away</h3><p>So we steered by cross-validation.</p></div>
-    <div class="col"><h3>Full weight mattered</h3><p>The Gaussian head moved the board at 1.0, not 0.4.</p></div>
+    <div class="col"><h3>Honest features matter</h3><p>The head helped at full weight on our own features, and hurt on the 14B's.</p></div>
   </div>
   <div style="display:flex; gap:48px; align-items:baseline">
     <p class="big">0.637</p><p class="small">best public score · from 0.620</p>
   </div>
-  <div class="foot"><span>Name That LLM</span><span>09 / 10</span></div>
+  <div class="foot"><span>Name That LLM</span><span>09 / 11</span></div>
 </section></div>
 
-<!-- 10 · Next -->
+<!-- 10 · How I used AI -->
+<div class="frame"><section>
+  <div style="display:flex; flex-direction:column; gap:16px">
+    <p class="eyebrow">How I used AI</p>
+    <h2>A repo built for agents from the first hour.</h2>
+  </div>
+  <div class="cols" style="grid-template-columns:repeat(4,1fr)">
+    <div class="col"><p class="num">01</p><h3>Structure</h3><p>AGENTS.md and CLAUDE.md, with the rules as invariants. Phases and tickets.</p></div>
+    <div class="col"><p class="num">02</p><h3>Method</h3><p>Research note, then a recommendation. One log row per change.</p></div>
+    <div class="col"><p class="num">03</p><h3>Reproducible</h3><p>Frozen folds, tests first, seeds fixed, every model run on Kaggle.</p></div>
+    <div class="col"><p class="num">04</p><h3>Parallel</h3><p>Six side sessions, each in its own branch, while I made the calls.</p></div>
+  </div>
+  <p class="small">Claude Code (Opus 5.5) · every session exported in ai-sessions/</p>
+  <div class="foot"><span>Name That LLM</span><span>10 / 11</span></div>
+</section></div>
+
+<!-- 11 · Next -->
 <div class="frame"><section class="dark">
   <div style="display:flex; flex-direction:column; gap:16px">
     <p class="eyebrow" style="color:var(--soft)">What I'd try next</p>
@@ -245,7 +262,7 @@
     <div class="col"><p class="num" style="color:var(--soft)">04</p><h3>Hard pairs</h3><p>Targeted data for the siblings.</p></div>
   </div>
   <p class="small">github.com/Nabzx/name-that-llm · Thanks for watching.</p>
-  <div class="foot"><span>Name That LLM</span><span>10 / 10</span></div>
+  <div class="foot"><span>Name That LLM</span><span>11 / 11</span></div>
 </section></div>
 
 </div>
