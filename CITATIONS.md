@@ -67,3 +67,15 @@ Every public notebook, discussion, dataset and pretrained model used or read for
 - Lucas Boesen, notebook outputs `name-that-llm-train-lora24-s7`, `-train-tokattn`, `-train-tokattn2`, `-glm4-9b-trunc25`, `-extract-encoders2`, `-electra-large-weights`, `-desklib-weights`. https://www.kaggle.com/lucasboesen. Read for #18.
 - Кирилл Тымчишин, *NTL Spectral Style Heads, Paired 4404* (kirilltym/ntl-spectral-style-heads-paired-4404). Licence unknown, so not used. Read for #18.
 - fle3n, *NTL Legacy Qwen24 Recovery* (fleongg/ntl-legacy-qwen24-recovery). Licence "other", so not used. Read for #18.
+- Qwen Team, base models from Kaggle Models, all Apache 2.0: Qwen3-14B-Base (`qwen-lm/qwen-3/Transformers/14b-base`), Qwen2.5-14B (`qwen-lm/qwen2.5/Transformers/14b`), Qwen3-8B-Base (`qwen-lm/qwen-3/Transformers/8b-base`, also the base of our own LoRA) and Qwen3-4B-Base (`qwen-lm/qwen-3/Transformers/4b-base`, the witness). https://www.kaggle.com/models/qwen-lm. Used as the trunks the published and our own adapters sit on.
+- Google, Gemma 4 E2B (`google/gemma-4/transformers/gemma-4-e2b`). Gemma terms. Only its tokenizer is used, for the tokens-per-word witness feature.
+- dddmdd, *Name That LLM fine-tuned BERT-family encoders* (dddmdd/ntl-finetuned-encoders). CC BY-SA 4.0. https://www.kaggle.com/datasets/dddmdd/ntl-finetuned-encoders. Read, not used.
+- Travis Nguyen, notebook output `vnton37nguyn/ntl-train-lora-qwen25-instyle`. https://www.kaggle.com/code/vnton37nguyn/ntl-train-lora-qwen25-instyle. Read, not used.
+
+## Read for the pool and today's checks
+
+- rmsgrk, *NTL Pool Audit: Keep the Whole Pool* (rmsgrk/ntl-pool-audit). CC BY-SA 4.0. https://www.kaggle.com/datasets/rmsgrk/ntl-pool-audit. Read for the 122k pool test (LOG row 27).
+
+## Our own artefacts
+
+Our code (this repository) is Apache 2.0. Our trained weights (`nabilshah/nthl-train-lora`) and the code dataset `nabilshah/nthl-src` stay private and are shared with the organisers on request. Anything we publish that is derived from a CC BY-SA 4.0 dataset would carry CC BY-SA 4.0.
