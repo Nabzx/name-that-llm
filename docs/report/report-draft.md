@@ -1,76 +1,80 @@
-# Name That LLM: report draft
+# Name That LLM
 
-Nabil Shah, solo entry, Imperial Research Arm qualifier. Draft for a two-page PDF (#49). Numbers come from `docs/experiments/LOG.md` and `docs/research/`. TODO marks a number we do not have yet.
+Nabil Shah, solo entry, Imperial Research Arm qualifier. Numbers come from `docs/experiments/LOG.md`. **TODO** marks a number still to come.
 
 ## Starting point and approach
 
-We wrote our own code from scratch. The first model was a four-view n-gram LinearSVC on host train only, scored on frozen `GroupKFold` folds over `prompt_id`. It reached 0.3485 balanced accuracy, in line with public train-only SVCs (0.343 to 0.370).
+We wrote our own code from scratch. The first model was a four-view n-gram LinearSVC on host train only, scored on frozen `GroupKFold` folds over `prompt_id`: 0.3485 balanced accuracy, in line with public train-only SVCs.
 
-From there we worked in two branches (#20). Branch A is a published spine we run but never re-fit: Nishant Dahal's two-stage LoRA blend, which scores 0.620 on the public LB. Branch B is what we can validate on our own folds, starting with our SVC. Every change is one experiment, logged with its CV, and every LB probe changes one thing.
+We then worked in two branches. Branch A is a published spine we run through our own loader: Nishant Dahal's two-stage LoRA blend, 0.620 on the public LB. Branch B is what we can check on our own folds: our SVC, our own LoRA and test-time heads. Published members have no out-of-fold predictions, so for them the LB is the only test. We probed it one change at a time and kept a change only if our CV or a research note also backed it.
 
 ## Hypotheses
 
-- **Data beats model size.** Public work showed 8B and 14B backbones tied on the same data, while growing the pool from 35k to 84k passages gave +0.028 on the LB (#24). So we expected a bigger, well-filtered pool to matter more than any new architecture.
-- **Labs differ in surface style, siblings do not.** Our baseline put the right lab first 0.57 of the time, and half its errors stayed inside the right lab. The hardest pairs were gemini-3.7-flash against 3.8-flash, and glm-5.3 read as claude-opus-5. We expected n-grams to separate labs and need help inside a lab.
-- **The prompt is louder than the author.** Passages that answer the same prompt share content. Subtracting a prompt estimate should leave mostly style (#23).
-- **A lab's own model finds its text more likely.** Likelihood features from base models in each family should add signal that n-grams miss (#31 to #33).
-- **The test mix is unequal.** Per-model test counts differ, so balancing the final predictions towards 1/18 should help. Half strength was safer than full on a test whose skew we cannot see (#23).
+- **Data beats model size.** Public work showed 8B and 14B backbones tied on the same data, while a bigger pool gave +0.028 on the LB.
+- **Labs differ in surface style, siblings do not.** Our baseline put the right lab first 0.57 of the time, and half its errors stayed inside the right lab. Hardest: gemini-3.7-flash against 3.8-flash, and glm-5.3 read as claude-opus-5.
+- **The prompt is louder than the author.** Passages that answer the same prompt share content, so taking out the prompt should leave mostly style.
+- **The test mix is unequal.** Balancing towards 1/18 should help, but at half strength, since we cannot see the test's skew.
 
-## Ablation table
+## The published LoRA24 weights and what we built on them
 
-Full table in `docs/report/ablation.md`. The main chain, all on the SVC:
+Each LoRA24 checkpoint turns a passage into 18 probabilities like this. Tokenise with no special tokens, cut at 447 and append the end token from the checkpoint's `meta.json` (151643), not the tokenizer's (151645). Keep only the first 27 of Qwen3-14B's 40 decoder layers, with the final norm off. Merge the rank-16 adapter into each attention and MLP weight: W + B·A × 2. Take a masked mean of the hidden states at 8 depths, leaving out the first token. LayerNorm each depth, join them into one 40,960-wide vector and apply a linear head. A second, centred head reads the same vector minus its topic cluster's mean. The traps are silent: a wrong label order puts claude-fable-5's probabilities under another Claude model, and the wrong end token changed 14% of top picks in Nishant's tests.
 
-| Change | CV | Total gain |
-|---|---|---|
-| Host train only (baseline) | 0.3485 | |
-| + pool API and OpenRouter rows, weight 1 | 0.4189 | +0.070 |
-| + all pool rows except free proxies | 0.4534 | +0.105 |
-| + whole pool (84,470), weight 1 | 0.4634 | +0.115 |
-| pool weight 0.5 | 0.4782 | +0.130 |
-| pool weight 0.25 | 0.4838 | +0.135 |
-| + likelihood witnesses (on the weight 0.5 SVC) | about +0.003 | |
+**What is ours:**
 
-LB probes, one change each:
+- The loader (`nthl.lora24`), written from that recipe. It asserts the end token and reorders label columns by `meta.json`. Nishant's Qwen3-14B scored 0.858 in-sample through it, with every Claude label right.
+- The pool: 84,470 passages from open-licence public datasets, filtered, de-duplicated and tagged by source.
+- Our SVC and its tuning, 0.3485 to 0.4838 CV.
+- Half-strength Sinkhorn, and peer correction re-implemented from avazaku's idea.
+- A likelihood witness from Qwen3-4B-Base, about +0.003 on the SVC.
+- Our own Qwen3-8B LoRA24, trained on Kaggle with our own code in 4.5 hours: stage 1 on a balanced pool sample, stage 2 on host train.
+- A shared-prompt Gaussian group head, our own code after prvsiyan's public method.
+- Every blend experiment, probes 1 to 9.
 
-| Probe | Change | Public LB |
-|---|---|---|
-| 1 | Published spine with our SVC | TODO |
-| 2 | Half-strength balancing | TODO |
-| 3 | + prvsiyan's two Qwen3-8B seeds at 10% | TODO |
+**Used as released:** Nishant Dahal's Qwen3-14B, Qwen2.5-14B and DeBERTa-v3-large with his blend weights, and prvsiyan's two Qwen3-8B seeds. In probes 4 and 5 only: Zbigniew Kirchner's in-style Qwen3-8B, UltraBERT and ATLAS. In probe 9: nuridudak's ModernBERT-large. All sources are in `CITATIONS.md`.
 
-TODO: final submission scores, public and private.
+## Ablation
+
+CV is on our frozen folds. Δ is against the row before, unless named. The full table is in `docs/report/ablation.md`.
+
+| Change | CV | Public LB | Δ |
+|---|---|---|---|
+| SVC, host train only | 0.3485 | | |
+| + whole pool, weight 1 | 0.4634 | | +0.115 |
+| pool weight 0.5 | 0.4782 | | +0.015 |
+| pool weight 0.25 (C 0.25, C 1.0, min_df 3 and the 122k pool no better) | 0.4838 | | +0.006 |
+| Prompt-centred SVC twin, test-like groups | | | +0.003 on the SVC, sd 0.013 |
+| Our Qwen3-8B LoRA, stage 1 only, on unseen host train | 0.519 | | +0.035 on the SVC |
+| + Gaussian group head on its features, test-like groups | | | **+0.058** on its plain head, sd 0.013 |
+| Hard-pair specialists on the SVC | | | +0.0026, below the noise bar |
+| Full-text Qwen3.8-27B classifier, held out | 0.521 | | 3.7 h on the test, too slow |
+| Probe 1: Nishant's spine with our SVC, full Sinkhorn | | 0.626 | +0.006 on his 0.620 |
+| Probe 2: half Sinkhorn | | 0.629 | +0.003 |
+| Probe 3: + prvsiyan's seeds at 10%, SVC weight 0.25 | | **0.631** | +0.002 |
+| Probe 4: + Zbigniew Kirchner's in-style Qwen3-8B at 10% | | 0.627 | -0.004 on 3 |
+| Probe 5: + UltraBERT 10%, ATLAS 10% on unsure rows | | 0.631 | 0 on 3 |
+| Probe 6: peer correction in place of half Sinkhorn | | 0.622 | -0.009 on 3 |
+| Probe 7: + our own LoRA at 10% | | 0.631 | 0 on 3 |
+| Probe 8: + Gaussian head at 0.4 on grouped rows | | 0.631 | 0 on 7 |
+| **TODO** Probe 9: Gaussian head at 1.0, + nuridudak's ModernBERT-large at 10% | | **TODO** | **TODO** on 8 |
+| **TODO** Final picks | | **TODO** | private **TODO** |
+
+Data did most of the work on CV. On the LB, changing how we balance moved the score most. Probes 3, 5, 7 and 8 all scored 0.631: the Gaussian head is strong on its own view, but at 0.4 inside the blend it flips too few rows to move the public slice, and members at 10% do the same.
 
 ## One thing that didn't work, and why
 
-In every pool run gemini-3.7-flash recall fell from 0.41 to 0.19 while 3.8-flash rose to 0.72. We read that as mislabelled pool rows: some of the pool's 3.7 passages might really be 3.8. So we left the pool's 3.7-flash and 3.8-flash rows out (log row 8).
+Probe 6 swapped half Sinkhorn for peer correction. Within each topic cluster, every passage loses a shrunk share of the other members' mean SVC lean, so a shared prompt stops pulling them all the same way. avazaku saw +0.010 from it on a weaker blend. On ours the LB fell from 0.631 to 0.622, our worst drop.
 
-CV fell by 0.030, to 0.4482. Recall on 3.7 dropped to 0.01 and on 3.8 to 0.03, and their passages went to gemini-3.6-flash instead (0.90). The pool rows were noisy, but they were also the only examples deep enough to tell the three flash models apart. Host train alone could not. Noisy labels for a class beat no labels for it. We kept the rows.
-
-## What we built on top of published work
-
-The organisers allow published weights if we show what we built on them.
-
-**Ours:**
-
-- The pool build: 84,470 passages from open-licence public datasets, filtered, de-duplicated and tagged by source and route (#19, #26).
-- The four-view n-gram SVC and its pool-weight study (log rows 1 to 11).
-- Our own LoRA loader (`nthl.lora24`). It reads two checkpoint formats, Nishant's and prvsiyan's, into one spec, merges the adapter, pools the hidden states and reorders the label columns. It asserts the label order and the training end token.
-- The blend and balancing analysis: how to validate a blend whose members have no out-of-fold predictions, and why half-strength balancing (#20, #23).
-- The likelihood witnesses (#34).
-
-**Published, used as released:**
-
-- Nishant Dahal's Qwen3-14B and Qwen2.5-14B LoRA checkpoints and his DeBERTa-v3-large, with his blend weights (CC BY-SA 4.0).
-- prvsiyan's two Qwen3-8B seeds (CC BY-SA 4.0).
-
-Every dataset, model and notebook we read is listed in `CITATIONS.md`.
+Peer correction removes the prompt's lean, but it has no class quotas. Sinkhorn pushes every class towards a fair share of the test. Without it, a strong blend drifts towards the classes it already favours, and balanced accuracy punishes every class it starves. On a weak blend the prompt's lean is the bigger error, so peer correction wins. On a strong one the class drift is bigger. A step that helps one blend is not a free gain on another. We kept half Sinkhorn.
 
 ## What we'd try next
 
-- A model from a non-Qwen family. Almost all published members are Qwen, and they agree on about 77% of top picks (#18).
-- Test-time pseudo-label heads and Gaussian group heads on the 14B LoRA features. No public notebook has the first, and the second added about +0.005 on the LB for prvsiyan (#23, #24).
-- Judge every test-time step on folds cut to one to three passages per prompt, as in the test, not train's 18.
+- Train our own members five-fold, so each has honest out-of-fold predictions, the blend can be fitted on them and members can be judged by how much their errors overlap, not by LB probes. Our LoRA, UltraBERT and ATLAS tied at 10%, and Zbigniew's model hurt.
+- Retrain on a bigger pool. Swapping in the 122k pool did not help the SVC, and our LoRA would need about 10 hours of stage 1 on two T4s to use it.
+- Decode each shared-prompt group jointly across all members, not on one member's features.
+- Ask the organisers whether passages we generate ourselves count as external data under rule 2.6.
 
-## AI assistance
+**TODO:** final picks and why.
 
-We used Claude Code with Claude Opus 5.5 throughout, with agents for research tickets. Every session is logged in `docs/ai-sessions.md`.
+## How we used AI
+
+We used Claude Code (Claude Opus 5.5) throughout: one main session to plan and review, with side sessions and agents for research notes and parallel experiments, each in its own branch. Every session is listed in `docs/ai-sessions.md` and exported to `ai-sessions/`. Claude wrote much of the code and the notes. Nabil set the direction, chose every probe and reviewed and merged every pull request. Every model fit ran on Kaggle, and no test passage was labelled by hand or by an LLM.
