@@ -50,3 +50,55 @@ def test_centred_probs_subtract_the_group_mean():
     out = centred_probs(z, groups, twin, w, b)
     assert out.shape == (2, 2)
     assert out[0].argmax() == 1 and out[1].argmax() == 0  # below and above the group mean
+
+
+def test_peer_correction_leaves_small_clusters_and_singletons_alone():
+    from nthl.blend import peer_correct
+
+    z = np.zeros((4, 18))
+    svc = np.random.default_rng(0).normal(size=(4, 18))
+    groups = np.array([1, 1, 2, 3])          # a pair and two singletons
+    sim = np.ones(4)
+    assert np.allclose(peer_correct(z, svc, groups, sim, w_svc=1.0), z)
+
+
+def test_peer_correction_subtracts_the_others_shrunk_mean_not_its_own():
+    from nthl.blend import peer_correct
+
+    svc = np.zeros((3, 18))
+    svc[1, 5] = 3.0                          # only row 1 leans to class 5
+    groups = np.array([7, 7, 7])
+    sim = np.full(3, 0.5)                    # (0.5 - 0.1) / 0.4 = 1, full topic strength
+    out = peer_correct(np.zeros((3, 18)), svc, groups, sim, w_svc=1.0, strength=0.5, prior=8)
+    margin = svc - svc.mean(1, keepdims=True)
+    r = (3 - 1) / (3 - 1 + 8)
+    expected_row0 = -0.5 * r * (margin[1] + margin[2]) / 2
+    assert np.allclose(out[0], expected_row0)
+    assert np.allclose(out[1], -0.5 * r * (margin[0] + margin[2]) / 2)   # row 1 never removes its own lean
+
+
+def test_cluster_similarity_is_the_mean_off_diagonal_cosine():
+    from scipy.sparse import csr_matrix
+
+    from nthl.blend import cluster_similarity
+
+    x = csr_matrix(np.array([[1.0, 0.0], [1.0, 0.0], [0.0, 1.0]]))
+    sim = cluster_similarity(x, np.array([1, 1, 1]))
+    assert np.allclose(sim, (1 + 0 + 0) / 3)
+
+
+def test_low_margin_rows_picks_rows_with_a_close_second():
+    from nthl.blend import low_margin_rows
+
+    p = np.array([[0.9, 0.1, 0.0], [0.5, 0.4, 0.1], [0.34, 0.33, 0.33]])
+    assert low_margin_rows(p, cut=0.3).tolist() == [1, 2]
+
+
+def test_mix_rows_changes_only_the_chosen_rows():
+    from nthl.blend import mix_rows
+
+    p = np.array([[1.0, 0.0], [1.0, 0.0]])
+    q = np.array([[0.0, 1.0], [0.0, 1.0]])
+    out = mix_rows(p, q, rows=np.array([1]), share=0.1)
+    assert np.allclose(out[0], [1.0, 0.0]) and np.allclose(out[1], [0.9, 0.1])
+    assert np.allclose(p[1], [1.0, 0.0])   # the input is left alone
