@@ -3,6 +3,7 @@ name = "nthl"
 version = "0.0.1"
 description = "Solo entry to Kaggle's Name That LLM"
 requires-python = ">=3.11"
+license = "Apache-2.0"
 dependencies = ["numpy", "pandas", "pyarrow"]
 
 [project.optional-dependencies]
