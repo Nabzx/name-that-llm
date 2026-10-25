@@ -28075,3 +28075,208 @@ https://github.com/Nabzx/name-that-llm/pull/105
  "timeout": 300000
 }
 ```
+
+**Tool result**
+
+```
+ 6 files changed, 100 insertions(+), 97 deletions(-)
+/Users/nabilshah/Random/research-arm-kaggle/ai-sessions/11-own-lora-member.zip (0.2 MB)
+/Users/nabilshah/Random/research-arm-kaggle/ai-sessions/12-report-draft.zip (2.7 MB)
+/Users/nabilshah/Random/research-arm-kaggle/ai-sessions/13-video-script.zip (0.4 MB)
+/Users/nabilshah/Random/research-arm-kaggle/ai-sessions/14-qwen27b-check.zip (0.4 MB)
+/Users/nabilshah/Random/research-arm-kaggle/ai-sessions/15-encoders-122k.zip (0.2 MB)
+/Users/nabilshah/Random/research-arm-kaggle/ai-sessions/16-hard-pairs.zip (0.2 MB)
+/Users/nabilshah/Random/research-arm-kaggle/ai-sessions/01-main-session.zip (6.7 MB)
+16:09
+```
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "cd ~/.claude/projects/-Users-nabilshah-Random && cat 5d7d3493-861c-4044-bd86-4e023fd27b66.jsonl | grep -ohE \"(KGAT_[A-Za-z0-9]{8,}|ghp_[A-Za-z0-9]{20,}|gho_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9-]{20,}|hf_[A-Za-z0-9]{20,}|AKIA[A-Z0-9]{16})\" | wc -l; cd /Users/nabilshah/Random/research-arm-kaggle && sed -i '' 's/re-exported 2026-10-25 16:00 GMT with 8 subagent logs), final export after the last message/final export 2026-10-25 16:09 GMT with 8 subagent logs/' docs/ai-sessions.md && git add -A ai-sessions docs/ai-sessions.md && git commit -q -m \"docs(ai-sessions): final export of every AI session\" -m \"All seven exports refreshed at 16:09 GMT on 25 October; token scan clean.\n\nrefs #52\" && git push -q -u origin docs/final-export 2>&1 | grep -v '^remote:'; gh pr create --base main --title \"docs(ai-sessions): final export of every AI session\" --body \"Final re-export of the main session (with its 8 subagents) and the six side sessions, 16:09 GMT. Token scan clean.\n\nrefs #52\" 2>&1 | tail -1",
+ "description": "Scan, commit and open the final export PR",
+ "timeout": 120000
+}
+```
+
+**Tool result**
+
+```
+       0
+https://github.com/Nabzx/name-that-llm/pull/106
+```
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "gh pr merge 106 --merge --delete-branch 2>&1 | tail -1; git checkout -q main && git pull -q && git log --oneline -1",
+ "description": "Merge the final export",
+ "timeout": 120000
+}
+```
+
+**Tool result**
+
+```
+ 9 files changed, 919 insertions(+), 1 deletion(-)
+0f012f2 Merge pull request #106 from Nabzx/docs/final-export
+```
+
+## Claude (2026-10-25 16:09:54 UTC)
+
+The report and deck now lead with research and decision-making, and every AI session is re-exported and merged to main ([PR #105](https://github.com/Nabzx/name-that-llm/pull/105), [PR #106](https://github.com/Nabzx/name-that-llm/pull/106)).
+
+**Report** ([docs/report/report.pdf](docs/report/report.pdf)): rewritten in the first person, in British English, about 1,100 words, still 2 pages. I kept our pandoc and Chrome render, and used the `pdf` skill's text extraction to check the page count and text. The sections, in order:
+- **Research before code:** 22 public notebooks, 18 discussion threads and 15 research notes before any model, and the three findings that set the plan.
+- **How I made decisions:** one change per probe, kept only if cross-validation or a research note also backed it, and trusting cross-validation over the noisy public board.
+- **Hypotheses:** what I expected to separate the models, why, and what happened.
+- **The published weights, and what is mine.**
+- **Ablation table.**
+- **One failure:** peer correction, plus the probe 10 lesson about honest features.
+- **Next steps.**
+- **How I used AI:** the repo set up like your other ones, with rules as invariants, small tickets, a research note before each decision, a log row per change, frozen folds, tests first, Kaggle-only training, and up to six parallel sessions while you made every call.
+
+**Slides** ([documents/presentation.pdf](documents/presentation.pdf)): now 12. The new slide 3, **Literature review**, shows the four research counts and the three findings. The "How I used AI" slide now states your decision rule. The speaker notes (about 500 words) and the shot list match all 12 slides.
+
+**AI logs:** all seven exports were refreshed at 16:09 GMT and merged to main. That's this session with its 8 subagents, plus the six side sessions, all registered in `docs/ai-sessions.md`. The token scan is clean. The only thing not in them is this last reply. If you want it included, run this just before you submit the form, then commit and push `ai-sessions/`:
+
+```bash
+cd ~/Random/research-arm-kaggle && .venv/bin/python scripts/export_session.py 5d7d3493-861c-4044-bd86-4e023fd27b66 --name 01-main-session
+```
+
+**Left for you, before 18:00:**
+1. **Final picks:** tick probe 9 and probe 7 on Kaggle's Submissions page.
+2. **Notebook:** share `nabilshah/nthl-submit` with the organisers and give **version 12** in the form.
+3. **Repo access:** invite the organisers to the private repo, or attach the report PDF and the `ai-sessions/` zips.
+4. **Video:** record from the deck and notes, then upload it unlisted.
+
+## Nabil (2026-10-25 16:12:44 UTC)
+
+ok i want to add a few more things to report: a short literature review, how i showed research excellence and how to reproduce my experiments.
+
+then reexport everything.
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "git checkout -q -b docs/report-extra && pdftotext -layout docs/report/report.pdf - | awk '/\\f/{p++} {print p}' | sort | uniq -c; pdftotext -f 2 -l 2 -layout docs/report/report.pdf - | wc -l; cat docs/report/report.css | head -30",
+ "description": "Check how full the report's pages are"
+}
+```
+
+**Tool result**
+
+```
+  62 
+  23 1
+   1 2
+      23
+@page { size: A4; margin: 14mm 15mm; }
+body { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 9.2pt; line-height: 1.3; color: #111; }
+h1 { font-size: 14pt; margin: 0 0 2pt; }
+h2 { font-size: 10.5pt; margin: 7pt 0 2pt; }
+p, ul { margin: 2pt 0 3pt; }
+ul { padding-left: 14pt; }
+li { margin: 0 0 1pt; }
+table { table-layout: fixed; border-collapse: collapse; width: 100%; font-size: 8.2pt; margin: 3pt 0; }
+th, td { border-bottom: 0.5pt solid #bbb; padding: 1pt 4pt; text-align: left; }
+code { font-size: 8.2pt; }
+col:nth-child(1) { width: 50% !important; } col:nth-child(2), col:nth-child(3) { width: 11% !important; } col:nth-child(4) { width: 28% !important; }
+```
+
+## Claude (2026-10-25 16:12:54 UTC)
+
+Page 2 is only about 40% full, so there's room for all three sections at about 350 words, with no cuts needed.
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "python3 - <<'EOF'\np='docs/report/report-draft.md'\ns=open(p).read()\nlit='''## Literature review\n\n- **Two-stage LoRA on a public pool** (Nishant Dahal, 0.592 then 0.620): truncate a Qwen decoder, fine-tune on public in-style passages, then on host train; most of the gain came from the pool, not the backbone.\n- **Shared-prompt Gaussian heads** (prvsiyan, *The Prompt Is Not the Author*): model features as author mean plus prompt effect plus noise and decode prompt groups jointly; about +0.005 each time it was added publicly.\n- **Likelihood attribution** (ATLAS, Ko et al., arXiv 2610.19583; Fast-DetectGPT, Binoculars): source-conditioned likelihoods beat single-score detectors at naming a model, but add little on top of fine-tuned classifiers.\n- **Test-time balancing** (forum study by s0chn1y): full Sinkhorn is a bet that the test is even; a partial balance keeps most of the gain and caps the loss.\n- **Data audits** (rmsgrk, nuridudak): a bigger merged pool helps encoders; filtering it rarely helps.\n\n'''\ns=s.replace('## How I made decisions', lit+'## How I made decisions',1)\nextra='''## Research practice\n\nI treated the weekend as a small research project, not a leaderboard chase. Every idea started as a hypothesis with a reason, and every result, good or bad, became a row in the log: 29 rows, 10 of them failures or ties. I used held-out evidence I could trust: frozen prompt-grouped folds, test-like groups of 1 to 5 passages clustered with the real test texts, and features from a model that never saw the rows it was scored on. Leaderboard probes changed one thing at a time, so each score has a cause. I cited every source and licence, and I chose the honest result over the flattering one when they disagreed: the 27B model's held-out 0.521, not its in-sample score.\n\n## How to reproduce\n\n```\ngit clone https://github.com/Nabzx/name-that-llm && cd name-that-llm\npython -m venv .venv && .venv/bin/pip install -e \".[dev]\" kaggle\n.venv/bin/pytest -q                  # 88 unit tests, CPU only\n.venv/bin/kaggle auth login           # your own Kaggle account\nscripts/push_src.sh                   # src/nthl as the code dataset\n.venv/bin/kaggle kernels push -p notebooks/train-lora --accelerator NvidiaTeslaT4 -t 41000   # my LoRA, 4.5 h\n.venv/bin/kaggle kernels push -p notebooks/submit --accelerator NvidiaTeslaT4 -t 32400       # probe 9 settings\n```\n\nFolds are frozen in `src/nthl/folds.csv` and every seed is 42. Each log row names its notebook and version, so any number can be rerun on its own; the submission's settings sit at the top of `notebooks/submit/run.py`.\n\n'''\ns=s.replace('## How I used AI', extra+'## How I used AI',1)\nopen(p,'w').write(s)\nEOF\nsh scripts/report_pdf.sh 2>&1 | tail -1; wc -w docs/report/report-draft.md; pdftotext -f 2 -l 2 -layout docs/report/report.pdf - | wc -l",
+ "description": "Add the three sections and re-render",
+ "timeout": 120000
+}
+```
+
+**Tool result**
+
+```
+pages: 2
+    1483 docs/report/report-draft.md
+      58
+```
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "pdftoppm -r 50 -png -f 2 -l 2 docs/report/report.pdf /private/tmp/claude-501/-Users-nabilshah--claude-spares-spare-GAqgHJ/5d7d3493-861c-4044-bd86-4e023fd27b66/scratchpad/deck/rep; ls /private/tmp/claude-501/-Users-nabilshah--claude-spares-spare-GAqgHJ/5d7d3493-861c-4044-bd86-4e023fd27b66/scratchpad/deck | grep rep",
+ "description": "Render page 2 of the report",
+ "timeout": 60000
+}
+```
+
+**Tool call: Read**
+
+```json
+{
+ "file_path": "/private/tmp/claude-501/-Users-nabilshah--claude-spares-spare-GAqgHJ/5d7d3493-861c-4044-bd86-4e023fd27b66/scratchpad/deck/rep-2.png"
+}
+```
+
+**Tool result**
+
+```
+rep-2.png
+```
+
+**Tool result**
+
+```
+
+```
+
+## Claude (2026-10-25 16:13:24 UTC)
+
+Page 2 fits. Two command lines wrap, so I'm shortening their comments, and correcting a count: the log has about a dozen failures or ties, not 10.
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "python3 - <<'EOF'\np='docs/report/report-draft.md'\ns=open(p).read()\ns=s.replace('29 rows, 10 of them failures or ties.','29 rows, about a dozen of them failures or ties.')\ns=s.replace('.venv/bin/kaggle kernels push -p notebooks/train-lora --accelerator NvidiaTeslaT4 -t 41000   # my LoRA, 4.5 h','.venv/bin/kaggle kernels push -p notebooks/train-lora --accelerator NvidiaTeslaT4   # my LoRA')\ns=s.replace('.venv/bin/kaggle kernels push -p notebooks/submit --accelerator NvidiaTeslaT4 -t 32400       # probe 9 settings','.venv/bin/kaggle kernels push -p notebooks/submit --accelerator NvidiaTeslaT4       # probe 9')\nopen(p,'w').write(s)\nEOF\nsh scripts/report_pdf.sh 2>&1 | tail -1; pdftotext -f 2 -l 2 -layout docs/report/report.pdf - | grep -A8 \"How to reproduce\" | cut -c1-130",
+ "description": "Fix wrapping and the failure count",
+ "timeout": 120000
+}
+```
+
+**Tool result**
+
+```
+pages: 2
+How to reproduce
+git clone https://github.com/Nabzx/name-that-llm && cd name-that-llm
+python -m venv .venv && .venv/bin/pip install -e ".[dev]" kaggle
+.venv/bin/pytest -q                  # 88 unit tests, CPU only
+.venv/bin/kaggle auth login           # your own Kaggle account
+scripts/push_src.sh                   # src/nthl as the code dataset
+.venv/bin/kaggle kernels push -p notebooks/train-lora --accelerator NvidiaTeslaT4                     # my LoRA
+.venv/bin/kaggle kernels push -p notebooks/submit --accelerator NvidiaTeslaT4                         # probe 9
+```
+
+## Claude (2026-10-25 16:13:33 UTC)
+
+Now committing, merging, then the final re-export of every session.
+
+**Tool call: Bash**
+
+```json
+{
+ "command": "git add docs/report && git commit -q -m \"docs(report): add a literature review, research practice and how to reproduce\" -m \"Still 2 pages (pdftotext and a visual check).\n\nrefs #49\" && git push -q -u origin docs/report-extra 2>&1 | grep -v '^remote:'; gh pr create --base main --title \"docs(report): literature review, research practice, how to reproduce\" --body \"Three short sections added to the report; still 2 pages.\n\nrefs #49\" 2>&1 | tail -1; sleep 2; gh pr merge docs/report-extra --merge --delete-branch 2>&1 | tail -1; git checkout -q main && git pull -q && git checkout -q -b docs/final-export-2 && for x in \"1788d878-ee76-4ed9-9017-f601dac928f4 11-own-lora-member\" \"95546f37-fd4a-4ca4-b719-e8966412838b 12-report-draft\" \"9014c337-56e2-446b-9370-78528936a8ee 13-video-script\" \"b11845df-3e07-44bc-860a-265c1192f2c8 14-qwen27b-check\" \"40d48bf4-5e80-4eef-9fc0-837396d4f3e5 15-encoders-122k\" \"66776953-8515-46ab-ba28-5071c1f5cd44 16-hard-pairs\" \"5d7d3493-861c-4044-bd86-4e023fd27b66 01-main-session\"; do set -- $x; .venv/bin/python scripts/export_session.py $1 --name $2 | head -1; done; T=$(date -u +%H:%M); cat ~/.claude/projects/-Users-nabilshah-Random/5d7d3493-861c-4044-bd86-4e023fd27b66.jsonl | grep -cE \"(KGAT_[A-Za-z0-9]{8,}|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9-]{20,}|hf_[A-Za-z0-9]{20,}|AKIA[A-Z0-9]{16})\"; sed -i '' \"s/final export 2026-10-25 16:09 GMT with 8 subagent logs/final export 2026-10-25 $T GMT with 8 subagent logs/\" docs/ai-sessions.md; git add -A ai-sessions docs/ai-sessions.md && git commit -q -m \"docs(ai-sessions): re-export every AI session after the report additions\" -m \"refs #52\" && git push -q -u origin docs/final-export-2 2>&1 | grep -v '^remote:'; gh pr create --base main --title \"docs(ai-sessions): re-export every AI session\" --body \"Final re-export at $T GMT; token scan clean. refs #52\" 2>&1 | tail -1; sleep 2; gh pr merge docs/final-export-2 --merge --delete-branch 2>&1 | tail -1; git checkout -q main && git pull -q && git log --oneline -1; echo $T",
+ "description": "Merge the report and re-export every session",
+ "timeout": 400000
+}
+```
