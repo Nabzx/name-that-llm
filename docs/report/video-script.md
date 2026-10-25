@@ -1,6 +1,6 @@
 # Video script: three minutes
 
-One speaker, one screen. Present `documents/presentation.pdf` (or `presentation.html` full screen) and read `documents/speaker-notes.md`, which holds the spoken words for each slide. About 480 words, three minutes at a brisk pace.
+One speaker, one screen. Present `documents/presentation.pdf` (or `presentation.html` full screen) and read `documents/speaker-notes.md`, which holds the spoken words for each slide. About 480 words, three minutes at a brisk pace, 12 slides.
 
 ## Recording
 
@@ -14,14 +14,15 @@ One speaker, one screen. Present `documents/presentation.pdf` (or `presentation.
 |---|---|---|---|
 | 1 Cover | 0:00 | Title | |
 | 2 The task | 0:04 | Four big numbers | |
-| 3 Starting point | 0:18 | Folds, baseline, loader | `docs/experiments/LOG.md` row 1 |
-| 4 Approach | 0:34 | Pipeline diagram | Kaggle notebook `nthl-train-lora` |
-| 5 Hypotheses | 0:52 | Four hypotheses and results | |
-| 6 Leaderboard | 1:12 | Probe table, picks 9 and 7 highlighted | Our Kaggle submissions page |
-| 7 Cross-validation | 1:36 | Bar chart, +0.058 | `LOG.md` row 25 |
-| 8 What didn't work | 1:53 | Peer correction | `LOG.md` row 18 |
-| 9 Leaderboard lesson | 2:08 | 0.631 ties, then 0.637 | `LOG.md` row 29 (probe 10) |
-| 10 How I used AI | 2:22 | Structure, method, reproducible, parallel | `AGENTS.md`, the issue board, `ai-sessions/` |
-| 11 Next | 2:45 | Four next steps | The GitHub repo |
+| 3 Literature review | 0:17 | Research counts, three findings | `docs/research/` on GitHub |
+| 4 Starting point | 0:37 | Folds, baseline, loader | `docs/experiments/LOG.md` row 1 |
+| 5 Approach | 0:50 | Pipeline diagram | Kaggle notebook `nthl-train-lora` |
+| 6 Hypotheses | 1:06 | Four hypotheses and results | |
+| 7 Leaderboard | 1:24 | Probe table, picks 9 and 7 highlighted | Our Kaggle submissions page |
+| 8 Cross-validation | 1:45 | Bar chart, +0.058 | `LOG.md` row 25 |
+| 9 What didn't work | 2:00 | Peer correction | `LOG.md` row 18 |
+| 10 Leaderboard lesson | 2:14 | 0.631 ties, then 0.637 | `LOG.md` row 29 (probe 10) |
+| 11 How I used AI | 2:27 | Structure, method, reproducible, parallel | `AGENTS.md`, the issue board, `ai-sessions/` |
+| 12 Next | 2:47 | Four next steps | The GitHub repo |
 
-If a take runs long, drop the optional cut-aways first, then the second sentence of slide 10.
+If a take runs long, drop the optional cut-aways first, then the second sentence of slide 11.
