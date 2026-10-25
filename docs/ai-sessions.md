@@ -18,7 +18,7 @@ Re-run the export after the last message of a session, and commit the result. An
 
 Before handing in, check each export for anything personal. Session 1 holds Nabil's email and memory notes on unrelated projects. Nothing secret: a scan on 2026-10-25 for Kaggle, GitHub, Hugging Face, OpenAI and AWS token patterns found none. Redacting would make the log incomplete, so decide with Nabil before cutting anything.
 
-Every new session or subagent run gets a row here the moment it starts.
+Every new session or subagent run gets a row here the moment it starts. Nabil used no AI chat outside Claude Code for this entry (confirmed 2026-10-25).
 
 ## Register
 
